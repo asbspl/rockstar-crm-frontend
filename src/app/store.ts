@@ -1,0 +1,1 @@
+export { storeConfig as store } from "../store";

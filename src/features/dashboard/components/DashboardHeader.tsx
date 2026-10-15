@@ -1,0 +1,52 @@
+import { formatDate } from "../../../lib/date";
+
+interface DashboardHeaderProps {
+  title: string;
+  subtitle: string;
+  isRefreshing: boolean;
+  lastUpdated: Date | null;
+  onRefresh: () => void;
+}
+
+function DashboardHeader({
+  title,
+  subtitle,
+  isRefreshing,
+  lastUpdated,
+  onRefresh,
+}: DashboardHeaderProps) {
+  return (
+    <header className="dashboard-header">
+      <div>
+        <p className="dashboard-eyebrow">Operations overview</p>
+        <h1 className="dashboard-title">{title}</h1>
+        <p className="dashboard-subtitle">{subtitle}</p>
+      </div>
+
+      <div className="dashboard-header-tools">
+        <div className="dashboard-date-chip" aria-live="polite">
+          <span className="dashboard-date-label">Today</span>
+          <strong>{formatDate(new Date())}</strong>
+        </div>
+
+        <button
+          type="button"
+          className="dashboard-refresh-button"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          aria-label="Refresh dashboard summary"
+        >
+          {isRefreshing ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
+
+      {lastUpdated ? (
+        <p className="dashboard-last-updated">
+          Last updated: {formatDate(lastUpdated)} {new Date(lastUpdated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </p>
+      ) : null}
+    </header>
+  );
+}
+
+export default DashboardHeader;
