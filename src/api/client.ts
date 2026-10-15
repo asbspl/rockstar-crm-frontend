@@ -3,8 +3,10 @@ import { env } from "../config/env";
 import { attachApiInterceptors } from "./interceptors";
 
 const api = axios.create({
-  baseURL: env.apiBaseUrl,
+  baseURL: env.apiBaseUrl || "",
+  withCredentials: true,
   headers: {
+    Accept: "application/json",
     "Content-Type": "application/json",
   },
 });

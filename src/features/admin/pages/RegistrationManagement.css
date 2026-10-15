@@ -1,0 +1,282 @@
+
+.registration-management {
+  width: 100%;
+  padding: 24px;
+  color: #202938;
+}
+
+.registration-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.registration-page-heading h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.registration-page-heading p,
+.registration-access-panel > p {
+  color: #697586;
+  margin: 0 0 12px;
+}
+
+.registration-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.registration-tabs button,
+.registration-secondary-button {
+  padding: 9px 15px;
+  border: 1px solid #d9dee7;
+  border-radius: 7px;
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+}
+
+.registration-tabs button.active {
+  background: #2957a4;
+  border-color: #2957a4;
+  color: #fff;
+}
+
+.registration-table-wrapper {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #e2e7ef;
+  border-radius: 10px;
+}
+
+.registration-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.registration-table th,
+.registration-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf0f5;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.registration-table th {
+  background: #f7f9fc;
+  color: #526071;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.registration-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.registration-table tbody tr:hover {
+  background: #f8faff;
+}
+
+.registration-clickable-row {
+  cursor: pointer;
+}
+
+.registration-status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #eef2f7;
+  color: #475467;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.registration-status.pending {
+  background: #fff4d6;
+  color: #8a5b00;
+}
+
+.registration-status.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.registration-status.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.registration-status.under_review {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.registration-review-button,
+.registration-approve-button,
+.registration-reject-button {
+  border: 0;
+  border-radius: 6px;
+  padding: 9px 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.registration-review-button {
+  background: #e9efff;
+  color: #2957a4;
+}
+
+.registration-review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
+  align-items: start;
+  gap: 22px;
+}
+
+.registration-information,
+.registration-access-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e2e7ef;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.registration-information h2,
+.registration-access-panel h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.registration-detail-section {
+  padding: 16px 0;
+  border-top: 1px solid #edf0f5;
+}
+
+.registration-detail-section h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+.registration-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.registration-detail-grid dt {
+  margin-bottom: 5px;
+  color: #697586;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.registration-detail-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.registration-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f5;
+  cursor: pointer;
+}
+
+.registration-option input {
+  margin-top: 4px;
+}
+
+.registration-option span {
+  display: grid;
+  gap: 4px;
+}
+
+.registration-option small {
+  color: #697586;
+}
+
+.registration-reason-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.registration-access-panel textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+  padding: 10px;
+  font: inherit;
+}
+
+.registration-review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.registration-approve-button {
+  background: #16803c;
+  color: white;
+}
+
+.registration-reject-button {
+  background: #c62828;
+  color: white;
+}
+
+.registration-review-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.registration-alert {
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 7px;
+}
+
+.registration-alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.registration-alert.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+@media (max-width: 900px) {
+  .registration-review-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .registration-management {
+    padding: 14px;
+  }
+
+  .registration-page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .registration-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
