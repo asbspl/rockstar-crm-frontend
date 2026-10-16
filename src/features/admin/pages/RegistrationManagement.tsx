@@ -11,7 +11,7 @@ import "./RegistrationManagement.css";
 
 const statuses: { label: string; value: RegistrationStatus }[] = [
     { label: "Pending", value: "pending" },
-    { label: "Under Review", value: "under_review" },
+    // { label: "Under Review", value: "under_review" },
     { label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
 ];

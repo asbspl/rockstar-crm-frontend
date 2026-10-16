@@ -6,7 +6,7 @@ import "../styles/auth.css";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Pending",
-  under_review: "Under Review",
+  // under_review: "Under Review",
   approved: "Approved",
   rejected: "Rejected",
   suspended: "Suspended",
