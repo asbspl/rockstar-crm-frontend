@@ -11,19 +11,13 @@ import {
 import "../styles/admin.css";
 
 function ApplicationsPage() {
-  const [applications, setApplications] = useState<
-    AdminApplication[]
-  >([]);
-
+  const [applications, setApplications] = useState<AdminApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [reviewingId, setReviewingId] = useState<
-    string | number | null
-  >(null);
-
+  const [reviewingId, setReviewingId] = useState<string | number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [actionMessage, setActionMessage] = useState<
-    string | null
-  >(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  
 
   const loadApplications = useCallback(async () => {
     setIsLoading(true);
@@ -36,7 +30,7 @@ function ApplicationsPage() {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Unable to load applications.",
+          : "Unable to load applications. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -47,23 +41,34 @@ function ApplicationsPage() {
     void loadApplications();
   }, [loadApplications]);
 
-  async function handleReview(
+  const handleReview = async (
     applicationId: string | number,
     action: ApplicationReviewAction,
-  ) {
-    if (reviewingId !== null) {
-      return;
-    }
+  ) => {
+    if (reviewingId !== null) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} this application?`,
+    );
+
+    if (!confirmed) return;
 
     setReviewingId(applicationId);
     setError(null);
     setActionMessage(null);
 
     try {
-      const result = await reviewApplication(
-        applicationId,
-        action,
-      );
+     const numericId = Number(applicationId);
+
+if (!Number.isSafeInteger(numericId) || numericId <= 0) {
+  throw new Error("Invalid application ID.");
+}
+
+const result = await reviewApplication(Number(applicationId), {
+  decision: action === "approve" ? "approved" : "rejected",
+  roleIds: [],
+  permissionIds: [],
+});
 
       if (!result.ok) {
         throw new Error(
@@ -81,12 +86,12 @@ function ApplicationsPage() {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Unable to review this application.",
+          : "Unable to review this application. Please try again.",
       );
     } finally {
       setReviewingId(null);
     }
-  }
+  };
 
   return (
     <main className="admin-page">
@@ -96,8 +101,8 @@ function ApplicationsPage() {
             <p className="auth-kicker">Admin</p>
             <h1>Applications</h1>
             <p>
-              Review pending registration applications and
-              approve or reject them.
+              Review pending registration applications and approve or
+              reject them.
             </p>
           </div>
 
@@ -156,6 +161,14 @@ function ApplicationsPage() {
                     const isReviewing =
                       reviewingId === application.id;
 
+                    const status = String(
+                      application.status ?? "pending",
+                    ).toLowerCase();
+
+                    const isPending =
+                      status === "pending" ||
+                      status === "under_review";
+
                     return (
                       <tr key={String(application.id)}>
                         <td>
@@ -164,15 +177,12 @@ function ApplicationsPage() {
                         </td>
 
                         <td>
-                          {application.applicantName ??
-                            "Unknown"}
+                          {application.applicantName ?? "Unknown"}
                         </td>
 
                         <td>{application.email || "—"}</td>
 
-                        <td>
-                          {application.status ?? "pending"}
-                        </td>
+                        <td>{application.status ?? "pending"}</td>
 
                         <td>
                           {application.submittedAt
@@ -183,41 +193,43 @@ function ApplicationsPage() {
                         </td>
 
                         <td>
-                          <div className="table-actions">
-                            <button
-                              type="button"
-                              className="mini-button"
-                              disabled={
-                                reviewingId !== null
-                              }
-                              onClick={() =>
-                                void handleReview(
-                                  application.id,
-                                  "approve",
-                                )
-                              }
-                            >
-                              {isReviewing
-                                ? "Processing..."
-                                : "Approve"}
-                            </button>
+                          {isPending ? (
+                            <div className="table-actions">
+                              <button
+                                type="button"
+                                className="mini-button"
+                                disabled={reviewingId !== null}
+                                onClick={() =>
+                                  void handleReview(
+                                    application.id,
+                                    "approve",
+                                  )
+                                }
+                              >
+                                {isReviewing
+                                  ? "Processing..."
+                                  : "Approve"}
+                              </button>
 
-                            <button
-                              type="button"
-                              className="mini-button mini-button--danger"
-                              disabled={
-                                reviewingId !== null
-                              }
-                              onClick={() =>
-                                void handleReview(
-                                  application.id,
-                                  "reject",
-                                )
-                              }
-                            >
-                              Reject
-                            </button>
-                          </div>
+                              <button
+                                type="button"
+                                className="mini-button mini-button--danger"
+                                disabled={reviewingId !== null}
+                                onClick={() =>
+                                  void handleReview(
+                                    application.id,
+                                    "reject",
+                                  )
+                                }
+                              >
+                                {isReviewing
+                                  ? "Processing..."
+                                  : "Reject"}
+                              </button>
+                            </div>
+                          ) : (
+                            <span>Reviewed</span>
+                          )}
                         </td>
                       </tr>
                     );

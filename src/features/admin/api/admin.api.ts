@@ -333,18 +333,20 @@ export async function getApplications(): Promise<AdminApplication[]> {
  * approved and rejected decisions.
  */
 export async function reviewApplication(
-  applicationId: string | number,
-  action: ApplicationReviewAction,
-): Promise<ApplicationReviewResult> {
-  const decision =
-    action === "approve" ? "approved" : "rejected";
-
-  return reviewRegistrationRequest(
-    applicationId,
-    decision,
-    [],
-    [],
+  id: number,
+  payload: {
+    decision: "approved" | "rejected";
+    roleIds: string[];
+    permissionIds: string[];
+    reason?: string;
+  }
+) {
+  const response = await api.patch(
+    `/api/admin/registrations/${id}/review`,
+    payload
   );
+
+  return response.data;
 }
 
 /* =========================================================
