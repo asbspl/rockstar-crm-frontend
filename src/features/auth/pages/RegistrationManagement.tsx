@@ -2,8 +2,15 @@
 import { useCallback, useEffect, useState } from "react";
 import "./RegistrationManagement.css";
 
-const API = "http://localhost:3000/api";
 
+type RegistrationStatus =
+  | "pending"
+  | "under_review"
+  | "approved"
+  | "rejected";
+
+
+const API = "http://localhost:3000/api";
 type Registration = {
   id: number | string;
   full_name: string;
@@ -12,6 +19,8 @@ type Registration = {
   account_status: string;
   created_at: string;
   roles?: Array<{ id: number; name: string }>;
+  permissionIds?: number[];
+  effectivePermissionIds?: number[];
   profile?: Record<string, unknown> | null;
   kyc?: Record<string, unknown> | null;
   bank?: Record<string, unknown> | null;
@@ -116,7 +125,7 @@ export default function RegistrationManagement() {
   const [roleIds, setRoleIds] = useState<number[]>([]);
   const [permissionIds, setPermissionIds] = useState<number[]>([]);
   const [reason, setReason] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState<RegistrationStatus | "all">("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -265,15 +274,22 @@ export default function RegistrationManagement() {
           <p>Review applicant details and control account access.</p>
         </div>
 
+
         <select
           value={status}
-          onChange={(event) => setStatus(event.target.value)}
+          onChange={(event) =>
+            setStatus(
+              event.target.value as RegistrationStatus | "all"
+            )
+          }
           aria-label="Registration status"
         >
+          <option value="all">All registrations</option>
           <option value="pending">Pending requests</option>
           <option value="approved">Approved requests</option>
           <option value="rejected">Rejected requests</option>
         </select>
+
       </header>
 
       {error && <div className="registration-alert error">{error}</div>}
@@ -294,9 +310,8 @@ export default function RegistrationManagement() {
               <button
                 type="button"
                 key={item.id}
-                className={`registration-list-item ${
-                  String(selected?.id) === String(item.id) ? "selected" : ""
-                }`}
+                className={`registration-list-item ${String(selected?.id) === String(item.id) ? "selected" : ""
+                  }`}
                 onClick={() => void openRegistration(item)}
               >
                 <strong>{item.full_name}</strong>

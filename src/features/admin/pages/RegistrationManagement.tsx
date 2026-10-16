@@ -9,12 +9,15 @@ import {
 } from "../api/admin.api";
 import "./RegistrationManagement.css";
 
-const statuses: { label: string; value: RegistrationStatus }[] = [
-    { label: "Pending", value: "pending" },
-    // { label: "Under Review", value: "under_review" },
-    { label: "Approved", value: "approved" },
-    { label: "Rejected", value: "rejected" },
-];
+const statuses: {
+    label: string;
+    value: RegistrationStatus | "all";
+}[] = [
+        { label: "All", value: "all" },
+        { label: "Pending", value: "pending" },
+        { label: "Approved", value: "approved" },
+        { label: "Rejected", value: "rejected" },
+    ];
 
 function formatValue(value: unknown): string {
     if (value === null || value === undefined || value === "") {
@@ -72,7 +75,7 @@ function DetailSection({
 
 export default function RegistrationManagement() {
     const [status, setStatus] =
-        useState<RegistrationStatus>("pending");
+        useState<RegistrationStatus | "all">("all");
     const [registrations, setRegistrations] =
         useState<Registration[]>([]);
     const [selected, setSelected] =
@@ -82,6 +85,8 @@ export default function RegistrationManagement() {
     const [permissions, setPermissions] = useState<AccessOption[]>([]);
     const [roleIds, setRoleIds] = useState<number[]>([]);
     const [permissionIds, setPermissionIds] = useState<number[]>([]);
+    const [effectivePermissionIds, setEffectivePermissionIds] =
+        useState<number[]>([]);
     const [decisionReason, setDecisionReason] = useState("");
 
     const [loading, setLoading] = useState(false);
@@ -94,7 +99,10 @@ export default function RegistrationManagement() {
         setError("");
 
         try {
-            const result = await adminRegistrationApi.list(status);
+            const result = await adminRegistrationApi.list(
+                status === "all" ? undefined : status
+            );
+
             setRegistrations(result.data || []);
         } catch (err) {
             setError(
@@ -154,10 +162,19 @@ export default function RegistrationManagement() {
             setSelected(details);
 
             setRoleIds(
-                (details.roles || []).map((role: AccessOption) => Number(role.id))
+                (details.roles ?? []).map((role) => Number(role.id))
             );
 
-            setPermissionIds([]);
+            setPermissionIds(
+                (details.permissionIds ?? []).map((id) => Number(id))
+            );
+
+            setEffectivePermissionIds(
+                (details.effectivePermissions ?? []).map(
+                    (permission) => Number(permission.id)
+                )
+            );
+
             setDecisionReason("");
         } catch (err) {
             setError(
@@ -436,7 +453,11 @@ export default function RegistrationManagement() {
                                 >
                                     <input
                                         type="checkbox"
-                                        checked={permissionIds.includes(permission.id)}
+                                        checked={
+                                            permissionIds.includes(permission.id) ||
+                                            effectivePermissionIds.includes(permission.id)
+                                        }
+                                        
                                         onChange={() =>
                                             toggleId(
                                                 permission.id,

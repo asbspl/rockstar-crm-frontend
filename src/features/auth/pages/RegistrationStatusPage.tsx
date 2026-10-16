@@ -4,6 +4,7 @@ import { getRegistrationStatus } from "../api/auth.api";
 import type { RegistrationStatusRecord } from "../types/auth.types";
 import "../styles/auth.css";
 
+
 const STATUS_LABELS: Record<string, string> = {
   pending: "Pending",
   // under_review: "Under Review",
