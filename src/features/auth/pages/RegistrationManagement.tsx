@@ -15,6 +15,7 @@ type Registration = {
   id: number | string;
   full_name: string;
   email: string;
+  phone?: string | null;
   status: string;
   account_status: string;
   created_at: string;

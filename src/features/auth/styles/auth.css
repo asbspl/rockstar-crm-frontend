@@ -255,10 +255,67 @@
   padding: 0 20px 20px;
 }
 
+/* Registration form dropdowns */
+.auth-form .field-group select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #212529;
+  font: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form .field-group select:focus {
+  border-color: #2957a4;
+  box-shadow: 0 0 0 3px rgba(41, 87, 164, 0.15);
+}
+
+.auth-form .field-group select:disabled {
+  background-color: #f1f3f5;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.css-13cymwt-control{
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.css-16xfy0z-control{
+  padding: 7px;
+    border-radius: 10px;
+    margin-top: 1px;
+}
+
+/* State and City searchable dropdown */
+.field-group .react-select__control {
+  min-height: 44px;
+  margin-top: 31px;
+  padding: 7px;
+  border-radius: 10px !important;
+}
+
+/* Dropdown menu */
+.field-group .react-select__menu {
+  z-index: 99999;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.field-group .react-select__menu-portal {
+  z-index: 99999 !important;
 }
 
 .field-group {

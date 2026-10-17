@@ -165,7 +165,7 @@ function ProfilePage() {
 
           <Link
             className="account-primary-link"
-            to="/profile/change-password"
+            to="/forgot-password"
           >
             Change Password
           </Link>
@@ -198,11 +198,6 @@ function ProfilePage() {
           </div>
 
           <div className="account-detail">
-            <span>User ID</span>
-            <strong>{user.id}</strong>
-          </div>
-
-          <div className="account-detail">
             <span>Account status</span>
             <strong>{user.status || "Not available"}</strong>
           </div>
@@ -219,7 +214,7 @@ function ProfilePage() {
           <div className="account-actions">
             <Link
               className="account-primary-link"
-              to="/profile/change-password"
+              to="/forgot-password"
             >
               Change Password
             </Link>

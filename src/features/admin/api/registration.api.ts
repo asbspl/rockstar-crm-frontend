@@ -6,6 +6,7 @@ export type RegistrationStatus = "pending" | "approved" | "rejected";
 export interface Registration {
   id: number;
   full_name: string;
+  phone?: string | null;
   email: string;
   status: string;
   account_status: RegistrationStatus;
