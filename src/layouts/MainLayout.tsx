@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
+import ProfileMenu from "..//features/auth/components/ProfileMenu.tsx";
 import "./main-layout.css";
 
 const navigation = [
@@ -109,10 +109,7 @@ function MainLayout() {
           </div>
 
           <div className="crm-topbar-right">
-            <span className="crm-admin-label">
-              <i className="bi bi-shield-check me-2" />
-              Admin Panel
-            </span>
+            <ProfileMenu />
           </div>
         </header>
 

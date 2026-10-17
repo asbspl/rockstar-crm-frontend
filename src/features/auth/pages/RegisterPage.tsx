@@ -17,12 +17,17 @@ import {
 } from "../schemas/registration.schema";
 import "../styles/auth.css";
 
+import { State, City } from "country-state-city";
+import Select from "react-select";
+
 const initialFiles = {
   panCard: null as File | null,
   aadhaarCard: null as File | null,
 };
 
 type SectionKey = "personal" | "kyc" | "bank" | "terms";
+const indianStates = State.getStatesOfCountry("IN");
+
 
 function RegisterPage() {
   const [form, setForm] = useState<RegistrationFormState>(
@@ -48,6 +53,13 @@ function RegisterPage() {
     bank: true,
     terms: true,
   });
+  const selectedState = indianStates.find(
+    (state) => state.name === form.state,
+  );
+
+  const indianCities = selectedState
+    ? City.getCitiesOfState("IN", selectedState.isoCode)
+    : [];
 
   const statusSummary = useMemo(
     () => ({
@@ -444,40 +456,92 @@ function RegisterPage() {
                       </span>
                     )}
                   </div>
-
-                  <div className="field-group">
-                    <label htmlFor="state">State *</label>
-                    <input
-                      id="state"
-                      name="state"
-                      autoComplete="address-level1"
-                      value={form.state}
-                      onChange={(event) =>
-                        updateField("state", event.target.value)
-                      }
-                    />
-                    {errors.state && (
-                      <span className="field-error">
-                        {errors.state}
-                      </span>
-                    )}
+                  <div className="field-group ">
+                   <label htmlFor="state">state *</label>
+                  <Select
+                    inputId="state"
+                    className="state-dropdown"
+                    name="state"
+                    options={indianStates.map((state) => ({
+                      value: state.name,
+                      label: state.name,
+                    }))}
+                    value={
+                      indianStates
+                        .filter((state) => state.name === form.state)
+                        .map((state) => ({
+                          value: state.name,
+                          label: state.name,
+                        }))[0] ?? null
+                    }
+                    onChange={(option) => {
+                      updateField("state", option?.value ?? "");
+                      updateField("city", "");
+                    }}
+                    placeholder="Type to search state..."
+                    isSearchable
+                    isClearable
+                    menuPortalTarget={document.body}
+                    menuPosition="fixed"
+                    styles={{
+                      menuPortal: (base) => ({
+                        ...base,
+                        zIndex: 99999,
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        zIndex: 99999,
+                      }),
+                    }}
+                    noOptionsMessage={() => "No state found"}
+                  />
                   </div>
 
-                  <div className="field-group">
+                  <div className="field-group ">
                     <label htmlFor="city">City *</label>
-                    <input
-                      id="city"
+
+                    <Select
+                      inputId="city"
                       name="city"
-                      autoComplete="address-level2"
-                      value={form.city}
-                      onChange={(event) =>
-                        updateField("city", event.target.value)
+                      className="city-dropdown"
+                      options={indianCities.map((city) => ({
+                        value: city.name,
+                        label: city.name,
+                      }))}
+                      value={
+                        indianCities
+                          .filter((city) => city.name === form.city)
+                          .map((city) => ({
+                            value: city.name,
+                            label: city.name,
+                          }))[0] ?? null
                       }
+                      onChange={(option) => {
+                        updateField("city", option?.value ?? "");
+                      }}
+                      placeholder={
+                        form.state ? "Type to search city..." : "Select state first"
+                      }
+                      isSearchable
+                      isClearable
+                      isDisabled={!form.state}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      styles={{
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 99999,
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          zIndex: 99999,
+                        }),
+                      }}
+                      noOptionsMessage={() => "No city found"}
                     />
+
                     {errors.city && (
-                      <span className="field-error">
-                        {errors.city}
-                      </span>
+                      <span className="field-error">{errors.city}</span>
                     )}
                   </div>
 

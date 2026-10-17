@@ -14,6 +14,7 @@ export type RegistrationStatus =
 export interface AccessOption {
   id: number;
   name: string;
+  key?: string;
   description?: string | null;
   module?: string | null;
   code?: string | null;
@@ -48,6 +49,8 @@ export interface Registration {
 
 export interface RegistrationDetails extends Registration {
   roles?: AccessOption[];
+  effectivePermissions?: AccessOption[];
+  permissionIds?: number[];
   permissions?: AccessOption[];
   profile?: Record<string, unknown> | null;
   kyc?: Record<string, unknown> | null;
@@ -158,12 +161,14 @@ function extractArray<T>(
    REGISTRATION MANAGEMENT API
 ========================================================= */
 
+
+
 export async function getRegistrationRequests(
-  status: RegistrationStatus = "pending",
+  status?: RegistrationStatus,
 ): Promise<Registration[]> {
-  const response = await api.get(
-    `/api/admin/registrations?status=${encodeURIComponent(status)}`,
-  );
+  const response = await api.get("/api/admin/registrations", {
+    params: status ? { status } : {},
+  });
 
   const payload = unwrapData<unknown>(response.data);
 
@@ -172,6 +177,8 @@ export async function getRegistrationRequests(
     "applications",
   ]);
 }
+
+
 
 export async function getRegistrationDetails(
   registrationId: string | number,
@@ -255,11 +262,11 @@ export async function reviewRegistrationRequest(
 }
 
 export const adminRegistrationApi = {
-  async list(status: RegistrationStatus = "pending") {
-    return {
-      data: await getRegistrationRequests(status),
-    };
-  },
+async list(status?: RegistrationStatus) {
+  return {
+    data: await getRegistrationRequests(status),
+  };
+},
 
   async get(registrationId: string | number) {
     return {
@@ -333,18 +340,20 @@ export async function getApplications(): Promise<AdminApplication[]> {
  * approved and rejected decisions.
  */
 export async function reviewApplication(
-  applicationId: string | number,
-  action: ApplicationReviewAction,
-): Promise<ApplicationReviewResult> {
-  const decision =
-    action === "approve" ? "approved" : "rejected";
-
-  return reviewRegistrationRequest(
-    applicationId,
-    decision,
-    [],
-    [],
+  id: number,
+  payload: {
+    decision: "approved" | "rejected";
+    roleIds: string[];
+    permissionIds: string[];
+    reason?: string;
+  }
+) {
+  const response = await api.patch(
+    `/api/admin/registrations/${id}/review`,
+    payload
   );
+
+  return response.data;
 }
 
 /* =========================================================
@@ -378,12 +387,15 @@ export async function updateUserStatus(
 /**
  * Assign roles to a user.
  */
+/**
+ * Replace roles for an already-approved user.
+ */
 export async function assignRole(
   userId: string | number,
   roles: string[],
 ): Promise<void> {
-  await api.patch(
-    `/api/admin/users/${encodeURIComponent(String(userId))}/roles`,
+  await api.put(
+    `/api/users/${encodeURIComponent(String(userId))}/roles`,
     { roles },
   );
 }

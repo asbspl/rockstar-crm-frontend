@@ -31,6 +31,8 @@ function extractData<T>(response: { data?: unknown }): T {
   return payload as T;
 }
 
+
+
 function extractSessionFromPayload(value: unknown): AuthSession | null {
   if (!value || typeof value !== "object") {
     return null;
@@ -242,22 +244,37 @@ export async function logoutSession(): Promise<void> {
   }
 }
 
-export async function requestPasswordReset(email: string): Promise<{ requested: boolean }> {
-  const response = await api.post<AuthApiResponse<{ requested?: boolean }>>("/api/auth/forgot-password", { email });
-  const payload = extractData<{ requested?: boolean }>(response);
 
-  return { requested: payload?.requested ?? true };
+export async function requestPasswordReset(
+  email: string
+): Promise<{ requested: boolean }> {
+  const response = await api.post<AuthApiResponse<{ requested?: boolean }>>(
+    "/api/auth/request-password-reset",
+    { email: email.trim() }
+  );
+
+  const payload = extractData<{ requested?: boolean }>(response);
+  console.log("payload ", payload);
+  return {
+    requested: payload?.requested ?? true,
+  };
 }
 
-export async function resetPassword(token: string, password: string): Promise<{ reset: boolean }> {
-  const response = await api.post<AuthApiResponse<{ reset?: boolean }>>("/api/auth/reset-password", {
-    token,
-    password,
-    newPassword: password,
-  });
+export async function resetPassword(
+  token: string,
+  password: string
+): Promise<{ reset: boolean; message: string }> {
+  const response = await api.post<AuthApiResponse<{ reset?: boolean }>>(
+    "/api/auth/reset-password",
+    { token, password }
+  );
 
-  const payload = extractData<{ reset?: boolean }>(response);
-  return { reset: payload?.reset ?? true };
+  const body = response.data as { message?: string } | undefined;
+
+  return {
+    reset: true,
+    message: body?.message ?? "Password reset successful",
+  };
 }
 
 export async function getRegistrationStatus(): Promise<RegistrationStatusRecord> {
@@ -283,3 +300,5 @@ export async function changePassword(currentPassword: string, newPassword: strin
   const payload = extractData<{ changed?: boolean }>(response);
   return { changed: payload?.changed ?? true };
 }
+
+

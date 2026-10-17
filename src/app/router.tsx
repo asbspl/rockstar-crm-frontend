@@ -8,7 +8,7 @@ import LoginPage from "../features/auth/pages/LoginPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
 import RegistrationStatusPage from "../features/auth/pages/RegistrationStatusPage";
 import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
-
+import ProfilePage from "../features/auth/pages/ProfilePage";
 import ApplicationsPage from "../features/admin/pages/ApplicationsPage";
 import RegistrationManagement from "../features/admin/pages/RegistrationManagement";
 import UserManagementPage from "../features/admin/pages/UserManagementPage";
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
   },
 
   // Dashboard routes
-  {
+   {
     element: <ProtectedRoute requiredPermissions={["dashboard.read"]} />,
     children: [
       {
@@ -56,6 +56,18 @@ const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: <DashboardPage />,
+          },
+          {
+            path: "/profile",
+            element: <ProfilePage />,
+          },
+          {
+            path: "/profile/permissions",
+            element: <ProfilePage />,
+          },
+          {
+            path: "/profile/settings",
+            element: <ProfilePage />,
           },
         ],
       },
