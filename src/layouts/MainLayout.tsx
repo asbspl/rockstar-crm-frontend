@@ -1,38 +1,96 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import ProfileMenu from "..//features/auth/components/ProfileMenu.tsx";
+import ProfileMenu from "../features/auth/components/ProfileMenu.tsx";
 import "./main-layout.css";
 
-const navigation = [
+type MenuItem = {
+  label: string;
+  path: string;
+  icon: string;
+};
+
+type NavigationItem =
+  | {
+      label: string;
+      path: string;
+      icon: string;
+      type: "link";
+    }
+  | {
+      label: string;
+      icon: string;
+      type: "menu";
+      items: MenuItem[];
+    };
+
+const navigation: NavigationItem[] = [
   {
     label: "Dashboard",
     path: "/dashboard",
-    icon: "bi-speedometer2",
+    icon: "bi-grid-1x2-fill",
+    type: "link",
+  },
+  {
+    label: "Settings",
+    icon: "bi-sliders",
+    type: "menu",
+    items: [
+      { label: "Manage Company", path: "/settings/companies", icon: "bi-buildings" },
+      { label: "Manage Employee", path: "/settings/employees", icon: "bi-person-badge" },
+      { label: "Manage Driver", path: "/settings/drivers", icon: "bi-truck-front" },
+      { label: "Manage Contractor", path: "/settings/contractors", icon: "bi-people-fill" },
+      { label: "Manage State", path: "/settings/states", icon: "bi-map" },
+      { label: "Manage City", path: "/settings/cities", icon: "bi-buildings-fill" },
+    ],
   },
   {
     label: "Customers",
-    path: "/admin/users",
     icon: "bi-people",
+    type: "menu",
+    items: [
+      { label: "Manage Client", path: "/settings/clients", icon: "bi-person-lines-fill" },
+      { label: "Manage Customer", path: "/settings/customers", icon: "bi-person-heart" },
+      { label: "Manage Location", path: "/settings/locations", icon: "bi-geo-alt" },
+      { label: "Manage Site", path: "/settings/sites", icon: "bi-pin-map" },
+      { label: "Manage Quotation", path: "/settings/quotations", icon: "bi-file-earmark-text" },
+      { label: "Manage Order", path: "/settings/orders", icon: "bi-bag-check" },
+      { label: "Manage Visit", path: "/settings/visits", icon: "bi-calendar2-week" },
+      { label: "Manage Queries", path: "/settings/queries", icon: "bi-chat-square-dots" },
+    ],
+  },
+  {
+    label: "Product",
+    icon: "bi-box-seam",
+    type: "menu",
+    items: [
+      { label: "Manage Product", path: "/settings/products", icon: "bi-boxes" },
+      { label: "Manage Rate Matrix", path: "/settings/rate-matrix", icon: "bi-calculator" },
+      { label: "Manage Coupon", path: "/settings/coupons", icon: "bi-ticket-perforated" },
+    ],
   },
   {
     label: "Registration Requests",
     path: "/admin/registrations",
-    icon: "bi-person-check",
+    icon: "bi-person-vcard",
+    type: "link",
   },
   {
     label: "Applications",
     path: "/admin/applications",
-    icon: "bi-clipboard-check",
-  },
-  {
-    label: "Settings",
-    path: "/admin/settings",
-    icon: "bi-gear",
+    icon: "bi-clipboard2-check",
+    type: "link",
   },
 ];
 
 function MainLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const closeSidebar = () => setMenuOpen(false);
+
+  const toggleMenu = (label: string) => {
+    setExpanded((current) => (current === label ? null : label));
+  };
 
   return (
     <div className="crm-layout">
@@ -40,8 +98,8 @@ function MainLayout() {
         <button
           type="button"
           className="crm-sidebar-backdrop"
-          aria-label="Close sidebar"
-          onClick={() => setMenuOpen(false)}
+          aria-label="Close navigation"
+          onClick={closeSidebar}
         />
       )}
 
@@ -51,42 +109,107 @@ function MainLayout() {
         <Link
           to="/dashboard"
           className="crm-brand"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => {
+            closeSidebar();
+            setExpanded(null);
+          }}
         >
           <span className="crm-brand-icon">
-            <i className="bi bi-layers-fill" />
+            <i className="bi bi-stars" />
           </span>
 
-          <span>
+          <span className="crm-brand-text">
             <strong>ROCKSTAR</strong>
-            <small>CRM MANAGEMENT</small>
+            <small>CRM PLATFORM</small>
           </span>
         </Link>
 
-        <div className="crm-nav-heading">WORKSPACE</div>
+        <div className="crm-workspace-label">WORKSPACE</div>
 
-        <nav className="crm-navigation">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `crm-nav-link ${isActive ? "active" : ""}`
-              }
-            >
-              <i className={`bi ${item.icon}`} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+        <nav className="crm-navigation" aria-label="Main navigation">
+          {navigation.map((item) => {
+            if (item.type === "link") {
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {
+                    closeSidebar();
+                    setExpanded(null);
+                  }}
+                  className={({ isActive }) =>
+                    `crm-nav-link ${isActive ? "active" : ""}`
+                  }
+                >
+                  <i className={`bi ${item.icon}`} />
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            }
+
+            const isOpen = expanded === item.label;
+
+            return (
+              <section className="crm-menu-section" key={item.label}>
+                <button
+                  type="button"
+                  className="crm-menu-heading"
+                  onClick={() => toggleMenu(item.label)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="crm-menu-heading-left">
+                    <span className="crm-menu-icon">
+                      <i className={`bi ${item.icon}`} />
+                    </span>
+                    <span>{item.label}</span>
+                  </span>
+
+                  <i
+                    className={`bi ${
+                      isOpen ? "bi-chevron-down" : "bi-chevron-right"
+                    } crm-chevron`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div className="crm-submenu">
+                    {item.items.map((subItem) => (
+                      <NavLink
+                        key={subItem.path}
+                        to={subItem.path}
+                        onClick={closeSidebar}
+                        className={({ isActive }) =>
+                          `crm-submenu-link ${isActive ? "active" : ""}`
+                        }
+                      >
+                        <i className={`bi ${subItem.icon}`} />
+                        <span>{subItem.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </nav>
+
+        <div className="crm-sidebar-help">
+          <span className="crm-help-icon">
+            <i className="bi bi-lightbulb" />
+          </span>
+          <div>
+            <strong>Need a hand?</strong>
+            <small>You're doing great!</small>
+          </div>
+        </div>
 
         <div className="crm-sidebar-footer">
           <div className="crm-user-avatar">SA</div>
           <div className="crm-user-info">
             <strong>Administrator</strong>
-            <small>CRM Management</small>
+            <small>Workspace admin</small>
           </div>
+          <i className="bi bi-shield-check crm-admin-shield" />
         </div>
       </aside>
 
@@ -103,12 +226,19 @@ function MainLayout() {
           </button>
 
           <div className="crm-breadcrumb">
-            <span>Rockstar CRM</span>
+            <span className="crm-breadcrumb-home">
+              <i className="bi bi-house-door" />
+              Rockstar CRM
+            </span>
             <i className="bi bi-chevron-right" />
             <strong>Workspace</strong>
           </div>
 
           <div className="crm-topbar-right">
+            <span className="crm-topbar-status">
+              <span />
+              Workspace active
+            </span>
             <ProfileMenu />
           </div>
         </header>
@@ -118,7 +248,8 @@ function MainLayout() {
         </main>
 
         <footer className="crm-footer">
-          Rockstar CRM · Administration
+          <span>© Rockstar CRM</span>
+          <span>Built for better business management</span>
         </footer>
       </div>
     </div>

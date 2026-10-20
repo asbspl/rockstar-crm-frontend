@@ -1,4 +1,125 @@
+.permission-header{
+  margin-bottom:20px;
+}
 
+.permission-header h2{
+  margin:0;
+  font-size:22px;
+  color:#1f2937;
+}
+
+.permission-header p{
+  margin-top:6px;
+  color:#64748b;
+}
+
+.role-card,
+.permission-card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.role-chip-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:15px;
+}
+
+.role-chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 16px;
+  border:1px solid #dbeafe;
+  border-radius:999px;
+  background:#eff6ff;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.role-chip:hover{
+  background:#dbeafe;
+}
+
+.permission-table-wrapper{
+  overflow:auto;
+  margin-top:15px;
+}
+
+.permission-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:780px;
+}
+
+.permission-table thead{
+  background:#2957a4;
+  color:#fff;
+}
+
+.permission-table th,
+.permission-table td{
+  border:1px solid #e5e7eb;
+  padding:12px;
+  vertical-align:top;
+}
+
+.permission-table tbody tr:nth-child(even){
+  background:#fafafa;
+}
+
+.module-title{
+  font-weight:600;
+  color:#1f2937;
+}
+
+.permission-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.permission-pill{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f3f4f6;
+  border:1px solid #d1d5db;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.permission-pill:hover{
+  background:#e5e7eb;
+}
+
+.permission-disabled{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f9fafb;
+  border:1px dashed #d1d5db;
+  color:#9ca3af;
+  font-size:13px;
+}
+
+.permission-empty{
+  color:#64748b;
+}
+
+.permission-summary{
+  margin-top:16px;
+  padding:12px;
+  background:#eff6ff;
+  border-radius:10px;
+  color:#2957a4;
+  font-weight:600;
+}
 .registration-management {
   width: 100%;
   padding: 24px;
@@ -134,8 +255,7 @@
 }
 
 .registration-review-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
+
   align-items: start;
   gap: 22px;
 }
@@ -279,4 +399,39 @@
   .registration-detail-grid {
     grid-template-columns: 1fr;
   }
+}
+
+
+
+.registration-access-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.registration-update-access-button {
+  padding: 10px 16px;
+  border: 1px solid #2957a4;
+  border-radius: 7px;
+  background: #2957a4;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.registration-update-access-button:hover {
+  background: #1e4384;
+}
+
+.registration-access-panel input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.registration-access-note {
+  margin: 12px 0;
+  color: #697586;
+  font-size: 13px;
 }

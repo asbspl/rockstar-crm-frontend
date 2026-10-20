@@ -261,7 +261,58 @@ export async function reviewRegistrationRequest(
   return { ok: true };
 }
 
+export async function updateUserRoles(
+  userId: number | string,
+  roleIds: number[],
+) {
+  const response = await api.put(`/api/users/${userId}/roles`, {
+    roles: roleIds.map(String),
+  });
+
+  return response.data;
+}
+
 export const adminRegistrationApi = {
+
+  
+  async updateAccess(
+    userId: string | number,
+    roleIds: number[],
+  ): Promise<RegistrationReviewResult> {
+    const response = await api.put(
+      `/api/users/${encodeURIComponent(String(userId))}/roles`,
+      {
+        roleIds,
+      },
+    );
+
+    const result = unwrapData<unknown>(response.data);
+
+    if (result !== null && typeof result === "object") {
+      const body = result as {
+        success?: boolean;
+        ok?: boolean;
+        message?: string;
+      };
+
+      if (body.success === false || body.ok === false) {
+        return {
+          ok: false,
+          message: body.message ?? "Unable to update roles.",
+        };
+      }
+
+      return {
+        ok: true,
+        message: body.message ?? "Roles updated successfully.",
+      };
+    }
+
+    return { ok: true };
+  },
+
+
+
 async list(status?: RegistrationStatus) {
   return {
     data: await getRegistrationRequests(status),

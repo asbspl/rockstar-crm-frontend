@@ -4,7 +4,6 @@ import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
-import axios from "axios";
 import { storageService } from "../services/storage.service";
 import { normalizeApiError } from "./error-handler";
 
@@ -28,7 +27,9 @@ function saveToken(token: string): void {
   storageService.set(ACCESS_TOKEN_KEY, token);
 }
 
-export function attachApiInterceptors(client: AxiosInstance): void {
+export function attachApiInterceptors(
+  client: AxiosInstance,
+): void {
   client.interceptors.request.use((config) => {
     const token = getStoredToken();
 
@@ -53,10 +54,9 @@ export function attachApiInterceptors(client: AxiosInstance): void {
       const requestUrl = originalRequest?.url ?? "";
 
       const isAuthRequest =
-        requestUrl.includes("/auth/login") ||
-        requestUrl.includes("/auth/register") ||
-        requestUrl.includes("/auth/refresh") ||
-        requestUrl.includes("/auth/logout");
+        /\/auth\/(login|register|refresh|logout)(?:[/?]|$)/i.test(
+          requestUrl,
+        );
 
       if (
         error.response?.status !== 401 ||
@@ -71,9 +71,18 @@ export function attachApiInterceptors(client: AxiosInstance): void {
 
       try {
         if (!refreshPromise) {
-          refreshPromise = axios
+          const baseURL = client.defaults.baseURL ?? "";
+
+          // Supports either:
+          // http://localhost:3000/api
+          // http://localhost:3000
+          const refreshPath = /\/api\/?$/.test(baseURL)
+            ? "/auth/refresh"
+            : "/api/auth/refresh";
+
+          refreshPromise = client
             .post<RefreshResponse>(
-              `${client.defaults.baseURL ?? ""}/api/auth/refresh`,
+              refreshPath,
               {},
               { withCredentials: true },
             )
@@ -82,7 +91,7 @@ export function attachApiInterceptors(client: AxiosInstance): void {
 
               if (!token) {
                 throw new Error(
-                  "The refresh endpoint did not return an access token.",
+                  "Refresh endpoint did not return an access token.",
                 );
               }
 
@@ -96,16 +105,22 @@ export function attachApiInterceptors(client: AxiosInstance): void {
 
         const newToken = await refreshPromise;
 
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.set(
+          "Authorization",
+          `Bearer ${newToken}`,
+        );
 
         return client(originalRequest);
       } catch (refreshError) {
         storageService.remove(ACCESS_TOKEN_KEY);
 
-        // Let the existing authentication context handle session expiry.
-        window.dispatchEvent(new CustomEvent("auth:session-expired"));
+        window.dispatchEvent(
+          new CustomEvent("auth:session-expired"),
+        );
 
-        return Promise.reject(normalizeApiError(refreshError));
+        return Promise.reject(
+          normalizeApiError(refreshError),
+        );
       }
     },
   );
