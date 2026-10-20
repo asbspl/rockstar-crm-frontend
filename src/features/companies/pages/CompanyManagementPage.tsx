@@ -880,7 +880,7 @@ function CompanyManagementPage() {
                                     </option>
                                 ))}
                             </select>
-                            entries
+                            Entries
                         </label>
 
                         <label className="company-search">

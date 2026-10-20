@@ -409,3 +409,38 @@
     font-weight: normal;
 }
 
+
+
+.company-status-select {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.company-status-select.company-status-active {
+    color: #166534;
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+.company-status-select.company-status-inactive {
+    color: #991b1b;
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.company-status-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.company-status-saving {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #6b7280;
+}

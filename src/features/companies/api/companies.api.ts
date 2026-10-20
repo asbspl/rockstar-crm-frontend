@@ -81,3 +81,5 @@ export async function deleteCompany(id: number) {
   );
   return response.data;
 }
+
+
