@@ -30,125 +30,117 @@ export interface Employee {
 }
 
 export interface EmployeeForm {
-    employee_code: string;
-    employee_name: string;
-    phone: string;
-    email: string;
-    address_line1: string;
-    address_line2: string;
-    country: string;
-    state: string;
-    city: string;
-    pin_code: string;
-    location: string;
-    joining_date: string;
-    resignation_date: string;
-    status: EmployeeStatus;
-    profile_picture: File | null;
-    last_salary_slip: File | null;
-    pan_card: File | null;
-    aadhar_card: File | null;
-    resume: File | null;
-    account_statement: File | null;
-    experience_certificate: File | null;
-    allotment_list: File | null;
+  employee_code: string;
+  employee_name: string;
+  phone: string;
+  email: string;
+  address_line1: string;
+  address_line2: string;
+  country: string;
+  state: string;
+  city: string;
+  pin_code: string;
+  location: string;
+  joining_date: string;
+  resignation_date: string;
+  status: EmployeeStatus;
+  profile_picture: File | null;
+  last_salary_slip: File | null;
+  pan_card: File | null;
+  aadhar_card: File | null;
+  resume: File | null;
+  account_statement: File | null;
+  experience_certificate: File | null;
+  allotment_list: File | null;
 }
 
 interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
+  success: boolean;
+  message: string;
+  data: T;
 }
 
 export interface EmployeeListResponse {
-    employees: Employee[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
+  employees: Employee[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 function toFormData(form: EmployeeForm): FormData {
-    const data = new FormData();
+  const data = new FormData();
 
-    Object.entries(form).forEach(([key, value]) => {
-        if (value instanceof File) {
-            data.append(key, value);
-        } else if (typeof value === "string" && value.trim() !== "") {
-            data.append(key, value);
-        }
-    });
+  Object.entries(form).forEach(([key, value]) => {
+    if (value instanceof File) {
+      data.append(key, value);
+    } else if (typeof value === "string" && value.trim() !== "") {
+      data.append(key, value);
+    }
+  });
 
-    return data;
+  return data;
 }
 
 export async function getEmployees(params: {
-    page: number;
-    limit: number;
-    search?: string;
-    status?: string;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
 }): Promise<EmployeeListResponse> {
-    const response = await apiClient.get<ApiResponse<EmployeeListResponse>>(
-        "api/employees",
-        { params }
-    );
+  const response = await apiClient.get<ApiResponse<EmployeeListResponse>>(
+    "api/employees",
+    { params }
+  );
 
-    return response.data.data;
+  return response.data.data;
 }
 
 export async function getEmployee(id: number): Promise<Employee> {
-    const response = await apiClient.get<ApiResponse<Employee>>(
-        `/employees/${id}`
-    );
+  const response = await apiClient.get<ApiResponse<Employee>>(
+    `api/employees/${id}`
+  );
 
-    return response.data.data;
+  return response.data.data;
 }
 
 export async function createEmployee(
-    form: EmployeeForm
+  form: EmployeeForm
 ): Promise<Employee> {
-    const response = await apiClient.post<ApiResponse<Employee>>(
-        "api/employees",
-        toFormData(form)
-    );
+  const response = await apiClient.post<ApiResponse<Employee>>(
+    "api/employees",
+    toFormData(form)
+  );
 
-    return response.data.data;
+  return response.data.data;
 }
 
 export async function updateEmployee(
-    id: number,
-    form: EmployeeForm
-) {
-    const formData = new FormData();
+  id: number,
+  form: EmployeeForm
+): Promise<Employee> {
+  const response = await apiClient.put<ApiResponse<Employee>>(
+    `api/employees/${id}`,
+    toFormData(form)
+  );
 
-    Object.entries(form).forEach(([key, value]) => {
-        if (value !== null && value !== "") {
-            formData.append(key, value);
-        }
-    });
-
-    const response = await apiClient.put(
-        `/api/employees/${id}`,
-        formData
-    );
-
-    return response.data;
+  return response.data.data;
 }
 
 export async function updateEmployeeStatus(
-    id: number,
-    status: EmployeeStatus
+  id: number,
+  status: EmployeeStatus
 ): Promise<Employee> {
-    const response = await apiClient.patch<ApiResponse<Employee>>(
-        `/employees/${id}/status`,
-        { status }
-    );
+  const response = await apiClient.patch<ApiResponse<Employee>>(
+    `api/employees/${id}/status`,
+    { status }
+  );
 
-    return response.data.data;
+  return response.data.data;
 }
 
 export async function deleteEmployee(id: number): Promise<void> {
-  await apiClient.delete(`/api/employees/${id}`);
+  await apiClient.delete(`api/employees/${id}`);
 }

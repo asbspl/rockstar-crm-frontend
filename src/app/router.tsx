@@ -17,6 +17,7 @@ import MainLayout from "../layouts/MainLayout";
 import CompanyManagementPage from "../features/companies/pages/CompanyManagementPage";
 import EmployeeManagementPage from "../features/employees/pages/EmployeeManagementPage";
 import DriverManagementPage from "../features/drivers/pages/DriverManagementPage";
+import ContractorManagementPage from "../features/contractors/pages/ContractorManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
           {
             path: "settings/drivers",
             element: <DriverManagementPage />,
+          },
+          {
+            path: "/settings/contractors",
+            element: <ContractorManagementPage />,
           },
           {
             path: "/profile",
