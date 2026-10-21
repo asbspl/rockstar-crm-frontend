@@ -65,7 +65,7 @@
 
 .company-primary-button {
   color: #fff;
-  background: #4f46e5;
+  background: #2563eb;
 }
 
 .company-primary-button:hover {
@@ -206,44 +206,6 @@
   width: 220px;
 }
 
-.company-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.company-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 13px;
-}
-
-.company-table th,
-.company-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #e5e7eb;
-  vertical-align: middle;
-}
-
-.company-table th {
-  background: #f8fafc;
-  color: #374151;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.company-table td {
-  color: #4b5563;
-}
-
-.company-table tbody tr:hover {
-  background: #fafafa;
-}
-
-.company-table-message {
-  padding: 30px !important;
-  text-align: center;
-}
 
 .company-status {
   display: inline-block;
@@ -257,18 +219,15 @@
 .company-status-active {
   color: #166534;
   background: #dcfce7;
+  border: none;
 }
 
 .company-status-inactive {
   color: #991b1b;
   background: #fee2e2;
+  border: none;
 }
 
-.company-view-button {
-  padding: 6px 10px;
-  color: #4338ca;
-  background: #eef2ff;
-}
 
 .company-table-footer {
   display: flex;
@@ -383,24 +342,8 @@
   font-size: 13px;
 }
 
-.company-action-buttons .company-view-button {
-  background: #e8f0fe;
-  color: #1a56b3;
-}
 
-.company-action-buttons .company-delete-button {
-  background: #fde8e8;
-  color: #b42318;
-}
 
-.company-action-buttons button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.company-action-buttons button:hover:not(:disabled) {
-  opacity: 0.8;
-}
 
 .company-country-select{
     padding: 12px;
@@ -443,4 +386,10 @@
     margin-top: 4px;
     font-size: 11px;
     color: #6b7280;
+}
+
+.city-dropdown{
+      padding: 11px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
 }

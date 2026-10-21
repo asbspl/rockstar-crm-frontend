@@ -1,15 +1,26 @@
-
-import { useEffect, useState, useMemo, type FormEvent } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    type FormEvent,
+} from "react";
 import { State, City, Country } from "country-state-city";
+
 import {
     createCompany,
     getCompanies,
     updateCompany,
     deleteCompany,
+    updateCompanyStatus,
     type Company,
 } from "../api/companies.api";
+
 import "./CompanyManagementPage.css";
+
+import ManagementLayout from "../../../components/common/ManagementLayout/ManagementLayout";
 import ConfirmDialog from "../../../components/common/ConfirmDialog/ConfirmDialog";
+import ActionButton from "../../../components/common/ActionButton/ActionButton";
 
 const emptyForm = {
     companyName: "",
@@ -35,13 +46,11 @@ const fileFields = [
 ] as const;
 
 type FileField = (typeof fileFields)[number]["name"];
+type CompanyStatus = "active" | "inactive";
+type CompanyStatusFilter = "all" | CompanyStatus;
 
 function getErrorMessage(error: unknown, fallback: string): string {
-    if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error
-    ) {
+    if (typeof error === "object" && error !== null && "response" in error) {
         const response = (
             error as {
                 response?: {
@@ -62,7 +71,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
     return fallback;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = (
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api"
+).replace(/\/api\/?$/, "");
 
 function getFileUrl(filePath: string | null | undefined): string {
     if (!filePath?.trim()) return "";
@@ -73,65 +84,51 @@ function getFileUrl(filePath: string | null | undefined): string {
         return value;
     }
 
-    const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-    const relativePath = value.replace(/^\/+/, "");
-
-    return `${baseUrl}/${relativePath}`;
+    return `${API_BASE_URL}/${value.replace(/^\/+/, "")}`;
 }
 
-function CompanyManagementPage() {
+function normalizeStatus(status: unknown): CompanyStatus {
+    return String(status).toLowerCase() === "active"
+        ? "active"
+        : "inactive";
+}
+
+export default function CompanyManagementPage() {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [search, setSearch] = useState("");
+    const [filterStatus, setFilterStatus] =
+        useState<CompanyStatusFilter>("all");
+
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
 
     const [showForm, setShowForm] = useState(false);
     const [editingCompany, setEditingCompany] =
         useState<Company | null>(null);
 
-    const [form, setForm] = useState(emptyForm);
-    const [files, setFiles] = useState<
-        Partial<Record<FileField, File>>
-    >({});
+    const [form, setForm] = useState({ ...emptyForm });
+    const [files, setFiles] = useState<Partial<Record<FileField, File>>>({});
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
-    const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
+    const [changingStatusId, setChangingStatusId] = useState<number | null>(
+        null,
+    );
+
+    const [companyToDelete, setCompanyToDelete] =
+        useState<Company | null>(null);
+    const [companyToChangeStatus, setCompanyToChangeStatus] =
+        useState<Company | null>(null);
+
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-
-    async function loadCompanies(
-        requestedPage = page,
-        requestedLimit = limit,
-        requestedSearch = search.trim()
-    ) {
-        setLoading(true);
-        setError("");
-
-        try {
-            const result = await getCompanies({
-                page: requestedPage,
-                limit: requestedLimit,
-                search: requestedSearch,
-            });
-
-            setCompanies(result.companies);
-            setTotal(result.pagination.total);
-            setTotalPages(result.pagination.totalPages);
-        } catch (err) {
-            setError(getErrorMessage(err, "Unable to load companies."));
-        } finally {
-            setLoading(false);
-        }
-    }
+    const [notice, setNotice] = useState("");
 
     const countries = useMemo(() => Country.getAllCountries(), []);
 
     const selectedCountry = countries.find(
-        (country) => country.name === form.country
+        (country) => country.name === form.country,
     );
 
     const states = useMemo(
@@ -139,34 +136,54 @@ function CompanyManagementPage() {
             selectedCountry
                 ? State.getStatesOfCountry(selectedCountry.isoCode)
                 : [],
-        [selectedCountry?.isoCode]
+        [selectedCountry],
     );
 
     const selectedState = states.find(
-        (state) => state.name === form.state
+        (state) => state.name === form.state,
     );
 
     const cities = useMemo(
         () =>
             selectedCountry && selectedState
                 ? City.getCitiesOfState(
-                    selectedCountry.isoCode,
-                    selectedState.isoCode
-                )
+                      selectedCountry.isoCode,
+                      selectedState.isoCode,
+                  )
                 : [],
-        [selectedCountry?.isoCode, selectedState?.isoCode]
+        [selectedCountry, selectedState],
     );
-    useEffect(() => {
-        void loadCompanies(page, limit, search.trim());
-        // Load the list when its filters or page change.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, limit, search]);
 
-    function updateField(
-        field: keyof typeof emptyForm,
-        value: string
-    ) {
-        setForm((current) => ({ ...current, [field]: value }));
+    const loadCompanies = useCallback(async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const result = await getCompanies({
+                page,
+                limit,
+                search: search.trim(),
+                status: filterStatus,
+            });
+
+            setCompanies(result.companies);
+            setTotal(result.pagination.total);
+        } catch (err) {
+            setError(getErrorMessage(err, "Unable to load companies."));
+        } finally {
+            setLoading(false);
+        }
+    }, [page, limit, search, filterStatus]);
+
+    useEffect(() => {
+        void loadCompanies();
+    }, [loadCompanies]);
+
+    function updateField(field: keyof typeof emptyForm, value: string) {
+        setForm((current) => ({
+            ...current,
+            [field]: value,
+        }));
     }
 
     function openAddForm() {
@@ -174,7 +191,7 @@ function CompanyManagementPage() {
         setForm({ ...emptyForm });
         setFiles({});
         setError("");
-        setSuccess("");
+        setNotice("");
         setShowForm(true);
     }
 
@@ -199,11 +216,13 @@ function CompanyManagementPage() {
 
         setFiles({});
         setError("");
-        setSuccess("");
+        setNotice("");
         setShowForm(true);
     }
 
     function closeForm() {
+        if (saving) return;
+
         setShowForm(false);
         setEditingCompany(null);
         setForm({ ...emptyForm });
@@ -213,14 +232,15 @@ function CompanyManagementPage() {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setError("");
-        setSuccess("");
 
         if (saving) return;
 
+        setError("");
+        setNotice("");
+
         if (!editingCompany) {
             const missingFile = fileFields.find(
-                (field) => !files[field.name]
+                (field) => !files[field.name],
             );
 
             if (missingFile) {
@@ -250,232 +270,386 @@ function CompanyManagementPage() {
                 ? await updateCompany(editingCompany.id, data)
                 : await createCompany(data);
 
-            const message =
+            setNotice(
                 result.message ||
-                (editingCompany
-                    ? "Company updated successfully."
-                    : "Company created successfully.");
+                    (editingCompany
+                        ? "Company updated successfully."
+                        : "Company created successfully."),
+            );
 
-            const targetPage = editingCompany ? page : 1;
-            const targetSearch = search.trim();
-
-            setSuccess(message);
             setShowForm(false);
             setEditingCompany(null);
             setForm({ ...emptyForm });
             setFiles({});
-            setPage(targetPage);
 
-            await loadCompanies(targetPage, limit, targetSearch);
+            if (!editingCompany) {
+                setPage(1);
+            } else {
+                await loadCompanies();
+            }
         } catch (err) {
             setError(
                 getErrorMessage(
                     err,
                     editingCompany
                         ? "Unable to update company."
-                        : "Unable to create company."
-                )
+                        : "Unable to create company.",
+                ),
             );
         } finally {
             setSaving(false);
         }
     }
 
-
     async function handleDelete(company: Company) {
         if (deletingId !== null) return;
 
         setError("");
-        setSuccess("");
+        setNotice("");
         setDeletingId(company.id);
 
         try {
             const result = await deleteCompany(company.id);
 
-            setSuccess(
-                result.message || "Company deleted successfully."
-            );
-
-            const nextPage =
-                companies.length === 1 && page > 1
-                    ? page - 1
-                    : page;
-
             setCompanyToDelete(null);
-            setPage(nextPage);
+            setNotice(result.message || "Company deleted successfully.");
 
-            await loadCompanies(nextPage, limit, search.trim());
+            if (companies.length === 1 && page > 1) {
+                setPage((current) => current - 1);
+            } else {
+                await loadCompanies();
+            }
         } catch (err) {
-            setError(
-                getErrorMessage(err, "Unable to delete company.")
-            );
+            setError(getErrorMessage(err, "Unable to delete company."));
         } finally {
             setDeletingId(null);
         }
     }
 
+async function handleStatusChange() {
+    if (!companyToChangeStatus || changingStatusId !== null) return;
 
-    const firstEntry =
-        total === 0 ? 0 : (page - 1) * limit + 1;
+    const company = companyToChangeStatus;
+
+    const nextStatus: CompanyStatus =
+        normalizeStatus(company.status) === "active"
+            ? "inactive"
+            : "active";
+
+    setError("");
+    setNotice("");
+    setChangingStatusId(company.id);
+
+    try {
+const result = await updateCompanyStatus(
+    company.id,
+    company,
+    nextStatus
+);
+
+        const updatedCompany = result?.data?.company;
+
+        // Update the displayed status immediately.
+        setCompanies((current) =>
+            current.map((item) =>
+                item.id === company.id
+                    ? {
+                          ...item,
+                          status: updatedCompany?.status ?? nextStatus,
+                      }
+                    : item
+            )
+        );
+
+        setCompanyToChangeStatus(null);
+
+        setNotice(
+            `${company.company_name} status changed to ${
+                updatedCompany?.status ?? nextStatus
+            } successfully.`
+        );
+
+        // Reload to verify the saved status from the database.
+        await loadCompanies();
+    } catch (err) {
+        setError(
+            getErrorMessage(err, "Unable to update company status.")
+        );
+    } finally {
+        setChangingStatusId(null);
+    }
+}
+
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const firstEntry = total === 0 ? 0 : (page - 1) * limit + 1;
     const lastEntry = Math.min(page * limit, total);
 
-    return (
-        <div className="company-page">
-            <div className="company-page-heading">
-                <div>
-                    <h1>Manage Company</h1>
-                    <p>
-                        {showForm
-                            ? editingCompany
-                                ? "Update company information"
-                                : "You can add a new company from here"
-                            : "Our Company List"}
-                    </p>
-                </div>
+    function renderFileField(
+        name: FileField,
+        label: string,
+        accept: string,
+        requiredOnCreate: boolean,
+    ) {
+        const existingPath =
+            name === "companyLogo"
+                ? editingCompany?.company_logo
+                : name === "companySignature"
+                  ? editingCompany?.company_signature
+                  : name === "panDocument"
+                    ? editingCompany?.pan_document
+                    : editingCompany?.gst_certificate;
 
-                <button
-                    type="button"
-                    className="company-primary-button"
-                    onClick={() => {
-                        if (showForm) {
-                            closeForm();
-                        } else {
-                            openAddForm();
-                        }
-                    }}
-                >
-                    <i
-                        className={`bi ${showForm ? "bi-arrow-left" : "bi-plus-lg"
-                            }`}
-                    />
-                    {showForm ? "Back to Companies" : "Add Company"}
-                </button>
-            </div>
+        const previewUrl = getFileUrl(existingPath);
+        const selectedFile = files[name];
 
-            {error && (
-                <div
-                    className="company-alert company-alert-error"
-                    role="alert"
-                >
-                    {error}
-                </div>
-            )}
+        const isImage = (path: string) =>
+            /\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(path);
 
-            {success && !showForm && (
-                <div
-                    className="company-alert company-alert-success"
-                    role="status"
-                >
-                    {success}
-                    <button
-                        type="button"
-                        onClick={() => setSuccess("")}
-                    >
-                        Dismiss
-                    </button>
-                </div>
-            )}
+        const selectedFileUrl = selectedFile
+            ? URL.createObjectURL(selectedFile)
+            : "";
 
-            {showForm ? (
-                <form className="company-card" onSubmit={handleSubmit}>
-                    <div className="company-card-heading">
-                        <h2>
-                            {editingCompany
-                                ? "Edit Company Form"
-                                : "Add New Company Form"}
-                        </h2>
-                        <p>
-                            Enter company information and upload documents.
-                            {editingCompany &&
-                                " Existing documents can be kept without uploading them again."}
-                        </p>
+        return (
+            <div className="company-field" key={name}>
+                <label htmlFor={`company-file-${name}`}>
+                    {label}
+                    {requiredOnCreate && !editingCompany && <b> *</b>}
+                </label>
+
+                {existingPath && (
+                    <div className="company-file-preview">
+                        {isImage(existingPath) ? (
+                            <a
+                                href={previewUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                <img
+                                    src={previewUrl}
+                                    alt={`Existing ${label}`}
+                                    className="company-preview-image"
+                                />
+                            </a>
+                        ) : (
+                            <a
+                                href={previewUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                View existing {label}
+                            </a>
+                        )}
+
+                        <small>Existing {label}</small>
                     </div>
+                )}
 
-                    <h3 className="company-section-title">
-                        Company Information
-                    </h3>
+                <input
+                    id={`company-file-${name}`}
+                    type="file"
+                    accept={accept}
+                    required={requiredOnCreate && !editingCompany}
+                    onChange={(event) => {
+                        const file = event.target.files?.[0];
 
-                    <div className="company-form-grid">
+                        setFiles((current) => {
+                            const next = { ...current };
 
+                            if (file) {
+                                next[name] = file;
+                            } else {
+                                delete next[name];
+                            }
 
+                            return next;
+                        });
+                    }}
+                />
 
-{fileFields.slice(0, 2).map(({ name, label }) => {
-    const existingPath =
-        name === "companyLogo"
-            ? editingCompany?.company_logo
-            : editingCompany?.company_signature;
+                {selectedFile && (
+                    <div className="company-file-preview">
+                        {selectedFile.type.startsWith("image/") ? (
+                            <img
+                                src={selectedFileUrl}
+                                alt={`New ${label}`}
+                                className="company-preview-image"
+                            />
+                        ) : (
+                            <a
+                                href={selectedFileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                View selected document
+                            </a>
+                        )}
 
-    const previewUrl = getFileUrl(existingPath);
+                        <small>Selected: {selectedFile.name}</small>
+                    </div>
+                )}
+
+                <small>
+                    {name === "companyLogo" ||
+                    name === "companySignature"
+                        ? "PNG, JPG or WEBP · Maximum 5 MB"
+                        : "PDF, PNG, JPG or WEBP · Maximum 5 MB"}
+                    {editingCompany && existingPath
+                        ? " · Existing document is kept unless replaced."
+                        : ""}
+                </small>
+            </div>
+        );
+    }
+
+    const statusTarget = companyToChangeStatus
+        ? normalizeStatus(companyToChangeStatus.status) === "active"
+            ? "inactive"
+            : "active"
+        : "";
 
     return (
-        <label className="company-field" key={name}>
-            <span>
-                {label} {!editingCompany && <b>*</b>}
-            </span>
+        <ManagementLayout
+            title="Manage Company"
+            description="Manage company information, documents and status."
+            showForm={showForm}
+            listTitle="Our Company List"
+            addButtonText="Add Company"
+            onAdd={openAddForm}
+            onBack={closeForm}
+            formTitle={
+                editingCompany ? "Edit Company Form" : "Add New Company Form"
+            }
+            error={
+                error ? (
+                    <div
+                        className="company-alert company-alert-error"
+                        role="alert"
+                    >
+                        {error}
+                    </div>
+                ) : null
+            }
+            notice={
+                notice ? (
+                    <div
+                        className="company-alert company-alert-success"
+                        role="status"
+                    >
+                        {notice}
+                        <button
+                            type="button"
+                            onClick={() => setNotice("")}
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                ) : null
+            }
+            toolbar={
+                <>
+                    <label className="management-page__toolbar-group">
+                        <span>Show</span>
 
-            {editingCompany && (
-                <div className="company-file-preview">
-                    {previewUrl ? (
-                        <>
-                            <img
-                                key={previewUrl}
-                                src={previewUrl}
-                                alt={label}
-                                className="company-preview-image"
-                                onLoad={() => {
-                                    console.log(
-                                        `${label} loaded:`,
-                                        previewUrl
-                                    );
-                                }}
-                                onError={(event) => {
-                                    console.error(
-                                        `${label} failed to load:`,
-                                        event.currentTarget.src
-                                    );
+                        <select
+                            aria-label="Entries per page"
+                            value={limit}
+                            onChange={(event) => {
+                                setLimit(Number(event.target.value));
+                                setPage(1);
+                            }}
+                        >
+                            {[10, 25, 50, 100].map((size) => (
+                                <option key={size} value={size}>
+                                    {size}
+                                </option>
+                            ))}
+                        </select>
+
+                        <span>entries</span>
+                    </label>
+
+                    <div className="management-toolbar-right">
+                        <select
+                            aria-label="Filter company status"
+                            value={filterStatus}
+                            onChange={(event) => {
+                                setFilterStatus(
+                                    event.target.value as CompanyStatusFilter,
+                                );
+                                setPage(1);
+                            }}
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+
+                        <label>
+                            Search:{" "}
+                            <input
+                                type="search"
+                                value={search}
+                                placeholder="Search companies..."
+                                onChange={(event) => {
+                                    setSearch(event.target.value);
+                                    setPage(1);
                                 }}
                             />
-                            <small>Existing {label}</small>
-                        </>
-                    ) : (
-                        <small>
-                            No existing {label.toLowerCase()} path was returned by the API.
-                        </small>
-                    )}
-                </div>
-            )}
+                        </label>
+                    </div>
+                </>
+            }
+            pagination={
+                <>
+                    <span className="management-page__pagination-info">
+                        Showing {firstEntry} to {lastEntry} of {total} entries
+                    </span>
 
-            <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                required={!editingCompany}
-                onChange={(event) => {
-                    const file = event.target.files?.[0];
+                    <div className="management-page__pagination-controls">
+                        <button
+                            type="button"
+                            disabled={page <= 1 || loading}
+                            onClick={() =>
+                                setPage((current) => current - 1)
+                            }
+                        >
+                            Previous
+                        </button>
 
-                    setFiles((current) => ({
-                        ...current,
-                        [name]: file,
-                    }));
-                }}
-            />
+                        <span className="management-page__pagination-info">
+                            Page {page} of {totalPages}
+                        </span>
 
-            {files[name] && (
-                <div className="company-file-preview">
-                    <img
-                        src={URL.createObjectURL(files[name]!)}
-                        alt={`New ${label}`}
-                        className="company-preview-image"
-                    />
-                    <small>New {label} preview</small>
-                </div>
-            )}
+                        <button
+                            type="button"
+                            disabled={page >= totalPages || loading}
+                            onClick={() =>
+                                setPage((current) => current + 1)
+                            }
+                        >
+                            Next
+                        </button>
+                    </div>
+                </>
+            }
+        >
+            {showForm ? (
+                <form className="company-card" onSubmit={handleSubmit}>
+                    <div className="company-form-grid">
+                        {renderFileField(
+                            "companyLogo",
+                            "Company Logo",
+                            "image/png,image/jpeg,image/webp",
+                            true,
+                        )}
 
-            <small>PNG, JPG or WEBP · Maximum 5 MB</small>
-        </label>
-    );
-})}
-
-
+                        {renderFileField(
+                            "companySignature",
+                            "Company Signature",
+                            "image/png,image/jpeg,image/webp",
+                            true,
+                        )}
 
                         <label className="company-field">
                             <span>Company Name <b>*</b></span>
@@ -483,13 +657,12 @@ function CompanyManagementPage() {
                                 required
                                 maxLength={200}
                                 value={form.companyName}
-                                onChange={(e) =>
-                                    updateField("companyName", e.target.value)
+                                onChange={(event) =>
+                                    updateField("companyName", event.target.value)
                                 }
                                 placeholder="Enter company name"
                             />
                         </label>
-
 
                         <label className="company-field">
                             <span>Phone <b>*</b></span>
@@ -501,15 +674,18 @@ function CompanyManagementPage() {
                                 minLength={10}
                                 pattern="[0-9]{10}"
                                 value={form.phone}
-                                onChange={(e) => {
-                                    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                                    updateField("phone", value);
-                                }}
+                                onChange={(event) =>
+                                    updateField(
+                                        "phone",
+                                        event.target.value
+                                            .replace(/\D/g, "")
+                                            .slice(0, 10),
+                                    )
+                                }
                                 placeholder="Enter 10-digit phone number"
                                 title="Please enter exactly 10 digits."
                             />
                         </label>
-
 
                         <label className="company-field">
                             <span>Email ID <b>*</b></span>
@@ -518,8 +694,8 @@ function CompanyManagementPage() {
                                 type="email"
                                 maxLength={254}
                                 value={form.email}
-                                onChange={(e) =>
-                                    updateField("email", e.target.value)
+                                onChange={(event) =>
+                                    updateField("email", event.target.value)
                                 }
                                 placeholder="Enter email address"
                             />
@@ -530,8 +706,8 @@ function CompanyManagementPage() {
                             <input
                                 required
                                 value={form.addressLine1}
-                                onChange={(e) =>
-                                    updateField("addressLine1", e.target.value)
+                                onChange={(event) =>
+                                    updateField("addressLine1", event.target.value)
                                 }
                                 placeholder="Building, street and address"
                             />
@@ -541,8 +717,8 @@ function CompanyManagementPage() {
                             <span>Line-2</span>
                             <input
                                 value={form.addressLine2}
-                                onChange={(e) =>
-                                    updateField("addressLine2", e.target.value)
+                                onChange={(event) =>
+                                    updateField("addressLine2", event.target.value)
                                 }
                                 placeholder="Landmark or additional address"
                             />
@@ -551,21 +727,24 @@ function CompanyManagementPage() {
                         <label className="company-field">
                             <span>Country <b>*</b></span>
                             <select
-                                className="company-country-select"
+                                className="city-dropdown"
                                 required
                                 value={form.country}
-                                onChange={(e) => {
+                                onChange={(event) =>
                                     setForm((current) => ({
                                         ...current,
-                                        country: e.target.value,
+                                        country: event.target.value,
                                         state: "",
                                         city: "",
-                                    }));
-                                }}
+                                    }))
+                                }
                             >
                                 <option value="">Select Country</option>
                                 {countries.map((country) => (
-                                    <option key={country.isoCode} value={country.name}>
+                                    <option
+                                        key={country.isoCode}
+                                        value={country.name}
+                                    >
                                         {country.name}
                                     </option>
                                 ))}
@@ -575,21 +754,24 @@ function CompanyManagementPage() {
                         <label className="company-field">
                             <span>State <b>*</b></span>
                             <select
-                                className="company-country-select"
+                                className="city-dropdown"
                                 required
                                 value={form.state}
-                                onChange={(e) => {
+                                disabled={!selectedCountry}
+                                onChange={(event) =>
                                     setForm((current) => ({
                                         ...current,
-                                        state: e.target.value,
+                                        state: event.target.value,
                                         city: "",
-                                    }));
-                                }}
-                                disabled={!selectedCountry}
+                                    }))
+                                }
                             >
                                 <option value="">Select State</option>
                                 {states.map((state) => (
-                                    <option key={state.isoCode} value={state.name}>
+                                    <option
+                                        key={state.isoCode}
+                                        value={state.name}
+                                    >
                                         {state.name}
                                     </option>
                                 ))}
@@ -599,21 +781,25 @@ function CompanyManagementPage() {
                         <label className="company-field">
                             <span>City <b>*</b></span>
                             <select
-                                className="company-country-select"
+                                className="city-dropdown"
                                 required
                                 value={form.city}
-                                onChange={(e) => updateField("city", e.target.value)}
                                 disabled={!selectedState}
+                                onChange={(event) =>
+                                    updateField("city", event.target.value)
+                                }
                             >
                                 <option value="">Select City</option>
                                 {cities.map((city, index) => (
-                                    <option key={`${city.name}-${index}`} value={city.name}>
+                                    <option
+                                        key={`${city.name}-${index}`}
+                                        value={city.name}
+                                    >
                                         {city.name}
                                     </option>
                                 ))}
                             </select>
                         </label>
-
 
                         <label className="company-field">
                             <span>Pin Code <b>*</b></span>
@@ -625,20 +811,21 @@ function CompanyManagementPage() {
                                 minLength={6}
                                 pattern="[0-9]{6}"
                                 value={form.pinCode}
-                                onChange={(e) => {
-                                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                                    updateField("pinCode", value);
-                                }}
+                                onChange={(event) =>
+                                    updateField(
+                                        "pinCode",
+                                        event.target.value
+                                            .replace(/\D/g, "")
+                                            .slice(0, 6),
+                                    )
+                                }
                                 placeholder="Enter 6-digit PIN code"
                                 title="Please enter exactly 6 digits."
                             />
                         </label>
-
                     </div>
 
-                    <h3 className="company-section-title">
-                        Bank & Terms
-                    </h3>
+                    <h3 className="company-section-title">Bank & Terms</h3>
 
                     <div className="company-form-grid">
                         <label className="company-field">
@@ -647,8 +834,8 @@ function CompanyManagementPage() {
                                 required
                                 rows={4}
                                 value={form.bankDetails}
-                                onChange={(e) =>
-                                    updateField("bankDetails", e.target.value)
+                                onChange={(event) =>
+                                    updateField("bankDetails", event.target.value)
                                 }
                                 placeholder="Bank name, account holder, account number and IFSC"
                             />
@@ -660,8 +847,11 @@ function CompanyManagementPage() {
                                 required
                                 rows={4}
                                 value={form.termsAndConditions}
-                                onChange={(e) =>
-                                    updateField("termsAndConditions", e.target.value)
+                                onChange={(event) =>
+                                    updateField(
+                                        "termsAndConditions",
+                                        event.target.value,
+                                    )
                                 }
                                 placeholder="Enter company terms and conditions"
                             />
@@ -677,178 +867,48 @@ function CompanyManagementPage() {
                                 required
                                 maxLength={20}
                                 value={form.panNumber}
-                                onChange={(e) =>
-                                    updateField("panNumber", e.target.value)
+                                onChange={(event) =>
+                                    updateField(
+                                        "panNumber",
+                                        event.target.value.toUpperCase(),
+                                    )
                                 }
                                 placeholder="Enter PAN number"
                             />
                         </label>
 
-                               <label className="company-field">
+                        <label className="company-field">
                             <span>GST Number <b>*</b></span>
                             <input
                                 required
                                 maxLength={30}
                                 value={form.gstNumber}
-                                onChange={(e) =>
-                                    updateField("gstNumber", e.target.value)
+                                onChange={(event) =>
+                                    updateField(
+                                        "gstNumber",
+                                        event.target.value.toUpperCase(),
+                                    )
                                 }
                                 placeholder="Enter GST number"
                             />
                         </label>
-              
-<label className="company-field">
-  <span>
-    Upload PAN Card {!editingCompany && <b>*</b>}
-  </span>
 
-  {/* Existing PAN document preview */}
-  {editingCompany?.pan_document && (
-    <div className="company-file-preview">
-      {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
-        editingCompany.pan_document
-      ) ? (
-        <img
-          src={getFileUrl(editingCompany.pan_document)}
-          alt="Existing PAN card"
-          className="company-preview-image"
-        />
-      ) : (
-        <a
-          href={getFileUrl(editingCompany.pan_document)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View existing PAN document
-        </a>
-      )}
-      <small>Existing PAN document</small>
-    </div>
-  )}
+                        {renderFileField(
+                            "panDocument",
+                            "Upload PAN Card",
+                            ".pdf,.png,.jpg,.jpeg,.webp,application/pdf",
+                            true,
+                        )}
 
-  <input
-    type="file"
-    accept="image/png,image/jpeg,image/webp,application/pdf"
-    required={!editingCompany}
-    onChange={(e) =>
-      setFiles((current) => ({
-        ...current,
-        panDocument: e.target.files?.[0],
-      }))
-    }
-  />
-
-  {/* Preview newly selected PAN file */}
-  {files.panDocument && (
-    <div className="company-file-preview">
-      {files.panDocument.type.startsWith("image/") ? (
-        <img
-          src={URL.createObjectURL(files.panDocument)}
-          alt="New PAN card preview"
-          className="company-preview-image"
-        />
-      ) : (
-        <a
-          href={URL.createObjectURL(files.panDocument)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View new PAN document (PDF)
-        </a>
-      )}
-      <small>New PAN document: {files.panDocument.name}</small>
-    </div>
-  )}
-
-  <small>PDF, PNG, JPG or WEBP · Maximum 5 MB</small>
-</label>
-
-
-
-
-<label className="company-field">
-  <span>
-    Upload GST Certificate {!editingCompany && <b>*</b>}
-  </span>
-
-  {/* Show the existing GST certificate */}
-  {editingCompany?.gst_certificate && (
-    <div className="company-file-preview">
-      {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
-        editingCompany.gst_certificate
-      ) ? (
-        <img
-          src={getFileUrl(editingCompany.gst_certificate)}
-          alt="Existing GST Certificate"
-          className="company-preview-image"
-          onError={(event) => {
-            console.error(
-              "GST certificate failed to load:",
-              event.currentTarget.src
-            );
-          }}
-        />
-      ) : (
-        <a
-          href={getFileUrl(editingCompany.gst_certificate)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View existing GST certificate (PDF)
-        </a>
-      )}
-
-      <small>Existing GST certificate</small>
-    </div>
-  )}
-
-  <input
-    type="file"
-    accept="image/png,image/jpeg,image/webp,application/pdf"
-    required={!editingCompany}
-    onChange={(e) =>
-      setFiles((current) => ({
-        ...current,
-        gstCertificate: e.target.files?.[0],
-      }))
-    }
-  />
-
-  {/* Preview the newly selected file */}
-  {files.gstCertificate && (
-    <div className="company-file-preview">
-      {files.gstCertificate.type.startsWith("image/") ? (
-        <img
-          src={URL.createObjectURL(files.gstCertificate)}
-          alt="New GST Certificate Preview"
-          className="company-preview-image"
-        />
-      ) : (
-        <span>{files.gstCertificate.name}</span>
-      )}
-      <small>New GST certificate</small>
-    </div>
-  )}
-
-  <small>
-    PDF, PNG, JPG or WEBP · Maximum 5 MB
-    {editingCompany &&
-      companyLabel(editingCompany.gst_certificate)}
-  </small>
-</label>
-
+                        {renderFileField(
+                            "gstCertificate",
+                            "Upload GST Certificate",
+                            ".pdf,.png,.jpg,.jpeg,.webp,application/pdf",
+                            true,
+                        )}
                     </div>
 
                     <div className="company-form-actions">
-                        <button
-                            type="button"
-                            className="company-secondary-button"
-                            disabled={saving}
-                            onClick={closeForm}
-                        >
-                            Cancel
-                        </button>
-
                         <button
                             type="submit"
                             className="company-primary-button"
@@ -857,46 +917,22 @@ function CompanyManagementPage() {
                             {saving
                                 ? "Saving..."
                                 : editingCompany
-                                    ? "Update Company"
-                                    : "Submit"}
+                                  ? "Update Company"
+                                  : "Save Company"}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="company-secondary-button"
+                            disabled={saving}
+                            onClick={closeForm}
+                        >
+                            Cancel
                         </button>
                     </div>
                 </form>
             ) : (
-                <section className="company-card">
-                    <div className="company-list-toolbar">
-                        <label className="company-entries">
-                            Show
-                            <select
-                                value={limit}
-                                onChange={(e) => {
-                                    setLimit(Number(e.target.value));
-                                    setPage(1);
-                                }}
-                            >
-                                {[10, 25, 50, 100].map((size) => (
-                                    <option key={size} value={size}>
-                                        {size}
-                                    </option>
-                                ))}
-                            </select>
-                            Entries
-                        </label>
-
-                        <label className="company-search">
-                            Search:
-                            <input
-                                type="search"
-                                value={search}
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                    setPage(1);
-                                }}
-                                placeholder="Search companies..."
-                            />
-                        </label>
-                    </div>
-
+                <>
                     <div className="company-table-wrapper">
                         <table className="company-table">
                             <thead>
@@ -926,127 +962,145 @@ function CompanyManagementPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    companies.map((company, index) => (
-                                        <tr key={company.id}>
-                                            <td>{(page - 1) * limit + index + 1}</td>
-                                            <td>{company.company_name || "—"}</td>
-                                            <td>{company.phone || "—"}</td>
-                                            <td>{company.email || "—"}</td>
-                                            <td>
-                                                {[
-                                                    company.address_line1,
-                                                    company.address_line2,
-                                                ]
-                                                    .filter(Boolean)
-                                                    .join(", ") || "—"}
-                                            </td>
-                                            <td>{company.city || "—"}</td>
-                                            <td>
-                                                <span
-                                                    className={`company-status ${company.status === "active"
-                                                        ? "company-status-active"
-                                                        : "company-status-inactive"
+                                    companies.map((company, index) => {
+                                        const status = normalizeStatus(company.status);
+
+                                        return (
+                                            <tr key={company.id}>
+                                                <td>
+                                                    {(page - 1) * limit + index + 1}
+                                                </td>
+
+                                                <td>{company.company_name || "—"}</td>
+                                                <td>{company.phone || "—"}</td>
+                                                <td>{company.email || "—"}</td>
+
+                                                <td>
+                                                    {[
+                                                        company.address_line1,
+                                                        company.address_line2,
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(", ") || "—"}
+                                                </td>
+
+                                                <td>{company.city || "—"}</td>
+
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        title="Click to change company status"
+                                                        className={`company-status ${
+                                                            status === "active"
+                                                                ? "company-status-active"
+                                                                : "company-status-inactive"
                                                         }`}
-                                                >
-                                                    {company.status || "inactive"}
-                                                </span>
-                                            </td>
+                                                        disabled={
+                                                            changingStatusId !== null ||
+                                                            deletingId !== null
+                                                        }
+                                                        onClick={() =>
+                                                            setCompanyToChangeStatus(company)
+                                                        }
+                                                    >
+                                                        {status === "active"
+                                                            ? "Active"
+                                                            : "Inactive"}
+                                                    </button>
+                                                </td>
 
-                                            <td className="company-action-buttons">
-                                                <button
-                                                    type="button"
-                                                    className="company-view-button"
-                                                    onClick={() => openEditForm(company)}
-                                                    title="Edit company"
-                                                >
-                                                    <i className="bi bi-pencil-square" />
-                                                    Edit
-                                                </button>
+                                                <td>
+                                                    <div className="company-action-buttons">
+                                                        <ActionButton
+                                                            action="edit"
+                                                            type="button"
+                                                            title="Edit company"
+                                                            onClick={() =>
+                                                                openEditForm(company)
+                                                            }
+                                                        />
 
-                                                <button
-                                                    type="button"
-                                                    className="company-delete-button"
-                                                    disabled={deletingId !== null}
-                                                    onClick={() => setCompanyToDelete(company)}
-                                                    title="Delete company"
-                                                >
-                                                    <i className="bi bi-trash" />
-                                                    {deletingId === company.id
-                                                        ? "Deleting..."
-                                                        : "Delete"}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
+                                                        <ActionButton
+                                                            action="delete"
+                                                            type="button"
+                                                            title="Delete company"
+                                                            disabled={
+                                                                deletingId !== null ||
+                                                                changingStatusId !== null
+                                                            }
+                                                            onClick={() =>
+                                                                setCompanyToDelete(company)
+                                                            }
+                                                        >
+                                                            {deletingId === company.id
+                                                                ? "Deleting..."
+                                                                : "Delete"}
+                                                        </ActionButton>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="company-table-footer">
-                        <span>
-                            Showing {firstEntry} to {lastEntry} of {total} entries
-                        </span>
+                    <ConfirmDialog
+                        open={companyToDelete !== null}
+                        title="Delete Company?"
+                        message="Are you sure you want to delete this company?"
+                        itemName={
+                            companyToDelete?.company_name || "this company"
+                        }
+                        confirmText="Delete Company"
+                        loading={deletingId !== null}
+                        onCancel={() => {
+                            if (deletingId === null) {
+                                setCompanyToDelete(null);
+                            }
+                        }}
+                        onConfirm={() => {
+                            if (
+                                companyToDelete &&
+                                deletingId === null
+                            ) {
+                                void handleDelete(companyToDelete);
+                            }
+                        }}
+                    />
 
-                        <div className="company-pagination">
-                            <button
-                                type="button"
-                                disabled={page <= 1 || loading}
-                                onClick={() => setPage((current) => current - 1)}
-                            >
-                                Previous
-                            </button>
-
-                            <span>
-                                Page {page} of {Math.max(totalPages, 1)}
-                            </span>
-
-                            <button
-                                type="button"
-                                disabled={
-                                    page >= totalPages || loading || totalPages === 0
-                                }
-                                onClick={() => setPage((current) => current + 1)}
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
+                    <ConfirmDialog
+                        open={companyToChangeStatus !== null}
+                        title="Change Company Status?"
+                        message={
+                            companyToChangeStatus
+                                ? `Are you sure you want to change ${companyToChangeStatus.company_name}'s status to ${statusTarget}?`
+                                : ""
+                        }
+                        itemName={companyToChangeStatus?.company_name || "this company"}
+                        confirmText={
+                            statusTarget === "active"
+                                ? "Activate Company"
+                                : "Deactivate Company"
+                        }
+                        loading={changingStatusId !== null}
+                        onCancel={() => {
+                            if (changingStatusId === null) {
+                                setCompanyToChangeStatus(null);
+                            }
+                        }}
+                        onConfirm={() => {
+                            if (
+                                companyToChangeStatus &&
+                                changingStatusId === null
+                            ) {
+                                void handleStatusChange();
+                            }
+                        }}
+                    />
+                </>
             )}
-
-            <ConfirmDialog
-                open={companyToDelete !== null}
-                title="Delete Company?"
-                message="Are you sure you want to delete this company?"
-                itemName={
-                    companyToDelete?.company_name || "this company"
-                }
-                confirmText="Delete Company"
-                loading={deletingId !== null}
-                onCancel={() => {
-                    if (deletingId === null) {
-                        setCompanyToDelete(null);
-                    }
-                }}
-                onConfirm={() => {
-                    if (
-                        companyToDelete &&
-                        deletingId === null
-                    ) {
-                        void handleDelete(companyToDelete);
-                    }
-                }}
-            />
-        </div>
+        </ManagementLayout>
     );
 }
-
-
-
-function companyLabel(path: string | null | undefined): string {
-    return path ? " · Existing document will be kept unless replaced." : "";
-}
-
-export default CompanyManagementPage;

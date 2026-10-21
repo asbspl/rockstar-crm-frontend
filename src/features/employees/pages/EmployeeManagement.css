@@ -1,0 +1,511 @@
+
+/* ========================================
+   EMPLOYEE MANAGEMENT PAGE
+   ======================================== */
+
+.employee-page {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+    color: #263247;
+}
+
+/* ========================================
+   PAGE HEADER
+   ======================================== */
+
+.employee-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.employee-heading h1 {
+    margin: 0 0 6px;
+    color: #1f2937;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.employee-heading p {
+    margin: 0;
+    color: #778196;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* ========================================
+   EMPLOYEE CARD
+   ======================================== */
+
+.employee-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-bottom: 22px;
+    padding: 22px 28px;
+    background: #ffffff;
+    border: 1px solid #e6eaf0;
+    border-radius: 14px;
+    box-shadow: 0 3px 14px rgba(26, 42, 70, 0.04);
+}
+
+.employee-card h2 {
+    margin: 0 0 26px;
+    color: #263247;
+    font-size: 23px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.employee-card button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.employee-card button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.employee-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.employee-btn:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.employee-btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.employee-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.employee-btn-light {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #334155;
+}
+
+.employee-btn-light:hover:not(:disabled) {
+    background: #f8fafc;
+}
+
+.employee-btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+}
+
+.employee-btn-danger:hover:not(:disabled) {
+    background: #bb2d3b;
+    border-color: #bb2d3b;
+}
+
+.employee-btn-small {
+    padding: 7px 11px;
+    background: #edf3ff;
+    color: #245be8;
+}
+
+/* ========================================
+   TABLE TOOLBAR
+   ======================================== */
+
+
+/* ========================================
+   EMPLOYEE PROFILE PICTURE
+   ======================================== */
+
+.employee-list-avatar {
+    display: block;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e0e6ef;
+    border-radius: 50%;
+    background: #ffffff;
+    object-fit: cover;
+}
+
+.employee-default-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #1a56b3;
+    font-size: 24px;
+}
+
+/* ========================================
+   EMPLOYEE ADDRESS
+   ======================================== */
+
+.employee-address-scroll {
+    max-width: 160px;
+    max-height: 44px;
+    overflow: auto;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+    scrollbar-width: thin;
+    scrollbar-color: #b8c1cc transparent;
+}
+
+.employee-address-scroll::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.employee-address-scroll::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: #b8c1cc;
+}
+
+/* ========================================
+   STATUS BADGES
+   ======================================== */
+
+.employee-status {
+    padding: 8px 13px;
+    border: 0;
+    border-radius: 22px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.employee-status-active {
+    background: #e3f8eb;
+    color: #168448;
+}
+
+.employee-status-inactive {
+    background: #fff0dc;
+    color: #9a5b08;
+}
+
+.employee-status-resign {
+    background: #fee8eb;
+    color: #b42336;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   TABLE ACTIONS
+   ======================================== */
+
+.employee-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* ========================================
+   PAGINATION
+   ======================================== */
+
+.employee-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 18px;
+    color: #69768b;
+    font-size: 14px;
+}
+
+.employee-pagination > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.employee-pagination button {
+    min-height: 38px;
+    padding: 8px 13px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.employee-pagination button:hover:not(:disabled) {
+    background: #f3f6fb;
+}
+
+.employee-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+/* ========================================
+   SUCCESS AND ERROR MESSAGES
+   ======================================== */
+
+.employee-notice,
+.employee-error {
+    margin-bottom: 16px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.employee-notice {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.employee-error {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ========================================
+   EMPLOYEE FORM
+   ======================================== */
+
+.employee-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.employee-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.employee-field label {
+    color: #39465b;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.employee-field input,
+.employee-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #d7deea;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #253047;
+    font: inherit;
+    outline: none;
+}
+
+.employee-field input:focus,
+.employee-field select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+}
+
+.employee-field input[type="file"] {
+    padding: 9px;
+    font-size: 13px;
+}
+
+.employee-field small {
+    color: #778196;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.required {
+    color: #d52f45;
+}
+
+.employee-section-heading {
+    margin-top: 30px !important;
+    padding-top: 22px;
+    border-top: 1px solid #e6eaf0;
+}
+
+/* ========================================
+   EXISTING DOCUMENTS AND PREVIEWS
+   ======================================== */
+
+.employee-existing-file {
+    margin: 4px 0 8px;
+    color: #778196;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.employee-existing-file p {
+    margin: 6px 0;
+    font-size: 13px;
+}
+
+.employee-existing-file a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.employee-document-preview {
+    display: block;
+    width: 110px;
+    height: 100px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #ffffff;
+    object-fit: contain;
+}
+
+.employee-preview-link {
+    display: inline-block;
+}
+
+/* ========================================
+   FORM ACTIONS
+   ======================================== */
+
+.employee-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid #e6eaf0;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 900px) {
+
+
+    .management-toolbar-right {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .employee-toolbar-right input {
+        width: 200px;
+    }
+
+
+}
+
+@media (max-width: 760px) {
+    .employee-page {
+        padding: 16px;
+    }
+
+    .employee-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-heading h1 {
+        font-size: 23px;
+    }
+
+    .employee-card {
+        padding: 18px;
+    }
+
+    .employee-card h2 {
+        font-size: 20px;
+    }
+
+    .employee-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+
+    .employee-action-buttons {
+        flex-wrap: wrap;
+    }
+
+    .employee-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .employee-form-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .employee-page {
+        padding: 10px;
+    }
+
+    .employee-card {
+        padding: 14px;
+    }
+
+    .employee-heading h1 {
+        font-size: 21px;
+    }
+
+    .employee-heading p {
+        font-size: 14px;
+    }
+
+    .employee-heading > button {
+        width: 100%;
+    }
+
+    .employee-form-actions {
+        flex-direction: column;
+    }
+
+    .employee-form-actions .employee-btn {
+        width: 100%;
+    }
+
+    .employee-pagination > div {
+        flex-wrap: wrap;
+    }
+}

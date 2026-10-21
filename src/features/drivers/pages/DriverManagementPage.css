@@ -1,0 +1,511 @@
+
+/* ================================
+   Driver Management Page
+================================ */
+
+.driver-page {
+  width: 100%;
+  min-width: 0;
+  color: var(--text-primary, #263247);
+}
+
+.driver-page,
+.driver-page *,
+.driver-page *::before,
+.driver-page *::after {
+  box-sizing: border-box;
+}
+
+/* Page Header */
+
+.driver-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.driver-page-header h1 {
+  margin: 0 0 7px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.driver-page-header p {
+  margin: 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 14px;
+}
+
+.driver-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+
+.driver-primary-button,
+.driver-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.driver-primary-button {
+  background: #2563eb;
+  color: #fff;
+}
+
+.driver-primary-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.driver-secondary-button {
+  border-color: #d1d5db;
+  background: var(--card-bg, #fff);
+  color: var(--text-primary, #374151);
+}
+
+.driver-secondary-button:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.driver-primary-button:disabled,
+.driver-secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Success and Error Messages */
+
+.driver-alert {
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.driver-alert-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.driver-alert-success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+/* Main Card */
+
+.driver-card {
+  width: 100%;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card-bg, #fff);
+  box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.driver-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.driver-card-heading h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.driver-card-heading p {
+  margin: 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+}
+
+/* Table Toolbar */
+
+
+.driver-show-entries,
+.driver-form-field,
+.driver-search {
+  color: var(--text-primary, #374151);
+  font-size: 13px;
+}
+
+.driver-show-entries,
+.driver-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.driver-show-entries {
+  white-space: nowrap;
+}
+
+.driver-show-entries select,
+.driver-search input,
+.driver-form-field input:not([type="file"]),
+.driver-form-field select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid var(--input-border, #d1d5db);
+  border-radius: 6px;
+  background: var(--input-bg, #fff);
+  color: var(--text-primary, #1f2937);
+  font: inherit;
+}
+
+.driver-show-entries select {
+  width: auto;
+}
+
+.driver-search input {
+  width: 230px;
+  min-width: 0;
+}
+
+
+.driver-show-entries select:focus,
+.driver-search input:focus,
+.driver-form-field input:focus,
+.driver-form-field select:focus {
+  outline: 2px solid rgb(37 99 235 / 15%);
+  border-color: #2563eb;
+}
+
+.driver-name-cell {
+  min-width: 150px;
+  font-weight: 600;
+}
+
+/* Document Links */
+
+.driver-document-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.driver-document-link:hover {
+  text-decoration: underline;
+}
+
+.driver-missing-document {
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* Status Badges */
+
+.driver-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.driver-status.is-active,
+.driver-status-label.is-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.driver-status.is-inactive,
+.driver-status-label.is-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Table Action Buttons */
+
+.driver-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+
+.driver-action-edit {
+  border-color: #fde68a !important;
+  background: #fffbeb !important;
+  color: #92400e;
+}
+
+.driver-action-delete {
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+  color: #b91c1c;
+}
+
+/* Pagination */
+
+.driver-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+}
+
+.driver-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.driver-pagination-controls button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 6px;
+  background: var(--card-bg, #fff);
+  color: var(--text-primary, #374151);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.driver-pagination-controls button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.driver-pagination-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Add / Edit Form */
+
+.driver-form-card {
+  padding: 24px;
+}
+
+.driver-fieldset {
+  min-width: 0;
+  margin: 0 0 25px;
+  padding: 22px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 9px;
+}
+
+.driver-fieldset legend {
+  padding: 0 9px;
+  color: var(--text-primary, #374151);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.driver-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.driver-form-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.driver-form-field > span b,
+.driver-form-field > label b {
+  color: #dc2626;
+}
+
+.driver-form-field input:not([type="file"]),
+.driver-form-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  font-weight: 400;
+}
+
+.driver-form-field input[type="file"] {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px;
+  border: 1px dashed var(--input-border, #cbd5e1);
+  border-radius: 6px;
+  background: var(--input-bg, #fff);
+  color: var(--text-primary, #374151);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.driver-form-field small {
+  color: var(--text-secondary, #6b7280);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.driver-fieldset:disabled {
+  opacity: 0.85;
+}
+
+/* Existing Documents */
+
+.driver-existing-document {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.driver-existing-document a {
+  color: #1d4ed8;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.driver-existing-document a:hover {
+  text-decoration: underline;
+}
+
+/* Read-only Details */
+
+.driver-readonly-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0 0 24px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--table-header-bg, #f9fafb);
+  font-size: 13px;
+}
+
+.driver-readonly-details p {
+  margin: 0;
+}
+
+.driver-status-label {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Form Footer */
+
+.driver-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+
+
+@media (max-width: 640px) {
+  .driver-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .driver-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .driver-card,
+  .driver-form-card {
+    padding: 15px;
+  }
+
+  .driver-card-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+
+
+  .driver-show-entries,
+  .driver-search {
+    align-items: flex-start;
+  }
+
+  .driver-search {
+    flex-direction: column;
+  }
+
+  .driver-search input {
+    width: 100%;
+  }
+
+  .driver-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .driver-fieldset {
+    padding: 16px;
+  }
+
+  .driver-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .driver-pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .driver-form-footer {
+    flex-wrap: wrap;
+  }
+}
