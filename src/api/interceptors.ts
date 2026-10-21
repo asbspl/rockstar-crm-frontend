@@ -4,6 +4,7 @@ import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
+import axios from "axios";
 import { storageService } from "../services/storage.service";
 import { normalizeApiError } from "./error-handler";
 
@@ -14,7 +15,10 @@ type RetryableRequest = InternalAxiosRequestConfig & {
 };
 
 type RefreshResponse = {
-  accessToken: string;
+  accessToken?: string;
+  data?: {
+    accessToken?: string;
+  };
 };
 
 let refreshPromise: Promise<string> | null = null;
@@ -27,9 +31,7 @@ function saveToken(token: string): void {
   storageService.set(ACCESS_TOKEN_KEY, token);
 }
 
-export function attachApiInterceptors(
-  client: AxiosInstance,
-): void {
+export function attachApiInterceptors(client: AxiosInstance): void {
   client.interceptors.request.use((config) => {
     const token = getStoredToken();
 
@@ -37,7 +39,7 @@ export function attachApiInterceptors(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    if (config.data instanceof FormData) {
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
       delete config.headers["Content-Type"];
     }
 
@@ -54,7 +56,7 @@ export function attachApiInterceptors(
       const requestUrl = originalRequest?.url ?? "";
 
       const isAuthRequest =
-        /\/auth\/(login|register|refresh|logout)(?:[/?]|$)/i.test(
+        /\/auth\/(login|register|refresh|logout|request-password-reset|reset-password|forgot-password)(?:[/?]|$)/i.test(
           requestUrl,
         );
 
@@ -73,21 +75,22 @@ export function attachApiInterceptors(
         if (!refreshPromise) {
           const baseURL = client.defaults.baseURL ?? "";
 
-          // Supports either:
-          // http://localhost:3000/api
-          // http://localhost:3000
-          const refreshPath = /\/api\/?$/.test(baseURL)
+          const refreshPath = /\/api\/?$/i.test(baseURL)
             ? "/auth/refresh"
             : "/api/auth/refresh";
 
-          refreshPromise = client
+          // Use a separate Axios request so the refresh call does not
+          // pass through this client's response interceptor.
+          refreshPromise = axios
             .post<RefreshResponse>(
-              refreshPath,
+              `${baseURL.replace(/\/+$/, "")}${refreshPath}`,
               {},
               { withCredentials: true },
             )
             .then((response) => {
-              const token = response.data.accessToken;
+              const token =
+                response.data?.accessToken ??
+                response.data?.data?.accessToken;
 
               if (!token) {
                 throw new Error(
@@ -118,9 +121,7 @@ export function attachApiInterceptors(
           new CustomEvent("auth:session-expired"),
         );
 
-        return Promise.reject(
-          normalizeApiError(refreshError),
-        );
+        return Promise.reject(normalizeApiError(refreshError));
       }
     },
   );

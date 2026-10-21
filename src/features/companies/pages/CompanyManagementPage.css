@@ -65,7 +65,7 @@
 
 .company-primary-button {
   color: #fff;
-  background: #4f46e5;
+  background: #2563eb;
 }
 
 .company-primary-button:hover {
@@ -264,11 +264,6 @@
   background: #fee2e2;
 }
 
-.company-view-button {
-  padding: 6px 10px;
-  color: #4338ca;
-  background: #eef2ff;
-}
 
 .company-table-footer {
   display: flex;
@@ -383,24 +378,8 @@
   font-size: 13px;
 }
 
-.company-action-buttons .company-view-button {
-  background: #e8f0fe;
-  color: #1a56b3;
-}
 
-.company-action-buttons .company-delete-button {
-  background: #fde8e8;
-  color: #b42318;
-}
 
-.company-action-buttons button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.company-action-buttons button:hover:not(:disabled) {
-  opacity: 0.8;
-}
 
 .company-country-select{
     padding: 12px;

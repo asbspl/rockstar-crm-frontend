@@ -10,6 +10,7 @@ import {
 } from "../api/companies.api";
 import "./CompanyManagementPage.css";
 import ConfirmDialog from "../../../components/common/ConfirmDialog/ConfirmDialog";
+import ActionButton from "../../../components/common/ActionButton/ActionButton";
 
 const emptyForm = {
     companyName: "",
@@ -333,23 +334,19 @@ function CompanyManagementPage() {
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    className="company-primary-button"
-                    onClick={() => {
-                        if (showForm) {
-                            closeForm();
-                        } else {
-                            openAddForm();
-                        }
-                    }}
-                >
-                    <i
-                        className={`bi ${showForm ? "bi-arrow-left" : "bi-plus-lg"
-                            }`}
-                    />
-                    {showForm ? "Back to Companies" : "Add Company"}
-                </button>
+<ActionButton
+    action={showForm ? "cancel" : "add"}
+    type="button"
+    onClick={() => {
+        if (showForm) {
+            closeForm();
+        } else {
+            openAddForm();
+        }
+    }}
+>
+    {showForm ? "Back to Companies" : "Add Company"}
+</ActionButton>
             </div>
 
             {error && (
@@ -399,81 +396,81 @@ function CompanyManagementPage() {
 
 
 
-{fileFields.slice(0, 2).map(({ name, label }) => {
-    const existingPath =
-        name === "companyLogo"
-            ? editingCompany?.company_logo
-            : editingCompany?.company_signature;
+                        {fileFields.slice(0, 2).map(({ name, label }) => {
+                            const existingPath =
+                                name === "companyLogo"
+                                    ? editingCompany?.company_logo
+                                    : editingCompany?.company_signature;
 
-    const previewUrl = getFileUrl(existingPath);
+                            const previewUrl = getFileUrl(existingPath);
 
-    return (
-        <label className="company-field" key={name}>
-            <span>
-                {label} {!editingCompany && <b>*</b>}
-            </span>
+                            return (
+                                <label className="company-field" key={name}>
+                                    <span>
+                                        {label} {!editingCompany && <b>*</b>}
+                                    </span>
 
-            {editingCompany && (
-                <div className="company-file-preview">
-                    {previewUrl ? (
-                        <>
-                            <img
-                                key={previewUrl}
-                                src={previewUrl}
-                                alt={label}
-                                className="company-preview-image"
-                                onLoad={() => {
-                                    console.log(
-                                        `${label} loaded:`,
-                                        previewUrl
-                                    );
-                                }}
-                                onError={(event) => {
-                                    console.error(
-                                        `${label} failed to load:`,
-                                        event.currentTarget.src
-                                    );
-                                }}
-                            />
-                            <small>Existing {label}</small>
-                        </>
-                    ) : (
-                        <small>
-                            No existing {label.toLowerCase()} path was returned by the API.
-                        </small>
-                    )}
-                </div>
-            )}
+                                    {editingCompany && (
+                                        <div className="company-file-preview">
+                                            {previewUrl ? (
+                                                <>
+                                                    <img
+                                                        key={previewUrl}
+                                                        src={previewUrl}
+                                                        alt={label}
+                                                        className="company-preview-image"
+                                                        onLoad={() => {
+                                                            console.log(
+                                                                `${label} loaded:`,
+                                                                previewUrl
+                                                            );
+                                                        }}
+                                                        onError={(event) => {
+                                                            console.error(
+                                                                `${label} failed to load:`,
+                                                                event.currentTarget.src
+                                                            );
+                                                        }}
+                                                    />
+                                                    <small>Existing {label}</small>
+                                                </>
+                                            ) : (
+                                                <small>
+                                                    No existing {label.toLowerCase()} path was returned by the API.
+                                                </small>
+                                            )}
+                                        </div>
+                                    )}
 
-            <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                required={!editingCompany}
-                onChange={(event) => {
-                    const file = event.target.files?.[0];
+                                    <input
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        required={!editingCompany}
+                                        onChange={(event) => {
+                                            const file = event.target.files?.[0];
 
-                    setFiles((current) => ({
-                        ...current,
-                        [name]: file,
-                    }));
-                }}
-            />
+                                            setFiles((current) => ({
+                                                ...current,
+                                                [name]: file,
+                                            }));
+                                        }}
+                                    />
 
-            {files[name] && (
-                <div className="company-file-preview">
-                    <img
-                        src={URL.createObjectURL(files[name]!)}
-                        alt={`New ${label}`}
-                        className="company-preview-image"
-                    />
-                    <small>New {label} preview</small>
-                </div>
-            )}
+                                    {files[name] && (
+                                        <div className="company-file-preview">
+                                            <img
+                                                src={URL.createObjectURL(files[name]!)}
+                                                alt={`New ${label}`}
+                                                className="company-preview-image"
+                                            />
+                                            <small>New {label} preview</small>
+                                        </div>
+                                    )}
 
-            <small>PNG, JPG or WEBP · Maximum 5 MB</small>
-        </label>
-    );
-})}
+                                    <small>PNG, JPG or WEBP · Maximum 5 MB</small>
+                                </label>
+                            );
+                        })}
 
 
 
@@ -684,7 +681,7 @@ function CompanyManagementPage() {
                             />
                         </label>
 
-                               <label className="company-field">
+                        <label className="company-field">
                             <span>GST Number <b>*</b></span>
                             <input
                                 required
@@ -696,159 +693,150 @@ function CompanyManagementPage() {
                                 placeholder="Enter GST number"
                             />
                         </label>
-              
-<label className="company-field">
-  <span>
-    Upload PAN Card {!editingCompany && <b>*</b>}
-  </span>
 
-  {/* Existing PAN document preview */}
-  {editingCompany?.pan_document && (
-    <div className="company-file-preview">
-      {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
-        editingCompany.pan_document
-      ) ? (
-        <img
-          src={getFileUrl(editingCompany.pan_document)}
-          alt="Existing PAN card"
-          className="company-preview-image"
-        />
-      ) : (
-        <a
-          href={getFileUrl(editingCompany.pan_document)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View existing PAN document
-        </a>
-      )}
-      <small>Existing PAN document</small>
-    </div>
-  )}
+                        <label className="company-field">
+                            <span>
+                                Upload PAN Card {!editingCompany && <b>*</b>}
+                            </span>
 
-  <input
-    type="file"
-    accept="image/png,image/jpeg,image/webp,application/pdf"
-    required={!editingCompany}
-    onChange={(e) =>
-      setFiles((current) => ({
-        ...current,
-        panDocument: e.target.files?.[0],
-      }))
-    }
-  />
+                            {/* Existing PAN document preview */}
+                            {editingCompany?.pan_document && (
+                                <div className="company-file-preview">
+                                    {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
+                                        editingCompany.pan_document
+                                    ) ? (
+                                        <img
+                                            src={getFileUrl(editingCompany.pan_document)}
+                                            alt="Existing PAN card"
+                                            className="company-preview-image"
+                                        />
+                                    ) : (
+                                        <a
+                                            href={getFileUrl(editingCompany.pan_document)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            View existing PAN document
+                                        </a>
+                                    )}
+                                    <small>Existing PAN document</small>
+                                </div>
+                            )}
 
-  {/* Preview newly selected PAN file */}
-  {files.panDocument && (
-    <div className="company-file-preview">
-      {files.panDocument.type.startsWith("image/") ? (
-        <img
-          src={URL.createObjectURL(files.panDocument)}
-          alt="New PAN card preview"
-          className="company-preview-image"
-        />
-      ) : (
-        <a
-          href={URL.createObjectURL(files.panDocument)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View new PAN document (PDF)
-        </a>
-      )}
-      <small>New PAN document: {files.panDocument.name}</small>
-    </div>
-  )}
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,application/pdf"
+                                required={!editingCompany}
+                                onChange={(e) =>
+                                    setFiles((current) => ({
+                                        ...current,
+                                        panDocument: e.target.files?.[0],
+                                    }))
+                                }
+                            />
 
-  <small>PDF, PNG, JPG or WEBP · Maximum 5 MB</small>
-</label>
+                            {/* Preview newly selected PAN file */}
+                            {files.panDocument && (
+                                <div className="company-file-preview">
+                                    {files.panDocument.type.startsWith("image/") ? (
+                                        <img
+                                            src={URL.createObjectURL(files.panDocument)}
+                                            alt="New PAN card preview"
+                                            className="company-preview-image"
+                                        />
+                                    ) : (
+                                        <a
+                                            href={URL.createObjectURL(files.panDocument)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            View new PAN document (PDF)
+                                        </a>
+                                    )}
+                                    <small>New PAN document: {files.panDocument.name}</small>
+                                </div>
+                            )}
 
-
+                            <small>PDF, PNG, JPG or WEBP · Maximum 5 MB</small>
+                        </label>
 
 
-<label className="company-field">
-  <span>
-    Upload GST Certificate {!editingCompany && <b>*</b>}
-  </span>
 
-  {/* Show the existing GST certificate */}
-  {editingCompany?.gst_certificate && (
-    <div className="company-file-preview">
-      {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
-        editingCompany.gst_certificate
-      ) ? (
-        <img
-          src={getFileUrl(editingCompany.gst_certificate)}
-          alt="Existing GST Certificate"
-          className="company-preview-image"
-          onError={(event) => {
-            console.error(
-              "GST certificate failed to load:",
-              event.currentTarget.src
-            );
-          }}
-        />
-      ) : (
-        <a
-          href={getFileUrl(editingCompany.gst_certificate)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View existing GST certificate (PDF)
-        </a>
-      )}
 
-      <small>Existing GST certificate</small>
-    </div>
-  )}
+                        <label className="company-field">
+                            <span>
+                                Upload GST Certificate {!editingCompany && <b>*</b>}
+                            </span>
 
-  <input
-    type="file"
-    accept="image/png,image/jpeg,image/webp,application/pdf"
-    required={!editingCompany}
-    onChange={(e) =>
-      setFiles((current) => ({
-        ...current,
-        gstCertificate: e.target.files?.[0],
-      }))
-    }
-  />
+                            {/* Show the existing GST certificate */}
+                            {editingCompany?.gst_certificate && (
+                                <div className="company-file-preview">
+                                    {/\.(png|jpe?g|webp)(\?.*)?$/i.test(
+                                        editingCompany.gst_certificate
+                                    ) ? (
+                                        <img
+                                            src={getFileUrl(editingCompany.gst_certificate)}
+                                            alt="Existing GST Certificate"
+                                            className="company-preview-image"
+                                            onError={(event) => {
+                                                console.error(
+                                                    "GST certificate failed to load:",
+                                                    event.currentTarget.src
+                                                );
+                                            }}
+                                        />
+                                    ) : (
+                                        <a
+                                            href={getFileUrl(editingCompany.gst_certificate)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            View existing GST certificate (PDF)
+                                        </a>
+                                    )}
 
-  {/* Preview the newly selected file */}
-  {files.gstCertificate && (
-    <div className="company-file-preview">
-      {files.gstCertificate.type.startsWith("image/") ? (
-        <img
-          src={URL.createObjectURL(files.gstCertificate)}
-          alt="New GST Certificate Preview"
-          className="company-preview-image"
-        />
-      ) : (
-        <span>{files.gstCertificate.name}</span>
-      )}
-      <small>New GST certificate</small>
-    </div>
-  )}
+                                    <small>Existing GST certificate</small>
+                                </div>
+                            )}
 
-  <small>
-    PDF, PNG, JPG or WEBP · Maximum 5 MB
-    {editingCompany &&
-      companyLabel(editingCompany.gst_certificate)}
-  </small>
-</label>
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,application/pdf"
+                                required={!editingCompany}
+                                onChange={(e) =>
+                                    setFiles((current) => ({
+                                        ...current,
+                                        gstCertificate: e.target.files?.[0],
+                                    }))
+                                }
+                            />
+
+                            {/* Preview the newly selected file */}
+                            {files.gstCertificate && (
+                                <div className="company-file-preview">
+                                    {files.gstCertificate.type.startsWith("image/") ? (
+                                        <img
+                                            src={URL.createObjectURL(files.gstCertificate)}
+                                            alt="New GST Certificate Preview"
+                                            className="company-preview-image"
+                                        />
+                                    ) : (
+                                        <span>{files.gstCertificate.name}</span>
+                                    )}
+                                    <small>New GST certificate</small>
+                                </div>
+                            )}
+
+                            <small>
+                                PDF, PNG, JPG or WEBP · Maximum 5 MB
+                                {editingCompany &&
+                                    companyLabel(editingCompany.gst_certificate)}
+                            </small>
+                        </label>
 
                     </div>
 
                     <div className="company-form-actions">
-                        <button
-                            type="button"
-                            className="company-secondary-button"
-                            disabled={saving}
-                            onClick={closeForm}
-                        >
-                            Cancel
-                        </button>
-
                         <button
                             type="submit"
                             className="company-primary-button"
@@ -858,8 +846,18 @@ function CompanyManagementPage() {
                                 ? "Saving..."
                                 : editingCompany
                                     ? "Update Company"
-                                    : "Submit"}
+                                    : "Save Company"}
                         </button>
+                        <button
+                            type="button"
+                            className="company-secondary-button"
+                            disabled={saving}
+                            onClick={closeForm}
+                        >
+                            Cancel
+                        </button>
+
+
                     </div>
                 </form>
             ) : (
@@ -953,28 +951,20 @@ function CompanyManagementPage() {
                                             </td>
 
                                             <td className="company-action-buttons">
-                                                <button
-                                                    type="button"
-                                                    className="company-view-button"
+                                                <ActionButton
+                                                    action="edit"
                                                     onClick={() => openEditForm(company)}
                                                     title="Edit company"
-                                                >
-                                                    <i className="bi bi-pencil-square" />
-                                                    Edit
-                                                </button>
+                                                />
 
-                                                <button
-                                                    type="button"
-                                                    className="company-delete-button"
+                                                <ActionButton
+                                                    action="delete"
                                                     disabled={deletingId !== null}
                                                     onClick={() => setCompanyToDelete(company)}
                                                     title="Delete company"
                                                 >
-                                                    <i className="bi bi-trash" />
-                                                    {deletingId === company.id
-                                                        ? "Deleting..."
-                                                        : "Delete"}
-                                                </button>
+                                                    {deletingId === company.id ? "Deleting..." : "Delete"}
+                                                </ActionButton>
                                             </td>
                                         </tr>
                                     ))
