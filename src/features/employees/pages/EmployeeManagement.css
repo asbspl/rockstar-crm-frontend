@@ -1,4 +1,3 @@
-
 /* ========================================
    EMPLOYEE MANAGEMENT PAGE
    ======================================== */
@@ -196,28 +195,35 @@
    ======================================== */
 
 .employee-status {
-    padding: 8px 13px;
-    border: 0;
-    border-radius: 22px;
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 82px;
+    padding: 6px 11px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 12px;
     font-weight: 700;
-    white-space: nowrap;
     cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
 }
 
 .employee-status-active {
-    background: #e3f8eb;
-    color: #168448;
+    background: #dcfce7;
+    border-color: #bbf7d0;
+    color: #166534;
 }
 
 .employee-status-inactive {
-    background: #fff0dc;
-    color: #9a5b08;
+    background: #fde8e8;
+    border-color: #c5231836;
+    color: #c52318;
+
 }
 
 .employee-status-resign {
-    background: #fee8eb;
-    color: #b42336;
+    background: #fff0dc;
+    color: #9a5b08;
     cursor: not-allowed;
 }
 
@@ -248,7 +254,7 @@
     font-size: 14px;
 }
 
-.employee-pagination > div {
+.employee-pagination>div {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -493,7 +499,7 @@
         font-size: 14px;
     }
 
-    .employee-heading > button {
+    .employee-heading>button {
         width: 100%;
     }
 
@@ -505,7 +511,7 @@
         width: 100%;
     }
 
-    .employee-pagination > div {
+    .employee-pagination>div {
         flex-wrap: wrap;
     }
 }

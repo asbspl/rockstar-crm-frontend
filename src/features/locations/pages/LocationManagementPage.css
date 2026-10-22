@@ -1,0 +1,423 @@
+
+/* =========================================
+   LOCATION MANAGEMENT TABLE
+========================================= */
+
+.location-table-wrapper {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.location-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    text-align: left;
+}
+
+.location-table thead {
+    background: var(--table-header-background, #f8f9fc);
+}
+
+
+
+.location-table th:nth-child(1),
+.location-table td:nth-child(1) {
+    width: 90px;
+}
+
+.location-table th:nth-child(2),
+.location-table td:nth-child(2) {
+    width: auto;
+}
+
+.location-table th:nth-child(3),
+.location-table td:nth-child(3) {
+    width: 190px;
+    min-width: 190px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.location-table td {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color, #eaecf0);
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.location-table tbody tr:hover {
+    background: var(--table-row-hover, #fafaff);
+}
+
+.location-table-message {
+    padding: 40px 20px !important;
+    color: var(--text-secondary, #667085);
+    text-align: center;
+}
+
+.location-name-cell {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* Action buttons aligned to the right */
+
+.location-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+/* =========================================
+   LOCATION FORM
+========================================= */
+
+.location-fieldset {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+    padding: 24px;
+    border: 1px solid var(--border-color, #e4e7ec);
+    border-radius: 12px;
+    background: var(--card-background, #fff);
+    overflow: visible;
+}
+
+.location-fieldset legend {
+    padding: 0 8px;
+    color: var(--text-primary, #172033);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.location-form-description {
+    margin: 0 0 22px;
+    color: var(--text-secondary, #667085);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.location-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    overflow: visible;
+}
+
+.location-form-field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+    max-width: 600px;
+    min-width: 0;
+    overflow: visible;
+}
+
+.location-form-field > span {
+    color: var(--text-primary, #344054);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.location-form-field b {
+    color: #d92d20;
+}
+
+/* =========================================
+   LOCATION SEARCH SELECT
+========================================= */
+
+.location-search-select {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    z-index: 20;
+}
+
+/* Search input */
+
+.location-search-select input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid var(--input-border, #d0d5dd);
+    border-radius: 9px;
+    outline: none;
+    background: var(--input-background, #fff);
+    color: var(--text-primary, #172033);
+    font: inherit;
+    font-size: 14px;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.location-search-select input::placeholder {
+    color: var(--text-secondary, #98a2b3);
+}
+
+.location-search-select input:focus {
+    border-color: var(--primary-color, #5b4ce2);
+    box-shadow: 0 0 0 3px rgb(91 76 226 / 12%);
+}
+
+.location-search-select input:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Suggestions dropdown */
+
+.location-search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    max-height: 280px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border: 1px solid var(--border-color, #d0d5dd);
+    border-radius: 10px;
+    background: var(--card-background, #fff);
+    box-shadow: 0 12px 30px rgb(16 24 40 / 16%);
+}
+
+/* Individual suggestion buttons */
+
+.location-search-results button {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 58px;
+    padding: 12px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-primary, #172033);
+    font: inherit;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+
+.location-search-results button:last-child {
+    border-bottom: 0;
+}
+
+.location-search-results button:hover,
+.location-search-results button:focus-visible {
+    outline: none;
+    background: var(--surface-hover, #f8fafc);
+}
+
+/* Close suggestions control */
+
+.location-search-select button {
+    cursor: pointer;
+}
+
+/* =========================================
+   READ-ONLY DETAILS
+========================================= */
+
+.location-readonly-details {
+    margin-top: 18px;
+    padding: 16px 20px;
+    border: 1px solid var(--border-color, #e4e7ec);
+    border-radius: 9px;
+    background: var(--surface-color, #fff);
+}
+
+.location-readonly-details p {
+    margin: 0;
+    color: var(--text-secondary, #667085);
+    font-size: 13px;
+}
+
+.location-readonly-details strong {
+    color: var(--text-primary, #344054);
+}
+
+/* =========================================
+   FORM ACTION BUTTONS
+========================================= */
+
+.location-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.location-primary-button,
+.location-secondary-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+.location-primary-button {
+    background: var(--primary-color, #5b4ce2);
+    color: #fff;
+    box-shadow: 0 3px 8px rgb(91 76 226 / 16%);
+}
+
+.location-primary-button:hover:not(:disabled) {
+    background: var(--primary-hover, #4838ca);
+    transform: translateY(-1px);
+}
+
+.location-secondary-button {
+    border-color: var(--border-color, #e4e7ec);
+    background: var(--surface-color, #fff);
+    color: var(--text-primary, #344054);
+}
+
+.location-secondary-button:hover:not(:disabled) {
+    background: var(--surface-hover, #f8fafc);
+}
+
+.location-primary-button:focus-visible,
+.location-secondary-button:focus-visible {
+    outline: 3px solid rgb(91 76 226 / 20%);
+    outline-offset: 2px;
+}
+
+.location-primary-button:disabled,
+.location-secondary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.location-alert {
+    margin-bottom: 18px;
+    padding: 12px 15px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.location-alert-error {
+    border-color: #fecdca;
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.location-alert-success {
+    border-color: #abefc6;
+    background: #ecfdf3;
+    color: #067647;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 768px) {
+    .location-table th,
+    .location-table td {
+        padding: 13px 16px;
+    }
+
+    .location-table th:nth-child(3),
+    .location-table td:nth-child(3) {
+        width: 170px;
+        min-width: 170px;
+    }
+
+    .location-fieldset {
+        padding: 18px;
+    }
+
+    .location-form-footer {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-table th,
+    .location-table td {
+        padding: 12px;
+    }
+
+    .location-form-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .location-primary-button,
+    .location-secondary-button {
+        width: 100%;
+    }
+}
+
+
+/* Allow location suggestions to extend beyond the form field */
+.location-fieldset {
+    overflow: visible;
+}
+
+.location-form-grid {
+    overflow: visible;
+}
+
+.location-form-field {
+    position: relative;
+    overflow: visible;
+}
+
+.location-form-field:has(.location-search) {
+    z-index: 20;
+}
+
+.location-search:has(.location-search__results) {
+    z-index: 100;
+}
+
