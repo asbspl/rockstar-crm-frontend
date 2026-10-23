@@ -442,7 +442,7 @@ export default function EmployeeManagementPage() {
             notice={
                 notice ? (
                     <div
-                        className="employee-notice"
+                        className="employee-alert-success"
                         role="status"
                     >
                         {notice}

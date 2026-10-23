@@ -59,9 +59,9 @@ export default function DriverManagementPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const [driverToDelete, setDriverToDelete] = useState<Driver | null>(null);
     const [driverToChangeStatus, setDriverToChangeStatus] =
-    useState<Driver | null>(null);
+        useState<Driver | null>(null);
     const [updatingStatusId, setUpdatingStatusId] =
-    useState<number | null>(null);
+        useState<number | null>(null);
     const loadDrivers = useCallback(async () => {
         setLoading(true);
         setError("");
@@ -204,67 +204,67 @@ export default function DriverManagementPage() {
         }
     };
 
-const changeStatus = (driver: Driver) => {
-    if (updatingStatusId !== null) {
-        return;
-    }
-
-    setError("");
-    setNotice("");
-    setDriverToChangeStatus(driver);
-};
-
-const handleConfirmStatusChange = async () => {
-    if (!driverToChangeStatus || updatingStatusId !== null) {
-        return;
-    }
-
-    const driver = driverToChangeStatus;
-
-    const nextStatus =
-        driver.status === "Active" ? "Inactive" : "Active";
-
-    setUpdatingStatusId(driver.id);
-    setError("");
-    setNotice("");
-
-    try {
-        await updateDriverStatus(driver.id, nextStatus);
-
-        setDriverToChangeStatus(null);
-        setNotice(
-            `${driver.driver_full_name || "Driver"} marked ${nextStatus.toLowerCase()} successfully.`,
-        );
-
-        await loadDrivers();
-    } catch {
-        setError("Unable to update driver status.");
-    } finally {
-        setUpdatingStatusId(null);
-    }
-};
-const removeDriver = async (driver: Driver) => {
-    setDeletingId(driver.id);
-    setError("");
-    setNotice("");
-
-    try {
-        await deleteDriver(driver.id);
-
-        setDriverToDelete(null);
-        setNotice("Driver deleted successfully.");
-
-        if (drivers.length === 1 && page > 1) {
-            setPage((current) => current - 1);
-        } else {
-            await loadDrivers();
+    const changeStatus = (driver: Driver) => {
+        if (updatingStatusId !== null) {
+            return;
         }
-    } catch {
-        setError("Unable to delete driver.");
-    } finally {
-        setDeletingId(null);
-    }
-};
+
+        setError("");
+        setNotice("");
+        setDriverToChangeStatus(driver);
+    };
+
+    const handleConfirmStatusChange = async () => {
+        if (!driverToChangeStatus || updatingStatusId !== null) {
+            return;
+        }
+
+        const driver = driverToChangeStatus;
+
+        const nextStatus =
+            driver.status === "Active" ? "Inactive" : "Active";
+
+        setUpdatingStatusId(driver.id);
+        setError("");
+        setNotice("");
+
+        try {
+            await updateDriverStatus(driver.id, nextStatus);
+
+            setDriverToChangeStatus(null);
+            setNotice(
+                `${driver.driver_full_name || "Driver"} marked ${nextStatus.toLowerCase()} successfully.`,
+            );
+
+            await loadDrivers();
+        } catch {
+            setError("Unable to update driver status.");
+        } finally {
+            setUpdatingStatusId(null);
+        }
+    };
+    const removeDriver = async (driver: Driver) => {
+        setDeletingId(driver.id);
+        setError("");
+        setNotice("");
+
+        try {
+            await deleteDriver(driver.id);
+
+            setDriverToDelete(null);
+            setNotice("Driver deleted successfully.");
+
+            if (drivers.length === 1 && page > 1) {
+                setPage((current) => current - 1);
+            } else {
+                await loadDrivers();
+            }
+        } catch {
+            setError("Unable to delete driver.");
+        } finally {
+            setDeletingId(null);
+        }
+    };
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const startIndex = (page - 1) * limit;
@@ -461,19 +461,18 @@ const removeDriver = async (driver: Driver) => {
                                         </td>
 
                                         <td>
-<button
-    type="button"
-    className={`driver-status ${
-        driver.status === "Active" ? "is-active" : "is-inactive"
-    }`}
-    disabled={updatingStatusId !== null}
-    onClick={() => changeStatus(driver)}
-    title="Click to change status"
->
-    {updatingStatusId === driver.id
-        ? "Updating..."
-        : driver.status}
-</button>
+                                            <button
+                                                type="button"
+                                                className={`driver-status ${driver.status === "Active" ? "is-active" : "is-inactive"
+                                                    }`}
+                                                disabled={updatingStatusId !== null}
+                                                onClick={() => changeStatus(driver)}
+                                                title="Click to change status"
+                                            >
+                                                {updatingStatusId === driver.id
+                                                    ? "Updating..."
+                                                    : driver.status}
+                                            </button>
                                         </td>
 
                                         <td>
@@ -765,7 +764,7 @@ const removeDriver = async (driver: Driver) => {
                         )}
 
                         <footer className="driver-form-footer">
-                             {mode !== "view" && (
+                            {mode !== "view" && (
                                 <button
                                     type="submit"
                                     className="driver-primary-button"
@@ -787,7 +786,7 @@ const removeDriver = async (driver: Driver) => {
                                 {mode === "view" ? "Back to List" : "Cancel"}
                             </button>
 
-                           
+
 
                             {mode === "view" && (
                                 <button
@@ -806,34 +805,32 @@ const removeDriver = async (driver: Driver) => {
                     </form>
                 </>
             )}
+
 <ConfirmDialog
-    open={driverToChangeStatus !== null}
-    title="Change Driver Status?"
+    open={driverToDelete !== null}
+    title="Delete Driver?"
     message={
-        driverToChangeStatus
-            ? `Are you sure you want to change ${
-                  driverToChangeStatus.driver_full_name || "this driver"
-              }'s status to ${
-                  driverToChangeStatus.status === "Active"
-                      ? "Inactive"
-                      : "Active"
-              }?`
+        driverToDelete
+            ? `Are you sure you want to delete ${
+                  driverToDelete.driver_full_name || "this driver"
+              }? This action cannot be undone.`
             : ""
     }
-    itemName={
-        driverToChangeStatus?.driver_full_name || "this driver"
-    }
-    confirmText="Confirm"
-    loading={updatingStatusId !== null}
+    itemName={driverToDelete?.driver_full_name || "this driver"}
+    confirmText="Delete"
+    loading={deletingId !== null}
     onCancel={() => {
-        if (updatingStatusId === null) {
-            setDriverToChangeStatus(null);
+        if (deletingId === null) {
+            setDriverToDelete(null);
         }
     }}
     onConfirm={() => {
-        void handleConfirmStatusChange();
+        if (driverToDelete && deletingId === null) {
+            void removeDriver(driverToDelete);
+        }
     }}
 />
+
         </ManagementLayout>
     );
 }
