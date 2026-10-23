@@ -19,6 +19,7 @@ import EmployeeManagementPage from "../features/employees/pages/EmployeeManageme
 import DriverManagementPage from "../features/drivers/pages/DriverManagementPage";
 import ContractorManagementPage from "../features/contractors/pages/ContractorManagementPage";
 import LocationManagementPage from "../features/locations/pages/LocationManagementPage";
+import ClientManagementPage from "../features/clients/pages/ClientManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
           {
             path: "/customers/locations",
             element: <LocationManagementPage />,
+          },
+          {
+            path: "/customers/clients",
+            element: <ClientManagementPage />,
           },
           {
             path: "/profile",

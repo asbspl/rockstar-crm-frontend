@@ -62,3 +62,174 @@ code {
   border-radius: 6px;
   padding: 0.2rem 0.4rem;
 }
+
+
+
+/* ==========================================
+   ROCKSTAR CRM - GLOBAL TOAST NOTIFICATIONS
+   ========================================== */
+
+:is(
+    [class*="-alert"],
+    [class^="alert-"],
+    [class*=" alert-"],
+    .location-capture-message
+) {
+    position: fixed !important;
+    top: 72px !important;
+    right: 22px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 999999 !important;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: max-content;
+    max-width: min(430px, calc(100vw - 44px));
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 16px 20px;
+
+    background: #ffffff;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #64748b;
+    border-radius: 12px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+
+    box-shadow:
+        0 12px 30px rgb(15 23 42 / 12%),
+        0 3px 8px rgb(15 23 42 / 5%);
+
+    animation: crmToastLifecycle 4.35s ease forwards;
+}
+
+/* SUCCESS — GREEN */
+:is(
+    [class*="alert-success"],
+    [class*="alert--success"]
+) {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    border-left-color: #16a34a;
+}
+
+/* ERROR / DELETE — RED */
+:is(
+    [class*="alert-error"],
+    [class*="alert--error"],
+    [class*="alert-danger"],
+    [class*="alert-delete"],
+    [class*="alert-deleted"],
+    [class*="alert-dangerous"]
+) {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+    border-left-color: #dc2626;
+}
+
+/* WARNING / WAITING — YELLOW */
+:is(
+    [class*="alert-warning"],
+    [class*="alert--warning"],
+    [class*="alert-pending"],
+    [class*="alert-waiting"]
+) {
+    color: #854d0e;
+    background: #fefce8;
+    border-color: #fde68a;
+    border-left-color: #eab308;
+}
+
+/* INFORMATION / LOADING — BLUE */
+:is(
+    [class*="alert-info"],
+    [class*="alert--info"],
+    .location-capture-message
+) {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    border-left-color: #3b82f6;
+}
+
+/* SUCCESS HOVER */
+:is(
+    [class*="alert-success"],
+    [class*="alert--success"]
+):hover {
+    box-shadow: 0 14px 34px rgb(22 163 74 / 15%);
+}
+
+/* ERROR HOVER */
+:is(
+    [class*="alert-error"],
+    [class*="alert--error"],
+    [class*="alert-danger"]
+):hover {
+    box-shadow: 0 14px 34px rgb(220 38 38 / 15%);
+}
+
+/* POPUP ANIMATION */
+@keyframes crmToastLifecycle {
+    0% {
+        opacity: 0;
+        transform: translate3d(24px, -6px, 0) scale(0.97);
+    }
+
+    8% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    90% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate3d(24px, -6px, 0) scale(0.97);
+        visibility: hidden;
+    }
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 600px) {
+    :is(
+        [class*="-alert"],
+        [class^="alert-"],
+        [class*=" alert-"],
+        .location-capture-message
+    ) {
+        top: 12px !important;
+        right: 12px !important;
+        max-width: calc(100vw - 24px);
+        padding: 13px 15px;
+        border-radius: 10px;
+        font-size: 13px;
+    }
+}
+
+/* ACCESSIBILITY */
+@media (prefers-reduced-motion: reduce) {
+    :is(
+        [class*="-alert"],
+        [class^="alert-"],
+        [class*=" alert-"],
+        .location-capture-message
+    ) {
+        animation: none;
+    }
+}
+
+   
