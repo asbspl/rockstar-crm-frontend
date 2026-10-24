@@ -63,8 +63,8 @@ const navigation: NavigationItem[] = [
     icon: "bi-box-seam",
     type: "menu",
     items: [
-      { label: "Manage Product", path: "/settings/products", icon: "bi-boxes" },
-      { label: "Manage Rate Matrix", path: "/settings/rate-matrix", icon: "bi-calculator" },
+      { label: "Manage Product", path: "/products/products", icon: "bi-boxes" },
+      { label: "Manage Rate Matrix", path: "/products/rate-matrix", icon: "bi-calculator" },
       { label: "Manage Coupon", path: "/settings/coupons", icon: "bi-ticket-perforated" },
     ],
   },
