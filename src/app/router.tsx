@@ -21,6 +21,8 @@ import ContractorManagementPage from "../features/contractors/pages/ContractorMa
 import LocationManagementPage from "../features/locations/pages/LocationManagementPage";
 import ClientManagementPage from "../features/clients/pages/ClientManagementPage";
 import CustomerManagementPage from "../features/customers/pages/CustomerManagementPage";
+import SiteManagementPage from "../features/sites/pages/SiteManagementPage";
+import ProductManagementPage from "../features/products/pages/ProductManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -90,6 +92,13 @@ const router = createBrowserRouter([
           {
             path: "/customers/customers",
             element: <CustomerManagementPage />,
+          },
+          {
+            path: "/customers/Sites",
+            element: <SiteManagementPage />,
+          }, {
+            path: "/products/products",
+            element: <ProductManagementPage />,
           },
           {
             path: "/profile",
