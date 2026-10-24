@@ -20,6 +20,7 @@ import DriverManagementPage from "../features/drivers/pages/DriverManagementPage
 import ContractorManagementPage from "../features/contractors/pages/ContractorManagementPage";
 import LocationManagementPage from "../features/locations/pages/LocationManagementPage";
 import ClientManagementPage from "../features/clients/pages/ClientManagementPage";
+import CustomerManagementPage from "../features/customers/pages/CustomerManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
           {
             path: "/customers/clients",
             element: <ClientManagementPage />,
+          },
+          {
+            path: "/customers/customers",
+            element: <CustomerManagementPage />,
           },
           {
             path: "/profile",
