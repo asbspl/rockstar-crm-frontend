@@ -1,0 +1,167 @@
+.rate-matrix-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.rate-matrix-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+.rate-matrix-table th,
+.rate-matrix-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.rate-matrix-table th {
+    background: var(--table-header-bg, #f8fafc);
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.rate-matrix-table-message {
+    padding: 28px !important;
+    color: var(--text-muted, #64748b);
+    text-align: center !important;
+}
+
+.rate-matrix-amount {
+    font-weight: 650;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.rate-matrix-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.rate-matrix-alert {
+    padding: 11px 14px;
+    margin: 8px 0;
+    border-radius: 8px;
+}
+
+.rate-matrix-alert--error {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.rate-matrix-alert--success {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.rate-matrix-form {
+    display: grid;
+    gap: 20px;
+}
+
+.rate-matrix-fieldset {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--border-color, #dbe1e8);
+    border-radius: 10px;
+}
+
+.rate-matrix-fieldset legend {
+    padding: 0 8px;
+    font-weight: 700;
+}
+
+.rate-matrix-intro {
+    margin: 0 0 18px;
+    color: var(--text-muted, #64748b);
+    font-size: 14px;
+}
+
+.rate-matrix-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.rate-matrix-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    font-size: 14px;
+}
+
+.rate-matrix-form-field > span {
+    font-weight: 600;
+}
+
+.rate-matrix-form-field input,
+.rate-matrix-form-field select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 1px solid var(--input-border, #cbd5e1);
+    border-radius: 7px;
+    background: var(--input-bg, #fff);
+    color: var(--text-color, #111827);
+    font: inherit;
+}
+
+.rate-matrix-form-field input:disabled,
+.rate-matrix-form-field select:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.rate-matrix-form-field small {
+    color: var(--text-muted, #64748b);
+    line-height: 1.5;
+}
+
+.rate-matrix-form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.rate-matrix-primary-button,
+.rate-matrix-secondary-button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 7px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.rate-matrix-primary-button {
+    background: var(--primary-color, #2563eb);
+    color: #fff;
+}
+
+.rate-matrix-secondary-button {
+    background: var(--button-secondary-bg, #e2e8f0);
+    color: var(--button-secondary-color, #1e293b);
+}
+
+.rate-matrix-primary-button:disabled,
+.rate-matrix-secondary-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 760px) {
+    .rate-matrix-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rate-matrix-fieldset {
+        padding: 13px;
+    }
+}
