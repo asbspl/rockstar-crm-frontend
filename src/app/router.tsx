@@ -23,6 +23,7 @@ import ClientManagementPage from "../features/clients/pages/ClientManagementPage
 import CustomerManagementPage from "../features/customers/pages/CustomerManagementPage";
 import SiteManagementPage from "../features/sites/pages/SiteManagementPage";
 import ProductManagementPage from "../features/products/pages/ProductManagementPage";
+import RateMatrixManagementPage from "../features/rate-matrix/pages/RateMatrixManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
           }, {
             path: "/products/products",
             element: <ProductManagementPage />,
+          },
+          {
+            path: "/products/rate-matrix",
+            element: <RateMatrixManagementPage />,
           },
           {
             path: "/profile",
