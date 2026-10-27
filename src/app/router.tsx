@@ -24,6 +24,7 @@ import CustomerManagementPage from "../features/customers/pages/CustomerManageme
 import SiteManagementPage from "../features/sites/pages/SiteManagementPage";
 import ProductManagementPage from "../features/products/pages/ProductManagementPage";
 import RateMatrixManagementPage from "../features/rate-matrix/pages/RateMatrixManagementPage";
+import QuotationManagementPage from "../features/quotations/pages/QuotationManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -97,7 +98,13 @@ const router = createBrowserRouter([
           {
             path: "/customers/Sites",
             element: <SiteManagementPage />,
-          }, {
+          },
+          {
+            path: "/customers/quotations",
+            element: <QuotationManagementPage />,
+          },
+          
+          {
             path: "/products/products",
             element: <ProductManagementPage />,
           },
