@@ -54,8 +54,8 @@ const navigation: NavigationItem[] = [
       { label: "Manage Site", path: "/customers/sites", icon: "bi-pin-map" },
       { label: "Manage Quotation", path: "/customers/quotations", icon: "bi-file-earmark-text" },
       { label: "Manage Order", path: "/customers/orders", icon: "bi-bag-check" },
-      { label: "Manage Visit", path: "/customers/visits", icon: "bi-calendar2-week" },
-      { label: "Manage Queries", path: "/customers/queries", icon: "bi-chat-square-dots" },
+      // { label: "Manage Visit", path: "/customers/visits", icon: "bi-calendar2-week" },
+      // { label: "Manage Queries", path: "/customers/queries", icon: "bi-chat-square-dots" },
     ],
   },
   {
@@ -65,7 +65,7 @@ const navigation: NavigationItem[] = [
     items: [
       { label: "Manage Product", path: "/products/products", icon: "bi-boxes" },
       { label: "Manage Rate Matrix", path: "/products/rate-matrix", icon: "bi-calculator" },
-      { label: "Manage Coupon", path: "/settings/coupons", icon: "bi-ticket-perforated" },
+      // { label: "Manage Coupon", path: "/settings/coupons", icon: "bi-ticket-perforated" },
     ],
   },
   {
