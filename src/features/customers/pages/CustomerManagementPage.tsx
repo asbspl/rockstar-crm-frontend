@@ -1221,7 +1221,7 @@ export default function CustomerManagementPage() {
                                                     : "—"}
                                             </td>
 
-                                            <td>{customer.phone || "—"}</td>
+                                            <td className="table-no-wrap">{customer.phone || "—"}</td>
                                             <td>{customer.email || "—"}</td>
 
                                             <td>

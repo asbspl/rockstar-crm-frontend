@@ -854,8 +854,12 @@ export default function ClientManagementPage() {
                                         <td className="client-name-cell">
                                             {client.client_name || "—"}
                                         </td>
-                                        <td>{client.client_code || "—"}</td>
-                                        <td>{client.client_phone || "—"}</td>
+                                        <td className="table-no-wrap">
+                                            {client.client_code || "—"}
+                                        </td>
+                                        <td className="table-no-wrap">
+                                            {client.client_phone || "—"}
+                                        </td>
                                         <td>{client.client_email || "—"}</td>
                                         <td>
                                             {[

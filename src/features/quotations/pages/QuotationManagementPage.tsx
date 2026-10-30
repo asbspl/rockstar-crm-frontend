@@ -1564,6 +1564,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                     <td
                                         colSpan={8}
                                         className="quotation-empty"
+                                        
                                     >
                                         Loading quotations...
                                     </td>
@@ -1584,7 +1585,7 @@ async function handlePrintQuotation(quotation: Quotation) {
 
                                     return (
                                         <tr key={quotation.id}>
-                                            <td>{quotation.quotation_no}</td>
+                                            <td className="table-no-wrap">{quotation.quotation_no}</td>
                                             <td>{quotation.company_name || "—"}</td>
                                             <td>{quotation.client_name || "—"}</td>
                                             <td>{quotation.customer_name || "—"}</td>
