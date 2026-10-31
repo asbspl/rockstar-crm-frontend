@@ -214,57 +214,85 @@ export default function DriverManagementPage() {
         setDriverToChangeStatus(driver);
     };
 
-    const handleConfirmStatusChange = async () => {
-        if (!driverToChangeStatus || updatingStatusId !== null) {
-            return;
-        }
+const handleConfirmStatusChange = async () => {
+    if (!driverToChangeStatus || updatingStatusId !== null) {
+        return;
+    }
 
-        const driver = driverToChangeStatus;
+    const driver = driverToChangeStatus;
 
-        const nextStatus =
-            driver.status === "Active" ? "Inactive" : "Active";
+    const nextStatus: "Active" | "Inactive" =
+        driver.status === "Active" ? "Inactive" : "Active";
 
-        setUpdatingStatusId(driver.id);
-        setError("");
-        setNotice("");
+    setUpdatingStatusId(driver.id);
+    setError("");
+    setNotice("");
 
-        try {
-            await updateDriverStatus(driver.id, nextStatus);
+    try {
+        await updateDriverStatus(driver.id, nextStatus);
 
-            setDriverToChangeStatus(null);
-            setNotice(
-                `${driver.driver_full_name || "Driver"} marked ${nextStatus.toLowerCase()} successfully.`,
-            );
+        setDriverToChangeStatus(null);
 
-            await loadDrivers();
-        } catch {
-            setError("Unable to update driver status.");
-        } finally {
-            setUpdatingStatusId(null);
-        }
-    };
-    const removeDriver = async (driver: Driver) => {
-        setDeletingId(driver.id);
-        setError("");
-        setNotice("");
+        setNotice(
+            `${driver.driver_full_name || "Driver"} status updated to ${nextStatus} successfully.`
+        );
 
-        try {
-            await deleteDriver(driver.id);
-
-            setDriverToDelete(null);
-            setNotice("Driver deleted successfully.");
-
-            if (drivers.length === 1 && page > 1) {
-                setPage((current) => current - 1);
-            } else {
-                await loadDrivers();
+        await loadDrivers();
+    } catch (err) {
+        const response = (
+            err as {
+                response?: {
+                    data?: {
+                        message?: string;
+                    };
+                };
             }
-        } catch {
-            setError("Unable to delete driver.");
-        } finally {
-            setDeletingId(null);
-        }
-    };
+        ).response;
+
+        setError(
+            response?.data?.message || "Unable to update driver status."
+        );
+    } finally {
+        setUpdatingStatusId(null);
+    }
+};
+const handleDelete = async () => {
+    if (!driverToDelete || deletingId !== null) return;
+
+    const driver = driverToDelete;
+
+    setDeletingId(driver.id);
+    setError("");
+    setNotice("");
+
+    try {
+        await deleteDriver(driver.id);
+
+        setDriverToDelete(null);
+
+        setNotice(
+            `${driver.driver_full_name || "Driver"} deleted successfully.`
+        );
+
+        await loadDrivers();
+    } catch (err) {
+        const response = (
+            err as {
+                response?: {
+                    data?: {
+                        message?: string;
+                    };
+                };
+            }
+        ).response;
+
+        setError(
+            response?.data?.message || "Unable to delete driver."
+        );
+    } finally {
+        setDeletingId(null);
+    }
+};
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const startIndex = (page - 1) * limit;
@@ -461,18 +489,19 @@ export default function DriverManagementPage() {
                                         </td>
 
                                         <td>
-                                            <button
-                                                type="button"
-                                                className={`driver-status ${driver.status === "Active" ? "is-active" : "is-inactive"
-                                                    }`}
-                                                disabled={updatingStatusId !== null}
-                                                onClick={() => changeStatus(driver)}
-                                                title="Click to change status"
-                                            >
-                                                {updatingStatusId === driver.id
-                                                    ? "Updating..."
-                                                    : driver.status}
-                                            </button>
+<button
+    type="button"
+    className={`driver-status ${
+        driver.status === "Active" ? "is-active" : "is-inactive"
+    }`}
+    disabled={updatingStatusId !== null}
+    onClick={() => changeStatus(driver)}
+    title="Click to change status"
+>
+    {updatingStatusId === driver.id
+        ? "Updating..."
+        : driver.status}
+</button>
                                         </td>
 
                                         <td>
@@ -483,15 +512,19 @@ export default function DriverManagementPage() {
                                                     title="Edit driver"
                                                     onClick={() => void openForm("edit", driver)}
                                                 />
-                                                <ActionButton
-                                                    action="delete"
-                                                    type="button"
-                                                    title="Delete driver"
-                                                    disabled={deletingId !== null}
-                                                    onClick={() => setDriverToDelete(driver)}
-                                                >
-                                                    Delete
-                                                </ActionButton>
+<ActionButton
+    action="delete"
+    type="button"
+    title="Delete driver"
+    disabled={deletingId !== null}
+    onClick={() => {
+        setError("");
+        setNotice("");
+        setDriverToDelete(driver);
+    }}
+>
+    Delete
+</ActionButton>
                                             </div>
                                         </td>
                                     </tr>
@@ -806,6 +839,37 @@ export default function DriverManagementPage() {
                 </>
             )}
 
+{/* Change Driver Status Confirmation */}
+<ConfirmDialog
+    open={driverToChangeStatus !== null}
+    title="Change Driver Status?"
+    message={
+        driverToChangeStatus
+            ? `Are you sure you want to change ${
+                  driverToChangeStatus.driver_full_name || "this driver"
+              } from ${
+                  driverToChangeStatus.status
+              } to ${
+                  driverToChangeStatus.status === "Active"
+                      ? "Inactive"
+                      : "Active"
+              }?`
+            : ""
+    }
+    itemName={driverToChangeStatus?.driver_full_name || "this driver"}
+    confirmText="Update Status"
+    loading={updatingStatusId !== null}
+    onCancel={() => {
+        if (updatingStatusId === null) {
+            setDriverToChangeStatus(null);
+        }
+    }}
+    onConfirm={() => {
+        void handleConfirmStatusChange();
+    }}
+/>
+
+{/* Delete Driver Confirmation */}
 <ConfirmDialog
     open={driverToDelete !== null}
     title="Delete Driver?"
@@ -825,9 +889,7 @@ export default function DriverManagementPage() {
         }
     }}
     onConfirm={() => {
-        if (driverToDelete && deletingId === null) {
-            void removeDriver(driverToDelete);
-        }
+        void handleDelete();
     }}
 />
 
