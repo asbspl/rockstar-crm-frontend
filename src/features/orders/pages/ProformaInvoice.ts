@@ -1064,7 +1064,7 @@ export default function createProformaInvoice(order: Order): string {
                     </td>
 
                     <td>
-                        <span class="meta-label">Comment</span>
+                        <span class="meta-label">Note / Comment</span>
                         <strong class="meta-value">${escapeHtml(value(order.comment))}</strong>
                     </td>
 

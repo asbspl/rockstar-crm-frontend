@@ -68,9 +68,7 @@
   background: #2563eb;
 }
 
-.company-primary-button:hover {
-  background: #4338ca;
-}
+
 
 .company-primary-button:disabled,
 .company-secondary-button:disabled {

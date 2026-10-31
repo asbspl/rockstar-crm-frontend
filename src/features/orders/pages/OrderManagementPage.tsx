@@ -6,7 +6,7 @@ import {
     type CSSProperties,
     type FormEvent,
 } from "react";
- 
+
 import apiClient from "../../../api/client";
 import "./OrderManagementPage.css";
 
@@ -142,6 +142,32 @@ const VEHICLE_TYPES = [
     "Van",
     "Other",
 ];
+const COMMENT_OPTIONS = [
+    {
+        label: "Looking forward for your business.",
+        value: "Looking forward for your business.",
+    },
+    {
+        label: "Please send the material at the earliest.",
+        value: "Please send the material at the earliest.",
+    },
+    {
+        label: "Kindly confirm the order.",
+        value: "Kindly confirm the order.",
+    },
+    {
+        label: "Thank you for your valuable order.",
+        value: "Thank you for your valuable order.",
+    },
+    {
+        label: "Please contact us for further details.",
+        value: "Please contact us for further details.",
+    },
+    {
+        label: "Custom Comment",
+        value: "CUSTOM",
+    },
+];
 
 const emptyLine: OrderLine = {
     product_id: 0,
@@ -170,6 +196,7 @@ function emptyForm(): OrderForm {
         company_id: 0,
         client_id: 0,
         customer_id: null,
+        sales_person_id: null,
         customer_site_name: "",
         site_id: null,
         location_id: null,
@@ -404,7 +431,10 @@ const menuItemStyle: CSSProperties = {
 };
 
 export default function OrderManagementPage() {
-  
+
+    const [customComment, setCustomComment] = useState("");
+const [commentType, setCommentType] = useState("Looking forward for your business.");
+
     const [customerSites, setCustomerSites] = useState<CustomerSite[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
 
@@ -446,10 +476,10 @@ export default function OrderManagementPage() {
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
     const [emailSending, setEmailSending] = useState(false);
-const [emailMessage, setEmailMessage] = useState("");
-const [emailMessageType, setEmailMessageType] = useState<
-    "success" | "error" | ""
->("");
+    const [emailMessage, setEmailMessage] = useState("");
+    const [emailMessageType, setEmailMessageType] = useState<
+        "success" | "error" | ""
+    >("");
 
     const [mode, setMode] = useState<Mode | null>(null);
     const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -484,7 +514,61 @@ const [emailMessageType, setEmailMessageType] = useState<
         }
     }, [page, limit, search, statusFilter, dispatchFilter]);
 
+    type EmployeeOption = {
+        id: number;
+        employee_name: string;
+        employee_code: string;
+        status: string;
+    };
 
+    const [employees, setEmployees] = useState<EmployeeOption[]>([]);
+    const [employeesLoading, setEmployeesLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            setEmployeesLoading(true);
+
+            try {
+                const response = await apiClient.get("/api/employees", {
+                    params: {
+                        page: 1,
+                        limit: 500,
+                    },
+                });
+
+                const employeeRows =
+                    response.data?.data?.employees ?? [];
+
+                const employeeOptions: EmployeeOption[] =
+                    employeeRows.map((employee: any) => ({
+                        id: Number(employee.id),
+                        employee_name: String(
+                            employee.employee_name ?? ""
+                        ).trim(),
+                        employee_code: String(
+                            employee.employee_code ?? ""
+                        ),
+                        status: String(employee.status ?? ""),
+                    }));
+
+                setEmployees(
+                    employeeOptions.filter(
+                        (employee) =>
+                            employee.id > 0 &&
+                            employee.employee_name &&
+                            employee.status.toLowerCase() === "active"
+                    )
+                );
+            } catch (error) {
+                console.error("Failed to load employees:", error);
+                setEmployees([]);
+            } finally {
+                setEmployeesLoading(false);
+            }
+        };
+
+        void fetchEmployees();
+    }, []);
 
     useEffect(() => {
         void loadOrders();
@@ -840,6 +924,8 @@ const [emailMessageType, setEmailMessageType] = useState<
             return;
         }
 
+        
+
         setForm((previous) => {
             let changed = false;
 
@@ -917,96 +1003,133 @@ const [emailMessageType, setEmailMessageType] = useState<
         }));
     }
 
-    function resetForm() {
-        setForm(emptyForm());
+function resetForm() {
+    setForm(emptyForm());
 
-        setExistingImages({
+    setCommentType("Looking forward for your business.");
+    setCustomComment("");
+
+    setExistingImages({
+        image1: null,
+        image2: null,
+        image3: null,
+        image4: null,
+    });
+
+    setSelectedId(null);
+    setMode(null);
+    setError("");
+}
+function addOrder() {
+    setError("");
+    setNotice("");
+    setSelectedId(null);
+
+    setForm(emptyForm());
+
+    setCommentType("Looking forward for your business.");
+    setCustomComment("");
+
+    setExistingImages({
+        image1: null,
+        image2: null,
+        image3: null,
+        image4: null,
+    });
+
+    setMode("create");
+}
+
+async function editOrder(order: Order) {
+    setError("");
+    setNotice("");
+
+    try {
+        const result = await getOrder(order.id);
+
+        // Restore saved comment
+        const savedComment =
+            result.comment?.trim() ||
+            "Looking forward for your business.";
+
+        const predefinedComment = COMMENT_OPTIONS.find(
+            (option) =>
+                option.value !== "CUSTOM" &&
+                option.value === savedComment
+        );
+
+        setCommentType(
+            predefinedComment
+                ? predefinedComment.value
+                : "CUSTOM"
+        );
+
+        setCustomComment(
+            predefinedComment ? "" : savedComment
+        );
+
+        setForm({
+            company_id: result.company_id,
+            sales_person_id:
+                result.sales_person_id ??
+                employees.find(
+                    (employee) =>
+                        employee.employee_name.trim().toLowerCase() ===
+                        (result.reference ?? "").trim().toLowerCase()
+                )?.id ??
+                null,
+
+            client_id: result.client_id,
+            customer_id: result.customer_id,
+            customer_site_name: result.customer_site_name,
+            site_id:
+                result.site_id ??
+                customerSites.find(
+                    (site) =>
+                        site.site_name === result.customer_site_name &&
+                        Number(site.customer_id) === Number(result.customer_id)
+                )?.id ??
+                null,
+
+            location_id: result.location_id,
+            proforma_date: dateValue(result.proforma_date),
+            expected_shipping_date: dateValue(result.expected_shipping_date),
+
+            reference: result.reference ?? "",
+            comment: savedComment,
+
+            items: result.items?.length
+                ? result.items.map((item) => ({
+                    product_id: item.product_id,
+                    product_name: item.product_name,
+                    unit: item.unit,
+                    quantity: item.quantity,
+                    rate_incl_gst: item.rate_incl_gst,
+                    discount: item.discount,
+                }))
+                : [{ ...emptyLine }],
+
             image1: null,
             image2: null,
             image3: null,
             image4: null,
         });
 
-        setSelectedId(null);
-        setMode(null);
-        setError("");
-    }
-
-    function addOrder() {
-        setError("");
-        setNotice("");
-        setSelectedId(null);
-        setForm(emptyForm());
-
         setExistingImages({
-            image1: null,
-            image2: null,
-            image3: null,
-            image4: null,
+            image1: result.image1 ?? null,
+            image2: result.image2 ?? null,
+            image3: result.image3 ?? null,
+            image4: result.image4 ?? null,
         });
 
-        setMode("create");
+        setSelectedId(result.id);
+        setMode("edit");
+    } catch (err) {
+        setError(
+            errorMessage(err, "Unable to load order details.")
+        );
     }
-
-    async function editOrder(order: Order) {
-        setError("");
-        setNotice("");
-
-        try {
-            const result = await getOrder(order.id);
-
-            setForm({
-                company_id: result.company_id,
-                client_id: result.client_id,
-                customer_id: result.customer_id,
-                customer_site_name: result.customer_site_name,
-                site_id:
-                    result.site_id ??
-                    customerSites.find(
-                        (site) =>
-                            site.site_name === result.customer_site_name &&
-                            Number(site.customer_id) ===
-                            Number(result.customer_id)
-                    )?.id ??
-                    null,
-                location_id: result.location_id,
-                proforma_date: dateValue(result.proforma_date),
-                expected_shipping_date: dateValue(
-                    result.expected_shipping_date
-                ),
-                reference: result.reference,
-                comment: result.comment,
-                items: result.items?.length
-                    ? result.items.map((item) => ({
-                        product_id: item.product_id,
-                        product_name: item.product_name,
-                        unit: item.unit,
-                        quantity: item.quantity,
-                        rate_incl_gst: item.rate_incl_gst,
-                        discount: item.discount,
-                    }))
-                    : [{ ...emptyLine }],
-                image1: null,
-                image2: null,
-                image3: null,
-                image4: null,
-            });
-
-            setExistingImages({
-                image1: result.image1 ?? null,
-                image2: result.image2 ?? null,
-                image3: result.image3 ?? null,
-                image4: result.image4 ?? null,
-            });
-
-            setSelectedId(result.id);
-            setMode("edit");
-        } catch (err) {
-            setError(
-                errorMessage(err, "Unable to load order details.")
-            );
-        }
-    }
+}
 
     function updateLine(
         index: number,
@@ -1151,8 +1274,8 @@ const [emailMessageType, setEmailMessageType] = useState<
             return;
         }
 
-        if (!form.reference.trim() || !form.comment.trim()) {
-            setError("Reference and Comment are required.");
+        if (!form.comment.trim()) {
+            setError("Comment is required.");
             return;
         }
 
@@ -1212,6 +1335,10 @@ const [emailMessageType, setEmailMessageType] = useState<
         }
 
         setSaving(true);
+        const selectedEmployee = employees.find(
+            (employee) =>
+                employee.id === Number(form.sales_person_id)
+        );
 
         try {
             const payload: OrderInput = {
@@ -1220,13 +1347,20 @@ const [emailMessageType, setEmailMessageType] = useState<
                 customer_id: form.customer_id,
                 customer_site_name: form.customer_site_name.trim(),
                 site_id: selectedCustomerSite.id,
+
+                // Employee name is saved in Reference
+                reference: selectedEmployee?.employee_name ?? "",
+
+                // Employee ID is saved separately
+                sales_person_id: form.sales_person_id,
+
                 location_id:
                     selectedCustomerSite.location_id ??
                     form.location_id,
+
                 proforma_date: form.proforma_date,
-                expected_shipping_date:
-                    form.expected_shipping_date,
-                reference: form.reference.trim(),
+                expected_shipping_date: form.expected_shipping_date,
+
                 comment: form.comment.trim(),
                 items: form.items,
                 image1: form.image1,
@@ -1479,11 +1613,37 @@ const [emailMessageType, setEmailMessageType] = useState<
         }
     }
 
+    function validateDispatchDetails(
+        order: Order,
+        action: "print" | "email"
+    ): boolean {
+        if (!order.dcsno && !order.dispatch_sequence_no) {
+            const message =
+                action === "print"
+                    ? "Please add and save Dispatch Details before printing the Delivery Challan."
+                    : "Please add and save Dispatch Details before sending the Delivery Challan Email.";
+
+            setEmailMessage(message);
+            setEmailMessageType("error");
+            setError("");
+
+            return false;
+        }
+
+        return true;
+    }
+
     async function printDocument(
         order: Order,
         type: "PI" | "DC"
     ) {
         setError("");
+        setEmailMessage("");
+        setEmailMessageType("");
+
+        if (type === "DC" && !validateDispatchDetails(order, "print")) {
+            return;
+        }
 
         const printWindow = window.open(
             "",
@@ -1501,12 +1661,11 @@ const [emailMessageType, setEmailMessageType] = useState<
         try {
             const detailedOrder = await getOrder(order.id);
 
-            if (type === "DC" && !detailedOrder.dcsno) {
+            if (
+                type === "DC" &&
+                !validateDispatchDetails(detailedOrder, "print")
+            ) {
                 printWindow.close();
-
-                setError(
-                    "Save Dispatch Details before printing the Delivery Challan."
-                );
                 return;
             }
 
@@ -1529,51 +1688,58 @@ const [emailMessageType, setEmailMessageType] = useState<
         }
     }
 
-  async function emailDocument(
-    order: Order,
-    type: "PI" | "DC"
-) {
-    setError("");
-    setNotice("");
-    setEmailMessage("");
-    setEmailMessageType("");
-    setEmailSending(true);
+    async function emailDocument(
+        order: Order,
+        type: "PI" | "DC"
+    ) {
+        setError("");
+        setNotice("");
+        setEmailMessage("");
+        setEmailMessageType("");
 
-    try {
-        const detailedOrder = await getOrder(order.id);
-
-        if (type === "DC" && !detailedOrder.dcsno) {
-            throw new Error(
-                "Save Dispatch Details before emailing the Delivery Challan."
-            );
+        if (type === "DC" && !validateDispatchDetails(order, "email")) {
+            return;
         }
 
-        const html = getDocumentHtml(detailedOrder, type);
+        setEmailSending(true);
 
-        const result = await sendOrderEmail(
-            order.id,
-            type,
-            html
-        );
+        try {
+            const detailedOrder = await getOrder(order.id);
 
-        setEmailMessage(
-            result.message || `${type === "PI" ? "Proforma Invoice" : "Delivery Challan"} email sent successfully.`
-        );
+            if (
+                type === "DC" &&
+                !validateDispatchDetails(detailedOrder, "email")
+            ) {
+                return;
+            }
 
-        setEmailMessageType("success");
-    } catch (err) {
-        setEmailMessage(
-            errorMessage(
-                err,
-                "Unable to send the document email. Verify the SMTP configuration and recipient email address."
-            )
-        );
+            const html = getDocumentHtml(detailedOrder, type);
 
-        setEmailMessageType("error");
-    } finally {
-        setEmailSending(false);
+            const result = await sendOrderEmail(
+                order.id,
+                type,
+                html
+            );
+
+            setEmailMessage(
+                result.message ||
+                `${type === "PI" ? "Proforma Invoice" : "Delivery Challan"} email sent successfully.`
+            );
+
+            setEmailMessageType("success");
+        } catch (err) {
+            setEmailMessage(
+                errorMessage(
+                    err,
+                    "Unable to send the document email. Verify the SMTP configuration and recipient email address."
+                )
+            );
+
+            setEmailMessageType("error");
+        } finally {
+            setEmailSending(false);
+        }
     }
-}
 
     const startEntry =
         total === 0 ? 0 : (page - 1) * limit + 1;
@@ -1715,20 +1881,33 @@ const [emailMessageType, setEmailMessageType] = useState<
             error={error}
             notice={notice}
         >
-                    {emailSending && (
-            <div className="order-email-message order-email-message--loading">
-                <i className="bi bi-hourglass-split" />
-                Sending email... Please wait.
-            </div>
-        )}
+            {error && (
+                <div className="alert-error" role="alert">
+                    {error}
+                </div>
+            )}
 
-        {/* Email success or error message */}
-        {emailMessage && (
-            <div
-                className={`order-email-message order-email-message--${emailMessageType}`}
-                role="alert"
-            >
-                <span>
+            {notice && (
+                <div className="alert-success" role="status">
+                    {notice}
+                </div>
+            )}
+            {emailSending && (
+                <div className="alert-info" role="status">
+                    <i className="bi bi-hourglass-split" />
+                    Sending email... Please wait.
+                </div>
+            )}
+            {/* Email success or error message */}
+            {emailMessage && (
+                <div
+                    className={
+                        emailMessageType === "success"
+                            ? "alert-success"
+                            : "alert-error"
+                    }
+                    role="alert"
+                >
                     <i
                         className={
                             emailMessageType === "success"
@@ -1736,25 +1915,24 @@ const [emailMessageType, setEmailMessageType] = useState<
                                 : "bi bi-exclamation-triangle-fill"
                         }
                     />
-                    {" "}
-                    {emailMessage}
-                </span>
 
-                <button
-                    type="button"
-                    onClick={() => {
-                        setEmailMessage("");
-                        setEmailMessageType("");
-                    }}
-                    aria-label="Close email message"
-                >
-                    ×
-                </button>
-            </div>
-        )}
+                    <span>{emailMessage}</span>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setEmailMessage("");
+                            setEmailMessageType("");
+                        }}
+                        aria-label="Close notification"
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
 
             {mode === null ? (
-                
+
                 <div className="order-table-wrapper">
                     <table className="">
                         <thead>
@@ -1918,7 +2096,7 @@ const [emailMessageType, setEmailMessageType] = useState<
                                                         <button
                                                             type="button"
                                                             style={menuItemStyle}
-                                                            disabled={!order.dcsno}
+
                                                             onClick={() => {
                                                                 setOpenActionId(null);
                                                                 void emailDocument(order, "DC");
@@ -1930,7 +2108,7 @@ const [emailMessageType, setEmailMessageType] = useState<
                                                         <button
                                                             type="button"
                                                             style={menuItemStyle}
-                                                            disabled={!order.dcsno}
+
                                                             onClick={() => {
                                                                 setOpenActionId(null);
                                                                 void printDocument(order, "DC");
@@ -2230,38 +2408,83 @@ const [emailMessageType, setEmailMessageType] = useState<
                             </label>
 
                             <label>
-                                <span>Reference *</span>
+                                <span>Reference</span>
 
-                                <input
-                                    required
-                                    maxLength={200}
-                                    value={form.reference}
+                                <select
+                                    value={form.sales_person_id ?? ""}
                                     onChange={(event) =>
                                         setField(
-                                            "reference",
+                                            "sales_person_id",
                                             event.target.value
+                                                ? Number(event.target.value)
+                                                : null
                                         )
                                     }
-                                    placeholder="Enter reference"
-                                />
+                                    disabled={employeesLoading}
+                                >
+                                    <option value="">
+                                        {employeesLoading
+                                            ? "Loading employees..."
+                                            : "Select Employee (Optional)"}
+                                    </option>
+
+                                    {employees.map((employee) => (
+                                        <option key={employee.id} value={employee.id}>
+                                            {employee.employee_name} ({employee.employee_code})
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
 
-                            <label className="order-form__comment">
-                                <span>Comment *</span>
+    <label>
+        <span>Note / Comment *</span>
 
-                                <textarea
-                                    required
-                                    rows={3}
-                                    maxLength={5000}
-                                    value={form.comment}
-                                    onChange={(event) =>
-                                        setField(
-                                            "comment",
-                                            event.target.value
-                                        )
-                                    }
-                                />
-                            </label>
+        <select
+            required
+            value={commentType}
+            onChange={(event) => {
+                const value = event.target.value;
+
+                setCommentType(value);
+
+                if (value === "CUSTOM") {
+                    setField("comment", customComment);
+                } else {
+                    setField("comment", value);
+                }
+            }}
+        >
+            {COMMENT_OPTIONS.map((option) => (
+                <option
+                    key={option.value}
+                    value={option.value}
+                >
+                    {option.label}
+                </option>
+            ))}
+        </select>
+    </label>
+
+    {commentType === "CUSTOM" && (
+        <label>
+            <span>Write Custom Comment *</span>
+
+            <textarea
+                required
+                rows={3}
+                maxLength={2000}
+                placeholder="Type your custom comment here..."
+                value={customComment}
+                onChange={(event) => {
+                    const value = event.target.value;
+
+                    setCustomComment(value);
+                    setField("comment", value);
+                }}
+            />
+        </label>
+    )}
+
                         </div>
 
                         <section className="order-images">

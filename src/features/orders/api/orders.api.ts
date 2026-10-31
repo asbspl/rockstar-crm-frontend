@@ -31,6 +31,7 @@ export type OrderInput = {
     customer_id: number | null;
     customer_site_name: string;
     site_id: number | null;
+    sales_person_id: number | null;
     location_id: number | null;
     proforma_date: string;
     expected_shipping_date: string;
@@ -130,6 +131,8 @@ export type Order = {
     client_state?: string | null;
     client_pin_code?: string | null;
     client_country?: string | null;
+
+    sales_person_id: number | null;
 };
 
 export type OrderPagination = {
@@ -173,12 +176,19 @@ function toFormData(input: OrderInput): FormData {
     formData.append("company_id", String(input.company_id));
     formData.append("client_id", String(input.client_id));
     formData.append("customer_id", input.customer_id == null ? "" : String(input.customer_id));
+    formData.append(
+        "sales_person_id",
+        input.sales_person_id == null
+            ? ""
+            : String(input.sales_person_id)
+    );
+
+    formData.append("reference", input.reference);
     formData.append("customer_site_name", input.customer_site_name);
     formData.append("site_id", input.site_id == null ? "" : String(input.site_id));
     formData.append("location_id", input.location_id == null ? "" : String(input.location_id));
     formData.append("proforma_date", input.proforma_date);
     formData.append("expected_shipping_date", input.expected_shipping_date);
-    formData.append("reference", input.reference);
     formData.append("comment", input.comment);
     formData.append("items", JSON.stringify(input.items.map((item) => ({
         product_id: item.product_id,

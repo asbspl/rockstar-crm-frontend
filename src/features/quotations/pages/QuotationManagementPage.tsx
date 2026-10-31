@@ -1530,6 +1530,19 @@ async function handlePrintQuotation(quotation: Quotation) {
             error={error}
             notice={notice}
         >
+            {error && (
+    <div className="alert-error" role="alert">
+        <i className="bi bi-exclamation-triangle-fill" />
+        <span>{error}</span>
+    </div>
+)}
+
+{notice && (
+    <div className="alert-success" role="status">
+        <i className="bi bi-check-circle-fill" />
+        <span>{notice}</span>
+    </div>
+)}
             {mode === null ? (
                 <div
                     className="quotation-table-wrapper"

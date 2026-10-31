@@ -311,9 +311,11 @@ export default function createDeliveryChallan(order: Order): string {
         border-right: 1px solid #111111;
     }
 
-    .meta > div:last-child {
-        border-right: 0;
-    }
+.meta > div:last-child {
+    grid-column: 1 / -1;
+    border-top: 1px solid #111111;
+    border-right: 0;
+}
 
     .meta span,
     .detail-item span {
@@ -638,6 +640,11 @@ export default function createDeliveryChallan(order: Order): string {
             <span>Dispatch Status</span>
             <strong>${escapeHtml(value(order.dispatch_status, "Pending"))}</strong>
         </div>
+            <div>
+        <span>Note / Comment</span>
+        <strong>${escapeHtml(value(order.comment))}</strong>
+    </div>
+
     </div>
 
     <section class="panel">
