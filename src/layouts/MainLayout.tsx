@@ -80,6 +80,12 @@ const navigation: NavigationItem[] = [
     icon: "bi-clipboard2-check",
     type: "link",
   },
+{
+  label: "User Activity",
+  path: "/admin/user-activity",
+  icon: "bi-activity",
+  type: "link",
+},
 ];
 
 function MainLayout() {

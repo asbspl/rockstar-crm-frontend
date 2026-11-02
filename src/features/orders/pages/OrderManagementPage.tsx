@@ -190,7 +190,7 @@ function emptyForm(): OrderForm {
     const today = new Date();
     const expected = new Date();
 
-    expected.setDate(expected.getDate() + 7);
+    expected.setDate(expected.getDate() + 1);
 
     return {
         company_id: 0,
