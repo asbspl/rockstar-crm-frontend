@@ -58,8 +58,12 @@ function UserActivityPage() {
         try {
             const result = await getActivitySummary();
             setSummary(result);
-        } catch (err) {
-            console.error("Unable to load activity summary", err);
+        } catch (caughtError) {
+            setError(
+                caughtError instanceof Error
+                    ? caughtError.message
+                    : "Unable to load activity summary.",
+            );
         }
     }, []);
 
@@ -83,9 +87,12 @@ function UserActivityPage() {
 
             setActivities(result.data.rows);
             setPagination(result.data.pagination);
-        } catch (err) {
-            console.error(err);
-            setError("Unable to load user activities.");
+        } catch (caughtError) {
+            setError(
+                caughtError instanceof Error
+                    ? caughtError.message
+                    : "Unable to load user activities.",
+            );
         } finally {
             setLoading(false);
         }
@@ -124,9 +131,12 @@ function UserActivityPage() {
         try {
             const result = await getActivityById(id);
             setSelectedActivity(result);
-        } catch (err) {
-            console.error(err);
-            setError("Unable to load activity details.");
+        } catch (caughtError) {
+            setError(
+                caughtError instanceof Error
+                    ? caughtError.message
+                    : "Unable to load activity details.",
+            );
         }
     };
 

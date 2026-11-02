@@ -1,0 +1,327 @@
+.access-management {
+  width: 100%;
+  min-height: 100%;
+  padding: 28px;
+  color: #172033;
+  background: #f5f7fb;
+}
+
+.access-management__header,
+.access-management__section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.access-management__header {
+  margin-bottom: 22px;
+}
+
+.access-management__header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.access-management__header p:last-child,
+.access-management__section-heading p {
+  margin: 4px 0 0;
+  color: #677489;
+}
+
+.access-management__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #dfe5ef;
+}
+
+.access-management__tabs button {
+  padding: 11px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.access-management__tabs button.active {
+  border-bottom-color: #315daa;
+  color: #244c92;
+}
+
+.access-management__layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.28fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.access-management__list-panel,
+.access-management__card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e1e7f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(24, 42, 75, 0.04);
+}
+
+.access-management__list-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.access-management__section-heading {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.access-management__section-heading h2,
+.access-management__card > h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.access-management__content,
+.access-management__permissions {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.access-management__list-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #e5eaf2;
+  border-radius: 10px;
+  background: #fff;
+  color: #172033;
+  text-align: left;
+  cursor: pointer;
+}
+
+.access-management__list-item.selected {
+  border-color: #8eace1;
+  background: #f3f7ff;
+}
+
+.access-management__list-item > span:first-child,
+.access-management__module-list > div,
+.access-management__permission-row > button:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.access-management__list-item small,
+.access-management__module-list small,
+.access-management__permission-row small {
+  color: #728096;
+  font-size: 12px;
+}
+
+.access-management__status {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #e7f7ee;
+  color: #187347;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.access-management__status.inactive {
+  background: #f0f2f5;
+  color: #687386;
+}
+
+.access-management__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.access-management__form-grid label {
+  display: grid;
+  gap: 7px;
+  color: #3d4b61;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.access-management__form-grid input,
+.access-management__form-grid select {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #d7dfeb;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+.access-management__form-wide {
+  grid-column: 1 / -1;
+}
+
+.access-management__actions,
+.access-management__inline-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.access-management__button {
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #28549b;
+  border-radius: 8px;
+  background: #315daa;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.access-management__button.secondary {
+  border-color: #d7dfeb;
+  background: #f6f8fb;
+  color: #34445c;
+}
+
+.access-management__button.danger {
+  border-color: #f0c7c7;
+  background: #fff4f3;
+  color: #a63d2d;
+}
+
+.access-management__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.access-management__text-button {
+  border: 0;
+  background: transparent;
+  color: #2857a4;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.access-management__text-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.access-management__empty {
+  color: #738096;
+}
+
+.access-management__user-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.access-management__user-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.access-management__user-list small {
+  color: #728096;
+}
+
+.access-management__module-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 18px;
+}
+
+.access-management__module-list > div {
+  min-width: 150px;
+  padding: 11px 13px;
+  border: 1px solid #e3e9f2;
+  border-radius: 10px;
+  background: #f9fbfe;
+}
+
+.access-management__permission-list {
+  max-height: 460px;
+  overflow: auto;
+  border-top: 1px solid #e9edf3;
+}
+
+.access-management__permission-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.access-management__permission-row > button:first-child {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #172033;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .access-management__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .access-management__list-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .access-management {
+    padding: 16px;
+  }
+
+  .access-management__header,
+  .access-management__section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .access-management__form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .access-management__form-wide {
+    grid-column: auto;
+  }
+
+  .access-management__user-list li,
+  .access-management__permission-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

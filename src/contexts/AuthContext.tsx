@@ -131,13 +131,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setPermissions(nextUser.permissions ?? EMPTY_PERMISSIONS);
     setIsAuthenticated(true);
     setAuthState(
-      normalizedStatus === "pending" || normalizedStatus === "pending_approval"
+      normalizedStatus === "pending" ||
+      normalizedStatus === "pending_approval" ||
+      normalizedStatus === "under_review"
         ? "pending"
         : normalizedStatus === "rejected"
           ? "rejected"
           : normalizedStatus === "suspended"
             ? "suspended"
-            : "authenticated",
+            : normalizedStatus === "inactive"
+              ? "forbidden"
+              : "authenticated",
     );
   }, []);
 

@@ -3,22 +3,16 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   getApplications,
-  reviewApplication,
   type AdminApplication,
-  type ApplicationReviewAction,
-  
 } from "../api/admin.api";
+import { Link } from "react-router-dom";
 
 import "../styles/admin.css";
 
 function ApplicationsPage() {
   const [applications, setApplications] = useState<AdminApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [reviewingId, setReviewingId] = useState<string | number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [actionMessage, setActionMessage] = useState<string | null>(null);
-
-  
 
   const loadApplications = useCallback(async () => {
     setIsLoading(true);
@@ -42,58 +36,6 @@ function ApplicationsPage() {
     void loadApplications();
   }, [loadApplications]);
 
-  const handleReview = async (
-    applicationId: string | number,
-    action: ApplicationReviewAction,
-  ) => {
-    if (reviewingId !== null) return;
-
-    const confirmed = window.confirm(
-      `Are you sure you want to ${action} this application?`,
-    );
-
-    if (!confirmed) return;
-
-    setReviewingId(applicationId);
-    setError(null);
-    setActionMessage(null);
-
-    try {
-     const numericId = Number(applicationId);
-
-if (!Number.isSafeInteger(numericId) || numericId <= 0) {
-  throw new Error("Invalid application ID.");
-}
-
-const result = await reviewApplication(Number(applicationId), {
-  decision: action === "approve" ? "approved" : "rejected",
-  roleIds: [],
-  permissionIds: [],
-});
-
-      if (!result.ok) {
-        throw new Error(
-          result.message ?? "Unable to review this application.",
-        );
-      }
-
-      setActionMessage(
-        result.message ??
-          `Application ${action === "approve" ? "approved" : "rejected"} successfully.`,
-      );
-
-      await loadApplications();
-    } catch (caughtError: unknown) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Unable to review this application. Please try again.",
-      );
-    } finally {
-      setReviewingId(null);
-    }
-  };
-
   return (
     <main className="admin-page">
       <section className="admin-panel">
@@ -111,7 +53,7 @@ const result = await reviewApplication(Number(applicationId), {
             type="button"
             className="mini-button"
             onClick={() => void loadApplications()}
-            disabled={isLoading || reviewingId !== null}
+            disabled={isLoading}
           >
             Refresh
           </button>
@@ -120,12 +62,6 @@ const result = await reviewApplication(Number(applicationId), {
         {error && (
           <div className="auth-error" role="alert">
             {error}
-          </div>
-        )}
-
-        {actionMessage && (
-          <div className="auth-success" role="status">
-            {actionMessage}
           </div>
         )}
 
@@ -146,7 +82,7 @@ const result = await reviewApplication(Number(applicationId), {
                   <th>Email</th>
                   <th>Status</th>
                   <th>Submitted</th>
-                  <th>Action</th>
+                  <th>Review</th>
                 </tr>
               </thead>
 
@@ -159,9 +95,6 @@ const result = await reviewApplication(Number(applicationId), {
                   </tr>
                 ) : (
                   applications.map((application) => {
-                    const isReviewing =
-                      reviewingId === application.id;
-
                     const status = String(
                       application.status ?? "pending",
                     ).toLowerCase();
@@ -195,39 +128,12 @@ const result = await reviewApplication(Number(applicationId), {
 
                         <td>
                           {isPending ? (
-                            <div className="table-actions">
-                              <button
-                                type="button"
-                                className="mini-button"
-                                disabled={reviewingId !== null}
-                                onClick={() =>
-                                  void handleReview(
-                                    application.id,
-                                    "approve",
-                                  )
-                                }
-                              >
-                                {isReviewing
-                                  ? "Processing..."
-                                  : "Approve"}
-                              </button>
-
-                              <button
-                                type="button"
-                                className="mini-button mini-button--danger"
-                                disabled={reviewingId !== null}
-                                onClick={() =>
-                                  void handleReview(
-                                    application.id,
-                                    "reject",
-                                  )
-                                }
-                              >
-                                {isReviewing
-                                  ? "Processing..."
-                                  : "Reject"}
-                              </button>
-                            </div>
+                            <Link
+                              className="mini-button"
+                              to="/admin/registrations"
+                            >
+                              Review &amp; assign access
+                            </Link>
                           ) : (
                             <span>Reviewed</span>
                           )}

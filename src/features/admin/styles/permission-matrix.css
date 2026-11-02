@@ -1,0 +1,193 @@
+.permission-matrix {
+  width: 100%;
+  background: #fff;
+}
+
+.permission-matrix__heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 0 8px;
+  background: #fff;
+}
+
+.permission-matrix__heading h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.permission-matrix__global {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  color: #111827;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.permission-matrix__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+
+.permission-matrix__filters input,
+.permission-matrix__filters select {
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid #d6deea;
+  border-radius: 8px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+.permission-matrix__filters input {
+  width: min(100%, 340px);
+}
+
+.permission-matrix__legend {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.permission-matrix__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.permission-matrix__badge--default {
+  background: #e8f7ef;
+  color: #187347;
+}
+
+.permission-matrix__badge--custom {
+  background: #eaf1ff;
+  color: #2857a4;
+}
+
+.permission-matrix__badge--deny {
+  background: #fff0ee;
+  color: #a63d2d;
+}
+
+.permission-matrix__badge--none {
+  background: #f3f5f8;
+  color: #8792a2;
+}
+
+.permission-matrix__scroll {
+  width: 100%;
+  overflow: auto;
+}
+
+.permission-matrix__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.permission-matrix__table th,
+.permission-matrix__table td {
+  padding: 6px 8px;
+  border: 1px solid #e1e6ed;
+  color: #101828;
+  font-size: 13px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.permission-matrix__table td:first-child {
+  width: 72px;
+}
+
+.permission-matrix__table td:nth-child(2) {
+  width: 205px;
+}
+
+.permission-matrix__table input[type="checkbox"],
+.permission-matrix__global input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1683f8;
+  cursor: pointer;
+}
+
+.permission-matrix__table input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.permission-matrix__module,
+.permission-matrix__permission {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.permission-matrix__module span,
+.permission-matrix__permission span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.permission-matrix__permission {
+  flex-wrap: wrap;
+}
+
+.permission-matrix__permission .permission-matrix__badge {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.permission-matrix__table td.is-inactive {
+  background: #f8fafc;
+  color: #8a94a3;
+}
+
+.permission-matrix__table td.is-inactive input {
+  cursor: not-allowed;
+}
+
+.permission-matrix-empty {
+  width: 100%;
+  padding: 20px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  text-align: center;
+}
+
+.permission-matrix__actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .permission-matrix__heading {
+    flex-wrap: wrap;
+  }
+
+  .permission-matrix__table td:nth-child(2) {
+    width: 180px;
+  }
+
+  .permission-matrix__legend {
+    margin-left: 0;
+  }
+}

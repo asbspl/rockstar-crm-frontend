@@ -12,6 +12,7 @@ import ProfilePage from "../features/auth/pages/ProfilePage";
 import ApplicationsPage from "../features/admin/pages/ApplicationsPage";
 import RegistrationManagement from "../features/admin/pages/RegistrationManagement";
 import UserManagementPage from "../features/admin/pages/UserManagementPage";
+import AccessManagementPage from "../features/admin/pages/AccessManagementPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import MainLayout from "../layouts/MainLayout";
 import CompanyManagementPage from "../features/companies/pages/CompanyManagementPage";
@@ -59,65 +60,117 @@ const router = createBrowserRouter([
     element: <ForbiddenPage />,
   },
 
-  // Dashboard routes
+  // CRM routes require an active session; each module applies its own permission.
   {
-    element: <ProtectedRoute requiredPermissions={["dashboard.read"]} />,
+    element: <ProtectedRoute />,
     children: [
       {
         element: <MainLayout />,
         children: [
           {
             path: "/dashboard",
-            element: <DashboardPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["dashboard.read"]}>
+                <DashboardPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/settings/companies",
-            element: <CompanyManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <CompanyManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/settings/employees",
-            element: <EmployeeManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <EmployeeManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "settings/drivers",
-            element: <DriverManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <DriverManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/settings/contractors",
-            element: <ContractorManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <ContractorManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/customers/locations",
-            element: <LocationManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <LocationManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/customers/clients",
-            element: <ClientManagementPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["customers.read"]}>
+                <ClientManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/customers/customers",
-            element: <CustomerManagementPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["customers.read"]}>
+                <CustomerManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
-            path: "/customers/Sites",
-            element: <SiteManagementPage />,
+            path: "/customers/sites",
+            element: (
+              <ProtectedRoute requiredPermissions={["sites.read"]}>
+                <SiteManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/customers/quotations",
-            element: <QuotationManagementPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["quotations.read"]}>
+                <QuotationManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/customers/orders",
-            element: <OrderManagementPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["orders.read"]}>
+                <OrderManagementPage />
+              </ProtectedRoute>
+            ),
           },
 
           {
             path: "/products/products",
-            element: <ProductManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <ProductManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/products/rate-matrix",
-            element: <RateMatrixManagementPage />,
+            element: (
+              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+                <RateMatrixManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/profile",
@@ -138,7 +191,12 @@ const router = createBrowserRouter([
 
   // Admin routes
   {
-    element: <ProtectedRoute requiredPermissions={["users.read"]} />,
+    element: (
+      <ProtectedRoute
+        requiredPermissions={["users.read"]}
+        requiredRoles={["ADMIN", "SUPER_ADMIN"]}
+      />
+    ),
     children: [
       {
         element: <MainLayout />,
@@ -160,8 +218,16 @@ const router = createBrowserRouter([
             element: <UserManagementPage />,
           },
           {
+            path: "/admin/access",
+            element: <AccessManagementPage />,
+          },
+          {
             path: "/admin/user-activity",
-            element: <UserActivityPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={["audit_logs.read"]}>
+                <UserActivityPage />
+              </ProtectedRoute>
+            ),
           },
         ],
       },

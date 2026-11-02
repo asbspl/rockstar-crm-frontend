@@ -2,75 +2,25 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   adminRegistrationApi,
+  getRoleDefaultPermissions,
+  saveUserAccess,
   type AccessOption,
   type Registration,
   type RegistrationDetails,
   type RegistrationStatus,
 } from "../api/admin.api";
+import PermissionMatrix from "../components/PermissionMatrix";
 import "../styles/RegistrationManagement.css";
-
-type PermissionAction = {
-  module: string;
-  actions: string[];
-};
 
 const statuses: {
   label: string;
   value: RegistrationStatus | "all";
 }[] = [
-  { label: "All", value: "all" },
-  { label: "Pending", value: "pending" },
-  { label: "Approved", value: "approved" },
-  { label: "Rejected", value: "rejected" },
-];
-
-const permissionMatrix: PermissionAction[] = [
-  { module: "Manage Company", actions: ["Add", "Edit", "Delete"] },
-  { module: "Manage Employee", actions: ["Add", "Edit", "Delete"] },
-  { module: "Manage Driver", actions: ["Add", "Edit", "Delete"] },
-  { module: "Manage Client", actions: ["Add", "Edit", "Delete"] },
-  { module: "Manage Customer", actions: ["Add", "Edit", "Delete"] },
-  {
-    module: "Quotation Form",
-    actions: ["Add", "Edit", "Delete", "Email", "Print"],
-  },
-  {
-    module: "Order Form",
-    actions: [
-      "Add",
-      "Edit",
-      "Delete",
-      "Email PI",
-      "Print PI",
-      "Email DC",
-      "Print DC",
-      "Dispatch",
-    ],
-  },
-  { module: "Visit Form", actions: ["Add", "Edit", "Delete"] },
-  { module: "Queries Form", actions: ["Add", "Edit", "Delete"] },
-  { module: "Product", actions: ["Add", "Edit", "Delete"] },
-  { module: "Rate Matrix", actions: ["Add", "Edit", "Delete"] },
-  { module: "Location", actions: ["Add", "Edit", "Delete"] },
-  { module: "Site", actions: ["Add", "Edit", "Delete"] },
-  { module: "Manage Contractor", actions: ["Add", "Edit", "Delete"] },
-  {
-    module: "Coupon Scheme",
-    actions: [
-      "Add",
-      "Edit",
-      "Delete",
-      "Coupon Code Generate",
-      "Coupon Code Print",
-    ],
-  },
-  { module: "Coupon", actions: ["Coupon Scan", "Coupon Redeem"] },
-  { module: "Redeem Request List", actions: [] },
-];
-
-function normalize(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
+    { label: "All", value: "all" },
+    { label: "Pending", value: "pending" },
+    { label: "Approved", value: "approved" },
+    { label: "Rejected", value: "rejected" },
+  ];
 
 function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === "") {
@@ -130,12 +80,19 @@ export default function RegistrationManagement() {
 
   const [roles, setRoles] = useState<AccessOption[]>([]);
   const [permissions, setPermissions] = useState<AccessOption[]>([]);
+  const [roleDefaultPermissions, setRoleDefaultPermissions] = useState<
+    Record<number, number[]>
+  >({});
 
   const [roleIds, setRoleIds] = useState<number[]>([]);
   const [permissionIds, setPermissionIds] = useState<number[]>([]);
 
   const [savedRoleIds, setSavedRoleIds] = useState<number[]>([]);
   const [savedPermissionIds, setSavedPermissionIds] = useState<number[]>([]);
+  const [userGrantIds, setUserGrantIds] = useState<number[]>([]);
+  const [userDenyIds, setUserDenyIds] = useState<number[]>([]);
+  const [savedUserGrantIds, setSavedUserGrantIds] = useState<number[]>([]);
+  const [savedUserDenyIds, setSavedUserDenyIds] = useState<number[]>([]);
 
   const [effectivePermissionIds, setEffectivePermissionIds] = useState<
     number[]
@@ -183,10 +140,20 @@ export default function RegistrationManagement() {
           adminRegistrationApi.roles(),
           adminRegistrationApi.permissions(),
         ]);
+        const roleDefaults = await Promise.all(
+          (roleResult.data || []).map(async (role) => {
+            const rolePermissions = await getRoleDefaultPermissions(role.id);
+            return [
+              Number(role.id),
+              rolePermissions.map((permission) => Number(permission.id)),
+            ] as const;
+          }),
+        );
 
         if (!cancelled) {
           setRoles(roleResult.data || []);
           setPermissions(permissionResult.data || []);
+          setRoleDefaultPermissions(Object.fromEntries(roleDefaults));
         }
       } catch (err) {
         if (!cancelled) {
@@ -219,21 +186,36 @@ export default function RegistrationManagement() {
         .map((role) => Number(role.id))
         .filter(Number.isFinite);
 
-      const assignedPermissionIds = (details.permissionIds ?? [])
-        .map(Number)
-        .filter(Number.isFinite);
-
       const effectiveIds = (details.effectivePermissions ?? [])
         .map((permission) => Number(permission.id))
         .filter(Number.isFinite);
+      const assignedPermissionIds = effectiveIds.length
+        ? effectiveIds
+        : (details.permissionIds ?? []).map(Number).filter(Number.isFinite);
 
       setSelected(details);
       setRoleIds(assignedRoleIds);
       setPermissionIds(assignedPermissionIds);
       setSavedRoleIds([...assignedRoleIds]);
       setSavedPermissionIds([...assignedPermissionIds]);
+      const grantIds = (details.permissionOverrides ?? [])
+        .filter((override) => override.effect === "grant")
+        .map((override) => Number(override.id))
+        .filter(Number.isFinite);
+      const denyIds = (details.permissionOverrides ?? [])
+        .filter((override) => override.effect === "deny")
+        .map((override) => Number(override.id))
+        .filter(Number.isFinite);
+      setUserGrantIds(grantIds);
+      setUserDenyIds(denyIds);
+      setSavedUserGrantIds(grantIds);
+      setSavedUserDenyIds(denyIds);
       setEffectivePermissionIds(effectiveIds);
       setDecisionReason("");
+      setEditingAccess(
+        String(details.account_status ?? details.status ?? "").toLowerCase() ===
+        "pending",
+      );
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Unable to load registration details.",
@@ -241,28 +223,101 @@ export default function RegistrationManagement() {
     }
   }
 
-  function closeRegistration() {
+  async function closeRegistration() {
+    const hasUnsavedChanges =
+      roleIds.length !== savedRoleIds.length ||
+      roleIds.some((id) => !savedRoleIds.includes(id)) ||
+      permissionIds.length !== savedPermissionIds.length ||
+      permissionIds.some((id) => !savedPermissionIds.includes(id));
+
+    if (
+      hasUnsavedChanges &&
+      !(await window.crmPopup.confirm(
+        "Discard the unsaved role and permission selections?",
+        { title: "Discard changes", confirmText: "Discard" },
+      ))
+    ) {
+      return;
+    }
+
     setSelected(null);
     setEditingAccess(false);
     setError("");
     setMessage("");
   }
 
-  function toggleId(
-    id: number,
-    current: number[],
-    update: (ids: number[]) => void,
-  ) {
-    update(
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
+  function getDefaultPermissionIds(selectedRoleIds: readonly number[]) {
+    return [...new Set(
+      selectedRoleIds.flatMap((id) => roleDefaultPermissions[id] || []),
+    )];
   }
 
-  function cancelAccessChanges() {
+  function updateSelectedRoles(nextRoleIds: number[]) {
+    const previousDefaults = new Set(getDefaultPermissionIds(roleIds));
+    const nextDefaults = new Set(getDefaultPermissionIds(nextRoleIds));
+    const customGrants = new Set([
+      ...permissionIds.filter((id) => !previousDefaults.has(id)),
+      ...userGrantIds.filter((id) => permissionIds.includes(id)),
+    ]);
+    const customDenials = new Set(
+      [
+        ...[...previousDefaults].filter((id) => !permissionIds.includes(id)),
+        ...userDenyIds.filter((id) => !permissionIds.includes(id)),
+      ],
+    );
+    const nextPermissions = [
+      ...[...nextDefaults].filter((id) => !customDenials.has(id)),
+      ...[...customGrants].filter((id) => !customDenials.has(id)),
+    ];
+    setRoleIds(nextRoleIds);
+    setPermissionIds([...new Set(nextPermissions)]);
+    setUserGrantIds([...customGrants]);
+    setUserDenyIds([...customDenials]);
+  }
+
+  function updatePermissionSelection(ids: number[]) {
+    const defaults = new Set(getDefaultPermissionIds(roleIds));
+    const grants = new Set([
+      ...ids.filter((id) => !defaults.has(id)),
+      ...userGrantIds.filter((id) => ids.includes(id)),
+    ]);
+    const denials = new Set([
+      ...[...defaults].filter((id) => !ids.includes(id)),
+      ...userDenyIds.filter((id) => !ids.includes(id)),
+    ]);
+    setPermissionIds(ids);
+    setUserGrantIds([...grants]);
+    setUserDenyIds([...denials]);
+  }
+
+  function toggleSelectedRole(roleId: number) {
+    const nextRoleIds = roleIds.includes(roleId)
+      ? roleIds.filter((id) => id !== roleId)
+      : [...roleIds, roleId];
+    updateSelectedRoles(nextRoleIds);
+  }
+
+  async function cancelAccessChanges() {
+    const changed =
+      roleIds.length !== savedRoleIds.length ||
+      roleIds.some((id) => !savedRoleIds.includes(id)) ||
+      permissionIds.length !== savedPermissionIds.length ||
+      permissionIds.some((id) => !savedPermissionIds.includes(id));
+
+    if (
+      changed &&
+      !(await window.crmPopup.confirm(
+        "Discard the unsaved role changes?",
+        { title: "Discard changes", confirmText: "Discard" },
+      ))
+    ) {
+      return;
+    }
+
     setRoleIds([...savedRoleIds]);
     setPermissionIds([...savedPermissionIds]);
+    setUserGrantIds([...savedUserGrantIds]);
+    setUserDenyIds([...savedUserDenyIds]);
     setEditingAccess(false);
     setError("");
     setMessage("");
@@ -290,8 +345,12 @@ export default function RegistrationManagement() {
       return;
     }
 
-    const confirmed = window.confirm(
+    const confirmed = await window.crmPopup.confirm(
       `Are you sure you want to ${decision} this registration?`,
+      {
+        title: `Confirm ${decision}`,
+        confirmText: decision === "approved" ? "Approve" : "Reject",
+      },
     );
 
     if (!confirmed) return;
@@ -307,6 +366,10 @@ export default function RegistrationManagement() {
         roleIds: decision === "approved" ? roleIds : [],
         permissionIds: decision === "approved" ? permissionIds : [],
       });
+
+      if (!result.ok) {
+        throw new Error(result.message || "Unable to submit the review.");
+      }
 
       setMessage(result.message || `Registration ${decision}.`);
       setSelected(null);
@@ -330,8 +393,9 @@ export default function RegistrationManagement() {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Save the updated roles and permissions for this user?",
+    const confirmed = await window.crmPopup.confirm(
+      "Save the updated roles and effective permissions for this user?",
+      { title: "Update user access", confirmText: "Save changes" },
     );
 
     if (!confirmed) return;
@@ -341,30 +405,59 @@ export default function RegistrationManagement() {
     setMessage("");
 
     try {
-      // TODO: Connect this to the backend access-update API.
-      // Do not show success until the API confirms the database update.
+      await saveUserAccess(selected.id, roleIds, permissionIds);
+      setSavedRoleIds([...roleIds]);
+      setEditingAccess(false);
+
+      try {
+        const refreshed = await adminRegistrationApi.get(selected.id);
+        setSelected(refreshed.data);
+
+        const refreshedRoleIds = (refreshed.data.roles ?? [])
+          .map((role) => Number(role.id))
+          .filter(Number.isFinite);
+        const refreshedPermissionIds = (refreshed.data.permissionIds ?? [])
+          .map(Number)
+          .filter(Number.isFinite);
+        const refreshedEffectiveIds = (
+          refreshed.data.effectivePermissions ?? []
+        )
+          .map((permission) => Number(permission.id))
+          .filter(Number.isFinite);
+
+        setRoleIds(refreshedRoleIds);
+        setSavedRoleIds(refreshedRoleIds);
+        setPermissionIds(refreshedPermissionIds);
+        setSavedPermissionIds(refreshedPermissionIds);
+        const refreshedGrants = (refreshed.data.permissionOverrides ?? [])
+          .filter((override) => override.effect === "grant")
+          .map((override) => Number(override.id))
+          .filter(Number.isFinite);
+        const refreshedDenials = (refreshed.data.permissionOverrides ?? [])
+          .filter((override) => override.effect === "deny")
+          .map((override) => Number(override.id))
+          .filter(Number.isFinite);
+        setUserGrantIds(refreshedGrants);
+        setSavedUserGrantIds(refreshedGrants);
+        setUserDenyIds(refreshedDenials);
+        setSavedUserDenyIds(refreshedDenials);
+        setEffectivePermissionIds(refreshedEffectiveIds);
+        setMessage("Roles and effective permissions updated successfully.");
+      } catch (refreshError) {
+        const refreshMessage =
+          refreshError instanceof Error
+            ? refreshError.message
+            : "Unable to reload effective permissions.";
+        setMessage("Roles were saved successfully.");
+        setError(`Roles were saved, but the latest access could not be reloaded: ${refreshMessage}`);
+      }
+    } catch (err) {
       setError(
-        "Access update API is not connected yet. Your changes have not been saved.",
+        err instanceof Error ? err.message : "Unable to update user roles.",
       );
     } finally {
       setSavingAccess(false);
     }
-  }
-
-  function updateModulePermissions(ids: number[], checked: boolean) {
-    setPermissionIds((current) => {
-      const updated = new Set(current);
-
-      for (const id of ids) {
-        if (checked) {
-          updated.add(id);
-        } else {
-          updated.delete(id);
-        }
-      }
-
-      return Array.from(updated);
-    });
   }
 
   const registrationStatus = String(
@@ -372,6 +465,10 @@ export default function RegistrationManagement() {
   ).toLowerCase();
 
   const isPending = registrationStatus === "pending";
+  const canEditAccess = isPending || editingAccess;
+  const visiblePermissionIds = canEditAccess
+    ? permissionIds
+    : effectivePermissionIds;
 
   return (
     <main className="registration-management">
@@ -463,8 +560,8 @@ export default function RegistrationManagement() {
                         <td>
                           {registration.created_at
                             ? new Date(
-                                registration.created_at,
-                              ).toLocaleDateString()
+                              registration.created_at,
+                            ).toLocaleDateString()
                             : "—"}
                         </td>
                         <td>
@@ -516,25 +613,25 @@ export default function RegistrationManagement() {
               title="KYC Information"
               value={
                 selected.kyc &&
-                typeof selected.kyc === "object" &&
-                !Array.isArray(selected.kyc)
+                  typeof selected.kyc === "object" &&
+                  !Array.isArray(selected.kyc)
                   ? Object.fromEntries(
-                      Object.entries(
-                        selected.kyc as Record<string, unknown>,
-                      ).filter(
-                        ([key]) =>
-                          ![
-                            "id",
-                            "user_id",
-                            "created_at",
-                            "updated_at",
-                            "reviewed_at",
-                            "reviewed_by",
-                            "pan_number_encrypted",
-                            "aadhaar_number_encrypted",
-                          ].includes(key.toLowerCase()),
-                      ),
-                    )
+                    Object.entries(
+                      selected.kyc as Record<string, unknown>,
+                    ).filter(
+                      ([key]) =>
+                        ![
+                          "id",
+                          "user_id",
+                          "created_at",
+                          "updated_at",
+                          "reviewed_at",
+                          "reviewed_by",
+                          "pan_number_encrypted",
+                          "aadhaar_number_encrypted",
+                        ].includes(key.toLowerCase()),
+                    ),
+                  )
                   : selected.kyc
               }
             />
@@ -543,23 +640,23 @@ export default function RegistrationManagement() {
               title="Bank Information"
               value={
                 selected.bank &&
-                typeof selected.bank === "object" &&
-                !Array.isArray(selected.bank)
+                  typeof selected.bank === "object" &&
+                  !Array.isArray(selected.bank)
                   ? Object.fromEntries(
-                      Object.entries(
-                        selected.bank as Record<string, unknown>,
-                      ).filter(
-                        ([key]) =>
-                          ![
-                            "id",
-                            "user_id",
-                            "created_at",
-                            "updated_at",
-                            "is_primary",
-                            "account_number_encrypted",
-                          ].includes(key.toLowerCase()),
-                      ),
-                    )
+                    Object.entries(
+                      selected.bank as Record<string, unknown>,
+                    ).filter(
+                      ([key]) =>
+                        ![
+                          "id",
+                          "user_id",
+                          "created_at",
+                          "updated_at",
+                          "is_primary",
+                          "account_number_encrypted",
+                        ].includes(key.toLowerCase()),
+                    ),
+                  )
                   : selected.bank
               }
             />
@@ -578,8 +675,11 @@ export default function RegistrationManagement() {
                       "account_status",
                       "created_at",
                       "roles",
+                      "roleIds",
                       "permissionIds",
+                      "permissionOverrides",
                       "effectivePermissions",
+                      "permissions",
                       "profile",
                       "kyc",
                       "bank",
@@ -587,6 +687,7 @@ export default function RegistrationManagement() {
                 ),
               )}
             />
+
           </section>
 
           <aside className="registration-access-panel">
@@ -599,7 +700,7 @@ export default function RegistrationManagement() {
             </div>
 
             <div className="registration-access-toolbar">
-              {!editingAccess ? (
+              {!isPending && !editingAccess ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -610,7 +711,7 @@ export default function RegistrationManagement() {
                 >
                   Update Roles &amp; Permissions
                 </button>
-              ) : (
+              ) : !isPending && editingAccess ? (
                 <>
                   <button
                     type="button"
@@ -628,11 +729,16 @@ export default function RegistrationManagement() {
                     {savingAccess ? "Saving..." : "Save Changes"}
                   </button>
                 </>
-              )}
+              ) : null}
             </div>
 
             <div className="role-card">
               <h3>Assigned Roles</h3>
+              {isPending && (
+                <p className="registration-access-note">
+                  Choose the roles and permissions to include with this approval.
+                </p>
+              )}
 
               <div className="role-chip-list">
                 {roles.map((role) => (
@@ -640,10 +746,8 @@ export default function RegistrationManagement() {
                     <input
                       type="checkbox"
                       checked={roleIds.includes(Number(role.id))}
-                      disabled={!editingAccess}
-                      onChange={() =>
-                        toggleId(Number(role.id), roleIds, setRoleIds)
-                      }
+                      disabled={!isPending && !editingAccess}
+                      onChange={() => toggleSelectedRole(Number(role.id))}
                     />
                     <span>{role.name}</span>
                   </label>
@@ -655,130 +759,34 @@ export default function RegistrationManagement() {
               )}
             </div>
 
-            <div className="permission-card">
-              <h3>Module Access Allowed</h3>
-
-              <div className="permission-table-wrapper">
-                <table className="permission-table">
-                  <thead>
-                    <tr>
-                      <th>All</th>
-                      <th>Module</th>
-                      <th>Permissions</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {permissionMatrix.map(({ module, actions }) => {
-                      const normalizedModule = normalize(module);
-
-                      const modulePermissions = permissions.filter(
-                        (permission) => {
-                          const name = normalize(permission.name);
-                          return (
-                            name.includes(normalizedModule) ||
-                            normalizedModule.includes(name)
-                          );
-                        },
-                      );
-
-                      const moduleIds = modulePermissions
-                        .map((permission) => Number(permission.id))
-                        .filter(Number.isFinite);
-
-                      const allChecked =
-                        moduleIds.length > 0 &&
-                        moduleIds.every((id) => permissionIds.includes(id));
-
-                      return (
-                        <tr key={module}>
-                          <td>
-                            <input
-                              type="checkbox"
-                              aria-label={`Select all permissions for ${module}`}
-                              checked={allChecked}
-                              disabled={!editingAccess || moduleIds.length === 0}
-                              onChange={(event) =>
-                                updateModulePermissions(
-                                  moduleIds,
-                                  event.target.checked,
-                                )
-                              }
-                            />
-                          </td>
-
-                          <td className="module-title">{module}</td>
-
-                          <td>
-                            <div className="permission-tags">
-                              {actions.length === 0 ? (
-                                <span className="permission-empty">
-                                  View Only
-                                </span>
-                              ) : (
-                                actions.map((action) => {
-                                  const normalizedAction = normalize(action);
-
-                                  const permission = modulePermissions.find(
-                                    (item) =>
-                                      normalize(item.name).endsWith(
-                                        normalizedAction,
-                                      ) ||
-                                      normalize(item.name).includes(
-                                        normalizedModule + normalizedAction,
-                                      ),
-                                  );
-
-                                  if (!permission) {
-                                    return (
-                                      <span
-                                        key={`${module}-${action}`}
-                                        className="permission-disabled"
-                                        title={`No matching permission found for ${module} - ${action}`}
-                                      >
-                                        {action}
-                                      </span>
-                                    );
-                                  }
-
-                                  const id = Number(permission.id);
-
-                                  return (
-                                    <label
-                                      key={permission.id}
-                                      className="permission-pill"
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={permissionIds.includes(id)}
-                                        disabled={!editingAccess}
-                                        onChange={() =>
-                                          toggleId(
-                                            id,
-                                            permissionIds,
-                                            setPermissionIds,
-                                          )
-                                        }
-                                      />
-                                      <span>{action}</span>
-                                    </label>
-                                  );
-                                })
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            <div
+              className={
+                isPending
+                  ? "permission-card permission-card--matrix"
+                  : "permission-card"
+              }
+            >
+              {!isPending && <h3>Effective permissions</h3>}
+              <PermissionMatrix
+                permissions={permissions}
+                selectedPermissionIds={visiblePermissionIds}
+                defaultPermissionIds={getDefaultPermissionIds(roleIds)}
+                onChange={updatePermissionSelection}
+                onUpdated={() =>
+                  setMessage(
+                    isPending
+                      ? "Permission selections updated. Approve the registration to submit them."
+                      : "Permission selections updated. Save Changes to apply them.",
+                  )
+                }
+                disabled={!canEditAccess}
+              />
             </div>
 
-            {!editingAccess && (
+            {!isPending && !editingAccess && (
               <p className="registration-access-note">
-                Currently assigned access is shown above. Select Update Roles
-                &amp; Permissions to make changes.
+                Currently assigned roles and backend-provided permissions are
+                shown above. Select Update Roles to make role changes.
               </p>
             )}
 
@@ -799,14 +807,14 @@ export default function RegistrationManagement() {
                   onChange={(event) => setDecisionReason(event.target.value)}
                   placeholder="Enter review notes or rejection reason..."
                   rows={3}
-                  disabled={editingAccess || reviewing}
+                  disabled={reviewing}
                 />
 
                 <div className="registration-review-actions">
                   <button
                     type="button"
                     className="registration-approve-button"
-                    disabled={reviewing || editingAccess}
+                    disabled={reviewing}
                     onClick={() => void submitReview("approved")}
                   >
                     {reviewing ? "Saving..." : "Approve"}
@@ -815,7 +823,7 @@ export default function RegistrationManagement() {
                   <button
                     type="button"
                     className="registration-reject-button"
-                    disabled={reviewing || editingAccess}
+                    disabled={reviewing}
                     onClick={() => void submitReview("rejected")}
                   >
                     {reviewing ? "Saving..." : "Reject"}

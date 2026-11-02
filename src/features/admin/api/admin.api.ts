@@ -17,7 +17,11 @@ export interface AccessOption {
   key?: string;
   description?: string | null;
   module?: string | null;
+  moduleKey?: string | null;
+  moduleId?: number;
   code?: string | null;
+  is_active?: boolean;
+  assignedUserCount?: number;
 }
 
 export interface RegistrationRole {
@@ -51,6 +55,7 @@ export interface RegistrationDetails extends Registration {
   roles?: AccessOption[];
   effectivePermissions?: AccessOption[];
   permissionIds?: number[];
+  permissionOverrides?: { id: number; key: string; effect: "grant" | "deny" }[];
   permissions?: AccessOption[];
   profile?: Record<string, unknown> | null;
   kyc?: Record<string, unknown> | null;
@@ -84,15 +89,6 @@ export interface AdminApplication {
   submittedAt?: string | null;
 }
 
-export type ApplicationReviewAction =
-  | "approve"
-  | "reject";
-
-export interface ApplicationReviewResult {
-  ok: boolean;
-  message?: string;
-}
-
 /* =========================================================
    USER MANAGEMENT TYPES
 ========================================================= */
@@ -104,6 +100,17 @@ export interface AdminUser {
   email?: string | null;
   status?: string | null;
   roles?: string[];
+  permissions?: string[];
+  account_status?: string;
+}
+
+export interface PermissionModule {
+  id: number;
+  key: string;
+  name: string;
+  description?: string | null;
+  is_active: boolean;
+  permissionCount?: number;
 }
 
 export interface AdminUserStatusPayload {
@@ -154,7 +161,7 @@ function extractArray<T>(
     }
   }
 
-  return [];
+  throw new Error("The API returned an unexpected list response.");
 }
 
 /* =========================================================
@@ -216,6 +223,18 @@ export async function getRegistrationPermissions(): Promise<
   );
 }
 
+export async function getRoleDefaultPermissions(
+  roleId: string | number,
+): Promise<AccessOption[]> {
+  const response = await api.get(
+    `/api/roles/${encodeURIComponent(String(roleId))}/permissions`,
+  );
+  return extractArray<AccessOption>(
+    unwrapData<unknown>(response.data),
+    ["permissions"],
+  );
+}
+
 export async function reviewRegistrationRequest(
   registrationId: string | number,
   decision: "approved" | "rejected",
@@ -258,66 +277,13 @@ export async function reviewRegistrationRequest(
     };
   }
 
-  return { ok: true };
-}
-
-export async function updateUserRoles(
-  userId: number | string,
-  roleIds: number[],
-) {
-  const response = await api.put(`/api/users/${userId}/roles`, {
-    roles: roleIds.map(String),
-  });
-
-  return response.data;
+  throw new Error("The API returned an unexpected registration review response.");
 }
 
 export const adminRegistrationApi = {
-
-  
-  async updateAccess(
-    userId: string | number,
-    roleIds: number[],
-  ): Promise<RegistrationReviewResult> {
-    const response = await api.put(
-      `/api/users/${encodeURIComponent(String(userId))}/roles`,
-      {
-        roleIds,
-      },
-    );
-
-    const result = unwrapData<unknown>(response.data);
-
-    if (result !== null && typeof result === "object") {
-      const body = result as {
-        success?: boolean;
-        ok?: boolean;
-        message?: string;
-      };
-
-      if (body.success === false || body.ok === false) {
-        return {
-          ok: false,
-          message: body.message ?? "Unable to update roles.",
-        };
-      }
-
-      return {
-        ok: true,
-        message: body.message ?? "Roles updated successfully.",
-      };
-    }
-
-    return { ok: true };
+  async list(status?: RegistrationStatus) {
+    return { data: await getRegistrationRequests(status) };
   },
-
-
-
-async list(status?: RegistrationStatus) {
-  return {
-    data: await getRegistrationRequests(status),
-  };
-},
 
   async get(registrationId: string | number) {
     return {
@@ -353,15 +319,8 @@ async list(status?: RegistrationStatus) {
 
 /* =========================================================
    APPLICATION MANAGEMENT API
-   Compatible with ApplicationsPage.tsx
 ========================================================= */
 
-/**
- * Fetch pending applications.
- *
- * This uses the existing registrations endpoint because
- * that endpoint is already defined in this API module.
- */
 export async function getApplications(): Promise<AdminApplication[]> {
   const registrations = await getRegistrationRequests("pending");
 
@@ -384,29 +343,6 @@ export async function getApplications(): Promise<AdminApplication[]> {
   }));
 }
 
-/**
- * Approve or reject an application.
- *
- * The current registration review endpoint supports
- * approved and rejected decisions.
- */
-export async function reviewApplication(
-  id: number,
-  payload: {
-    decision: "approved" | "rejected";
-    roleIds: string[];
-    permissionIds: string[];
-    reason?: string;
-  }
-) {
-  const response = await api.patch(
-    `/api/admin/registrations/${id}/review`,
-    payload
-  );
-
-  return response.data;
-}
-
 /* =========================================================
    USER MANAGEMENT API
 ========================================================= */
@@ -415,7 +351,7 @@ export async function reviewApplication(
  * Fetch users from the backend.
  */
 export async function getUsers(): Promise<AdminUser[]> {
-  const response = await api.get("/api/admin/users");
+  const response = await api.get("/api/users");
 
   const payload = unwrapData<unknown>(response.data);
 
@@ -430,7 +366,7 @@ export async function updateUserStatus(
   status: string,
 ): Promise<void> {
   await api.patch(
-    `/api/admin/users/${encodeURIComponent(String(userId))}/status`,
+    `/api/users/${encodeURIComponent(String(userId))}/status`,
     { status },
   );
 }
@@ -450,3 +386,106 @@ export async function assignRole(
     { roles },
   );
 }
+
+export async function getUserAccess(userId: string | number) {
+  const response = await api.get(
+    `/api/users/${encodeURIComponent(String(userId))}/access`,
+  );
+  return unwrapData<{
+    userId: string | number;
+    roles: AccessOption[];
+    roleIds: number[];
+    overrides: (AccessOption & { effect: "grant" | "deny" })[];
+    effectivePermissions: AccessOption[];
+    permissionIds: number[];
+  }>(response.data);
+}
+
+export async function saveUserAccess(
+  userId: string | number,
+  roleIds: number[],
+  permissionIds: number[],
+) {
+  const response = await api.put(
+    `/api/users/${encodeURIComponent(String(userId))}/access`,
+    { roleIds, permissionIds },
+  );
+  return unwrapData<{
+    userId: string | number;
+    roleIds: number[];
+    permissionIds: number[];
+    effectivePermissions: AccessOption[];
+  }>(response.data);
+}
+
+export const accessManagementApi = {
+  async listRoles() {
+    const response = await api.get("/api/roles");
+    return extractArray<AccessOption>(unwrapData<unknown>(response.data), ["roles"]);
+  },
+  async createRole(payload: { name: string; code?: string; description?: string }) {
+    const response = await api.post("/api/roles", payload);
+    return unwrapData<AccessOption>(response.data);
+  },
+  async updateRole(
+    id: number,
+    payload: { name?: string; description?: string | null; isActive?: boolean },
+  ) {
+    const response = await api.put(`/api/roles/${id}`, payload);
+    return unwrapData<AccessOption>(response.data);
+  },
+  async deleteRole(id: number) {
+    await api.delete(`/api/roles/${id}`);
+  },
+  async getRolePermissions(id: number) {
+    return getRoleDefaultPermissions(id);
+  },
+  async updateRolePermissions(id: number, permissionIds: number[]) {
+    const response = await api.put(`/api/roles/${id}/permissions`, { permissionIds });
+    return extractArray<AccessOption>(unwrapData<unknown>(response.data), ["permissions"]);
+  },
+  async listPermissions() {
+    const response = await api.get("/api/permissions");
+    return extractArray<AccessOption>(unwrapData<unknown>(response.data), ["permissions"]);
+  },
+  async listModules() {
+    const response = await api.get("/api/permissions/modules");
+    return extractArray<PermissionModule>(unwrapData<unknown>(response.data), ["modules"]);
+  },
+  async createModule(payload: { name: string; key?: string; description?: string }) {
+    const response = await api.post("/api/permissions/modules", payload);
+    return unwrapData<PermissionModule>(response.data);
+  },
+  async updateModule(
+    id: number,
+    payload: { name?: string; description?: string | null; isActive?: boolean },
+  ) {
+    const response = await api.put(`/api/permissions/modules/${id}`, payload);
+    return unwrapData<PermissionModule>(response.data);
+  },
+  async deleteModule(id: number) {
+    await api.delete(`/api/permissions/modules/${id}`);
+  },
+  async createPermission(payload: {
+    key: string;
+    name: string;
+    moduleId: number;
+    description?: string;
+  }) {
+    const response = await api.post("/api/permissions", payload);
+    return unwrapData<AccessOption>(response.data);
+  },
+  async updatePermission(
+    id: number,
+    payload: {
+      key?: string;
+      name?: string;
+      moduleId?: number;
+      description?: string | null;
+      isActive?: boolean;
+    },
+  ) {
+    const response = await api.put(`/api/permissions/${id}`, payload);
+    return unwrapData<AccessOption>(response.data);
+  },
+};
