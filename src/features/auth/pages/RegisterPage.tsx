@@ -39,6 +39,7 @@ function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAccountNumber, setShowAccountNumber] = useState(false);
   const [showIfscCode, setShowIfscCode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [success, setSuccess] = useState<{
     reference: string;
@@ -380,7 +381,7 @@ function RegisterPage() {
                     <input
                       id="password"
                       name="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       value={form.password}
                       onChange={(event) =>

@@ -1,0 +1,453 @@
+
+.user-activity-page {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    color: #172033;
+}
+
+.activity-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.activity-page-header h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 750;
+    letter-spacing: -0.7px;
+}
+
+.activity-page-header p,
+.activity-toolbar p {
+    color: #788397;
+    font-size: 13px;
+    margin: 7px 0 0;
+}
+
+.activity-export-button,
+.activity-refresh-button {
+    border: none;
+    border-radius: 8px;
+    background: #174ea6;
+    color: white;
+    padding: 11px 17px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.activity-export-button:disabled,
+.activity-refresh-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.activity-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 25px;
+}
+
+.activity-summary-card {
+    background: #fff;
+    border: 1px solid #e8edf4;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(20, 40, 80, 0.035);
+}
+
+.activity-summary-card span {
+    display: block;
+    color: #69768b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.activity-summary-card strong {
+    display: block;
+    margin-top: 12px;
+    font-size: 29px;
+    font-weight: 750;
+    color: #162d50;
+}
+
+.activity-summary-card small {
+    display: block;
+    margin-top: 7px;
+    color: #98a2b3;
+    font-size: 11px;
+}
+
+.activity-danger {
+    color: #dc3545 !important;
+}
+
+.activity-table-container {
+    background: #fff;
+    border: 1px solid #e8edf4;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.activity-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    gap: 15px;
+}
+
+.activity-toolbar h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.activity-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-top: 1px solid #edf0f5;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.activity-filters input,
+.activity-filters select {
+    min-width: 130px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    outline: none;
+    background: #fff;
+    color: #344054;
+    font-size: 12px;
+}
+
+.activity-filters input:focus,
+.activity-filters select:focus {
+    border-color: #3478d4;
+}
+
+.activity-filters input[type="search"] {
+    flex: 1;
+    min-width: 210px;
+}
+
+.activity-reset-button {
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid #dce3ed;
+    border-radius: 7px;
+    background: white;
+    color: #475467;
+    cursor: pointer;
+}
+
+.activity-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+.activity-table th {
+    background: #f9fafb;
+    color: #69768b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    text-align: left;
+    padding: 15px 13px;
+    white-space: nowrap;
+}
+
+.activity-table td {
+    padding: 14px 13px;
+    border-top: 1px solid #edf0f5;
+    font-size: 12px;
+    color: #344054;
+    vertical-align: middle;
+}
+
+.activity-table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.activity-user strong,
+.activity-user small {
+    display: block;
+}
+
+.activity-user strong {
+    font-size: 12px;
+    color: #263750;
+}
+
+.activity-user small {
+    color: #929eae;
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.activity-action {
+    display: inline-block;
+    padding: 5px 9px;
+    background: #edf4ff;
+    border-radius: 5px;
+    color: #2863b5;
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.activity-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.activity-status.success {
+    background: #e7f8ee;
+    color: #16864a;
+}
+
+.activity-status.failed {
+    background: #fff0f0;
+    color: #d22d3b;
+}
+
+.activity-description-cell {
+    max-width: 190px;
+}
+
+.activity-view-button {
+    border: 1px solid #d5e2f5;
+    color: #2563b5;
+    background: #f4f8ff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.activity-empty {
+    text-align: center;
+    padding: 45px !important;
+    color: #98a2b3 !important;
+}
+
+.activity-error {
+    margin: 12px 20px;
+    padding: 12px;
+    border-radius: 7px;
+    color: #b42318;
+    background: #fef3f2;
+    font-size: 13px;
+}
+
+.activity-pagination {
+    padding: 17px 20px;
+    border-top: 1px solid #edf0f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: #788397;
+    font-size: 12px;
+}
+
+.activity-pagination div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.activity-pagination button {
+    padding: 7px 12px;
+    background: #fff;
+    border: 1px solid #dce3ed;
+    border-radius: 6px;
+    color: #344054;
+    cursor: pointer;
+}
+
+.activity-pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.activity-pagination strong {
+    color: #263750;
+}
+
+/* Activity details modal */
+
+.activity-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(13, 25, 43, 0.55);
+}
+
+.activity-modal {
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+}
+
+.activity-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 21px 24px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.activity-modal-header h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.activity-modal-header p {
+    margin: 5px 0 0;
+    color: #8994a5;
+    font-size: 12px;
+}
+
+.activity-close-button {
+    border: none;
+    background: transparent;
+    font-size: 27px;
+    color: #667085;
+    cursor: pointer;
+}
+
+.activity-detail-body {
+    padding: 24px;
+}
+
+.activity-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.activity-detail-grid span,
+.activity-description span {
+    display: block;
+    margin-bottom: 7px;
+    color: #8490a2;
+    font-size: 11px;
+}
+
+.activity-detail-grid strong {
+    display: block;
+    color: #263750;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.activity-description {
+    margin-top: 24px;
+}
+
+.activity-description p {
+    color: #344054;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.activity-description pre,
+.activity-comparison pre {
+    padding: 14px;
+    background: #f7f9fc;
+    border: 1px solid #e8edf4;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 250px;
+    overflow: auto;
+}
+
+.activity-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.activity-comparison h3 {
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.activity-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 24px;
+    border-top: 1px solid #edf0f5;
+}
+
+.activity-modal-footer button {
+    padding: 9px 19px;
+    border: none;
+    background: #174ea6;
+    color: #fff;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .activity-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .user-activity-page {
+        padding: 14px;
+    }
+
+    .activity-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .activity-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-detail-grid,
+    .activity-comparison {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
