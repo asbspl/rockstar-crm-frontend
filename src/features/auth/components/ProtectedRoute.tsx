@@ -5,16 +5,19 @@ import { useAuthContext } from "../../../contexts/useAuthContext";
 interface ProtectedRouteProps {
   children?: ReactNode;
   requiredPermissions?: readonly string[];
+  requiredRoles?: readonly string[];
 }
 
 function ProtectedRoute({
   children,
   requiredPermissions,
+  requiredRoles,
 }: ProtectedRouteProps) {
   const {
     isAuthenticated,
     isLoading,
     authState,
+    roles,
     hasAnyPermission,
   } = useAuthContext();
 
@@ -46,9 +49,16 @@ function ProtectedRoute({
     );
   }
 
-  // A logged-in user whose registration is pending cannot access private pages.
-  if (authState === "pending") {
+  if (
+    authState === "pending" ||
+    authState === "rejected" ||
+    authState === "suspended"
+  ) {
     return <Navigate to="/registration-status" replace />;
+  }
+
+  if (authState === "forbidden") {
+    return <Navigate to="/forbidden" replace />;
   }
 
   // Authenticated users must still have the required permission.
@@ -56,6 +66,18 @@ function ProtectedRoute({
     requiredPermissions &&
     requiredPermissions.length > 0 &&
     !hasAnyPermission(requiredPermissions)
+  ) {
+    return <Navigate to="/forbidden" replace />;
+  }
+
+  if (
+    requiredRoles &&
+    requiredRoles.length > 0 &&
+    !requiredRoles.some((requiredRole) =>
+      roles.some(
+        (role) => role.trim().toLowerCase() === requiredRole.trim().toLowerCase(),
+      ),
+    )
   ) {
     return <Navigate to="/forbidden" replace />;
   }
