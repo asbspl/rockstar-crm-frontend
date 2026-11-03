@@ -9,14 +9,23 @@ import {
 import {
     getActivities,
     getActivityById,
+    getActivityFilters,
     getActivitySummary,
+    recordActivityExport,
     type Activity,
+    type ActivityFilterOptions,
     type ActivityFilters,
     type ActivityPagination,
     type ActivitySummary,
 } from "../api/activity.api";
 
 import ActivityDetails from "../components/ActivityDetails";
+import {
+    formatActivityAction,
+    formatActivityModule,
+    formatActivityValue,
+    getActivityRecordName,
+} from "../utils/activity-formatters";
 
 import "../styles/user-activity.css";
 
@@ -44,6 +53,7 @@ function UserActivityPage() {
     const [search, setSearch] = useState("");
     const [action, setAction] = useState("");
     const [module, setModule] = useState("");
+    const [userId, setUserId] = useState("");
     const [status, setStatus] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -53,6 +63,12 @@ function UserActivityPage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [filterOptions, setFilterOptions] =
+        useState<ActivityFilterOptions>({
+            actions: [],
+            modules: [],
+            users: [],
+        });
 
     const loadSummary = useCallback(async () => {
         try {
@@ -76,6 +92,7 @@ function UserActivityPage() {
                 page: pagination.page,
                 limit: pagination.limit,
                 search: search.trim(),
+                user_id: userId,
                 action,
                 module,
                 status,
@@ -100,6 +117,7 @@ function UserActivityPage() {
         pagination.page,
         pagination.limit,
         search,
+        userId,
         action,
         module,
         status,
@@ -108,11 +126,31 @@ function UserActivityPage() {
     ]);
 
     useEffect(() => {
-        loadSummary();
+        const timer = window.setTimeout(() => {
+            void loadSummary();
+        }, 0);
+
+        return () => window.clearTimeout(timer);
     }, [loadSummary]);
 
     useEffect(() => {
-        loadActivities();
+        getActivityFilters()
+            .then(setFilterOptions)
+            .catch((caughtError: unknown) => {
+                setError(
+                    caughtError instanceof Error
+                        ? caughtError.message
+                        : "Unable to load activity filters.",
+                );
+            });
+    }, []);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            void loadActivities();
+        }, 0);
+
+        return () => window.clearTimeout(timer);
     }, [loadActivities]);
 
     const updateFilter = (
@@ -127,7 +165,7 @@ function UserActivityPage() {
         }));
     };
 
-    const openDetails = async (id: number) => {
+    const openDetails = async (id: number | string) => {
         try {
             const result = await getActivityById(id);
             setSelectedActivity(result);
@@ -140,17 +178,13 @@ function UserActivityPage() {
         }
     };
 
-    const exportCSV = () => {
+    const exportCSV = async () => {
         const headers = [
-            "ID",
-            "User",
-            "Email",
+            "Performed By",
             "Action",
             "Module",
-            "Record ID",
             "Description",
             "Status",
-            "IP Address",
             "Date",
         ];
 
@@ -158,16 +192,12 @@ function UserActivityPage() {
             `"${String(value ?? "").replace(/"/g, '""')}"`;
 
         const rows = activities.map((item) => [
-            item.id,
-            item.user_name,
-            item.user_email,
-            item.action,
-            item.module,
-            item.record_id,
-            item.description,
-            item.status,
-            item.ip_address,
-            new Date(item.created_at).toISOString(),
+            item.user_name || "Unknown user",
+            formatActivityAction(item.action),
+            formatActivityModule(item.module),
+            [item.description, getActivityRecordName(item)].filter(Boolean).join(" — "),
+            formatActivityValue(item.status, "status", item.module),
+            new Date(item.created_at).toLocaleString("en-IN"),
         ]);
 
         const csv = [
@@ -185,23 +215,23 @@ function UserActivityPage() {
 
         link.href = url;
         link.download = "rockstar-crm-activity.csv";
+
+        try {
+            await recordActivityExport();
+            setError("");
+        } catch (caughtError) {
+            setError(
+                `The export could not be recorded: ${
+                    caughtError instanceof Error
+                        ? caughtError.message
+                        : "Unexpected error"
+                }`,
+            );
+        }
+
         link.click();
 
         URL.revokeObjectURL(url);
-    };
-
-    const resetFilters = () => {
-        setSearch("");
-        setAction("");
-        setModule("");
-        setStatus("");
-        setStartDate("");
-        setEndDate("");
-
-        setPagination((previous) => ({
-            ...previous,
-            page: 1,
-        }));
     };
 
     const formatDate = (date: string) => {
@@ -310,30 +340,48 @@ function UserActivityPage() {
                     />
 
                     <select
+                        aria-label="Filter by user"
+                        value={userId}
+                        onChange={(event) =>
+                            updateFilter(setUserId, event)
+                        }
+                    >
+                        <option value="">All Users</option>
+                        {filterOptions.users.map((user) => (
+                            <option key={user.user_id} value={user.user_id}>
+                                {user.user_name || "Unnamed user"}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
                         value={action}
                         onChange={(event) =>
                             updateFilter(setAction, event)
                         }
                     >
                         <option value="">All Actions</option>
-                        <option value="CREATE">Create</option>
-                        <option value="UPDATE">Update</option>
-                        <option value="DELETE">Delete</option>
-                        <option value="VIEW">View</option>
-                        <option value="LOGIN">Login</option>
-                        <option value="LOGOUT">Logout</option>
-                        <option value="APPROVE">Approve</option>
-                        <option value="REJECT">Reject</option>
+                        {filterOptions.actions.map((availableAction) => (
+                            <option key={availableAction} value={availableAction}>
+                                {formatActivityAction(availableAction)}
+                            </option>
+                        ))}
                     </select>
 
-                    <input
-                        type="text"
-                        placeholder="Module"
+                    <select
+                        aria-label="Filter by module"
                         value={module}
                         onChange={(event) =>
                             updateFilter(setModule, event)
                         }
-                    />
+                    >
+                        <option value="">All Modules</option>
+                        {filterOptions.modules.map((availableModule) => (
+                            <option key={availableModule} value={availableModule}>
+                                {formatActivityModule(availableModule)}
+                            </option>
+                        ))}
+                    </select>
 
                     <select
                         value={status}
@@ -348,6 +396,7 @@ function UserActivityPage() {
 
                     <input
                         type="date"
+                        aria-label="From date"
                         value={startDate}
                         onChange={(event) =>
                             updateFilter(setStartDate, event)
@@ -356,18 +405,19 @@ function UserActivityPage() {
 
                     <input
                         type="date"
+                        aria-label="To date"
                         value={endDate}
                         onChange={(event) =>
                             updateFilter(setEndDate, event)
                         }
                     />
 
-                    <button
+                    {/* <button
                         className="activity-reset-button"
                         onClick={resetFilters}
                     >
                         Reset
-                    </button>
+                    </button> */}
 
                 </div>
 
@@ -383,14 +433,15 @@ function UserActivityPage() {
 
                         <thead>
                             <tr>
+                                <th>S/N</th>
                                 <th>User</th>
                                 <th>Module</th>
-                                <th>Action</th>
-                                <th>Record ID</th>
+                                <th>Activity</th>
                                 <th>Description</th>
+                                {/* <th>Record ID</th> */}
                                 <th>Status</th>
                                 <th>Date & Time</th>
-                                <th>Action</th>
+                                <th>View Details</th>
                             </tr>
                         </thead>
 
@@ -409,39 +460,39 @@ function UserActivityPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                activities.map((item) => (
+                                activities.map((item, index) => (
                                     <tr key={item.id}>
+                                        <td>
+                                            {(pagination.page - 1) * pagination.limit + index + 1}
+                                        </td>
 
                                         <td>
                                             <div className="activity-user">
                                                 <strong>
-                                                    {item.user_name || "Unknown"}
+                                                    {item.user_name || "Unknown user"}
                                                 </strong>
-                                                <small>
-                                                    {item.user_email || "—"}
-                                                </small>
                                             </div>
                                         </td>
 
-                                        <td>{item.module}</td>
+                                        <td>{formatActivityModule(item.module)}</td>
 
                                         <td>
                                             <span className="activity-action">
-                                                {item.action}
+                                                {formatActivityAction(item.action)}
                                             </span>
                                         </td>
 
-                                        <td>{item.record_id || "—"}</td>
-
                                         <td className="activity-description-cell">
-                                            {item.description || "—"}
+                                            {[item.description, getActivityRecordName(item)]
+                                                .filter(Boolean)
+                                                .join(" — ") || "—"}
                                         </td>
 
                                         <td>
                                             <span
                                                 className={`activity-status ${getStatusClass(item.status)}`}
                                             >
-                                                {item.status}
+                                                {formatActivityValue(item.status, "status", item.module)}
                                             </span>
                                         </td>
 
@@ -473,6 +524,28 @@ function UserActivityPage() {
                     </span>
 
                     <div>
+                        <label>
+                            Rows per page{" "}
+                            <select
+                                aria-label="Rows per page"
+                                value={pagination.limit}
+                                onChange={(event) => {
+                                    const limit = Number(event.target.value);
+                                    setPagination({
+                                        page: 1,
+                                        limit,
+                                        total: pagination.total,
+                                        totalPages: pagination.totalPages,
+                                    });
+                                }}
+                            >
+                                {[10, 25, 50, 100].map((pageSize) => (
+                                    <option key={pageSize} value={pageSize}>
+                                        {pageSize}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
                         <button
                             disabled={pagination.page <= 1 || loading}
                             onClick={() =>

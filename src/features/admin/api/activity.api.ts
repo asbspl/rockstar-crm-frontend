@@ -2,22 +2,24 @@
 import apiClient from "../../../api/client";
 
 export interface Activity {
-    id: number;
-    user_id: number | null;
+    id: string;
+    user_id: string | null;
     user_name: string | null;
     user_email: string | null;
     action: string;
     module: string;
+    entity_type: string | null;
     record_id: string | null;
     description: string | null;
-    old_values: Record<string, unknown> | null;
-    new_values: Record<string, unknown> | null;
+    old_values: Record<string, unknown> | string | null;
+    new_values: Record<string, unknown> | string | null;
+    resolved_old_values?: Record<string, unknown> | string | null;
+    resolved_new_values?: Record<string, unknown> | string | null;
     ip_address: string | null;
     user_agent: string | null;
     request_method: string | null;
     request_url: string | null;
     status: string;
-    error_message: string | null;
     created_at: string;
 }
 
@@ -26,6 +28,7 @@ export interface ActivityFilters {
     limit?: number;
     search?: string;
     user_id?: string;
+    entity_id?: string;
     action?: string;
     module?: string;
     status?: string;
@@ -41,10 +44,10 @@ export interface ActivityPagination {
 }
 
 export interface ActivitySummary {
-    total_activities: number;
-    today_activities: number;
-    failed_activities: number;
-    active_users: number;
+    total_activities: number | string;
+    today_activities: number | string;
+    failed_activities: number | string;
+    active_users: number | string;
 }
 
 export interface ActivityListResponse {
@@ -56,6 +59,16 @@ export interface ActivityListResponse {
     };
 }
 
+export interface ActivityFilterOptions {
+    actions: string[];
+    modules: string[];
+    users: Array<{
+        user_id: string;
+        user_name: string | null;
+        user_email: string | null;
+    }>;
+}
+
 export const getActivities = async (
     filters: ActivityFilters = {}
 ): Promise<ActivityListResponse> => {
@@ -63,11 +76,24 @@ export const getActivities = async (
         params: filters,
     });
 
-    return response.data;
+    const data = response.data?.data;
+    const rows = data?.activities ?? data?.rows;
+
+    if (!Array.isArray(rows) || !data?.pagination) {
+        throw new Error("Activity API returned an invalid response.");
+    }
+
+    return {
+        ...response.data,
+        data: {
+            rows,
+            pagination: data.pagination,
+        },
+    };
 };
 
 export const getActivityById = async (
-    id: number
+    id: number | string
 ): Promise<Activity> => {
     const response = await apiClient.get(`api/activity/${id}`);
 
@@ -80,8 +106,22 @@ export const getActivitySummary = async (): Promise<ActivitySummary> => {
     return response.data.data;
 };
 
-export const getActivityFilters = async () => {
+export const getActivityFilters = async (): Promise<ActivityFilterOptions> => {
     const response = await apiClient.get("api/activity/filters");
+    const filters = response.data?.data;
 
-    return response.data.data;
+    if (
+        !filters ||
+        !Array.isArray(filters.actions) ||
+        !Array.isArray(filters.modules) ||
+        !Array.isArray(filters.users)
+    ) {
+        throw new Error("Activity API returned invalid filter options.");
+    }
+
+    return filters;
+};
+
+export const recordActivityExport = async (): Promise<void> => {
+    await apiClient.post("api/activity/export");
 };
