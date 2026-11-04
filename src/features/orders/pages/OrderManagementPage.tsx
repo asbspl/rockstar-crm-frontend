@@ -1749,86 +1749,79 @@ async function editOrder(order: Order) {
         total
     );
 
-    const toolbar = mode === null ? (
-        <div className="order-toolbar">
-            <div className="order-toolbar__entries">
-                <label htmlFor="order-limit">Show</label>
+const toolbar = mode === null ? (
+    <>
+        <label className="management-page__toolbar-group">
+            <span>Show</span>
 
-                <select
-                    id="order-limit"
-                    value={limit}
+            <select
+                aria-label="Entries per page"
+                value={limit}
+                onChange={(event) => {
+                    setLimit(Number(event.target.value));
+                    setPage(1);
+                }}
+            >
+                {PAGE_SIZES.map((value) => (
+                    <option key={value} value={value}>
+                        {value}
+                    </option>
+                ))}
+            </select>
+
+            <span>entries</span>
+        </label>
+
+        <div className="management-toolbar-right">
+            <select
+                aria-label="Filter order status"
+                value={statusFilter}
+                onChange={(event) => {
+                    setStatusFilter(event.target.value);
+                    setPage(1);
+                }}
+            >
+                <option value="All">All Statuses</option>
+
+                {ORDER_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                        {status}
+                    </option>
+                ))}
+            </select>
+
+            <select
+                aria-label="Filter dispatch status"
+                value={dispatchFilter}
+                onChange={(event) => {
+                    setDispatchFilter(event.target.value);
+                    setPage(1);
+                }}
+            >
+                <option value="All">All Dispatch Statuses</option>
+
+                {DISPATCH_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                        {status}
+                    </option>
+                ))}
+            </select>
+
+            <label>
+                Search:{" "}
+                <input
+                    type="search"
+                    value={search}
+                    placeholder="Search orders..."
                     onChange={(event) => {
-                        setLimit(Number(event.target.value));
+                        setSearch(event.target.value);
                         setPage(1);
                     }}
-                >
-                    {PAGE_SIZES.map((value) => (
-                        <option key={value} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-
-                <span>entries</span>
-            </div>
-
-            <div className="order-toolbar__right">
-                <label>
-                    Status
-
-                    <select
-                        value={statusFilter}
-                        onChange={(event) => {
-                            setStatusFilter(event.target.value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="All">All</option>
-
-                        {ORDER_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Dispatch
-
-                    <select
-                        value={dispatchFilter}
-                        onChange={(event) => {
-                            setDispatchFilter(event.target.value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="All">All</option>
-
-                        {DISPATCH_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className="order-toolbar__search">
-                    Search
-
-                    <input
-                        type="search"
-                        value={search}
-                        placeholder="Search orders..."
-                        onChange={(event) => {
-                            setSearch(event.target.value);
-                            setPage(1);
-                        }}
-                    />
-                </label>
-            </div>
+                />
+            </label>
         </div>
-    ) : null;
+    </>
+) : null;
 
     const pagination = mode === null ? (
         <div className="order-pagination">
@@ -1933,7 +1926,7 @@ async function editOrder(order: Order) {
 
             {mode === null ? (
 
-                <div className="order-table-wrapper">
+                <div className="order-table-wrapper order-items-table-wrapper">
                     <table className="">
                         <thead>
                             <tr>
@@ -2622,6 +2615,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <select
                                                     required
+                                                    aria-label={`Product for order item ${index + 1}`}
                                                     value={item.product_id || ""}
                                                     onChange={(event) =>
                                                         updateLine(
@@ -2651,6 +2645,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Unit for order item ${index + 1}`}
                                                     value={item.unit}
                                                     maxLength={30}
                                                     onChange={(event) =>
@@ -2666,6 +2661,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Quantity for order item ${index + 1}`}
                                                     type="number"
                                                     min="0.001"
                                                     step="0.001"
@@ -2705,6 +2701,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     type="number"
+                                                    aria-label={`Discount for order item ${index + 1}`}
                                                     min="0"
                                                     step="0.01"
                                                     value={item.discount}
@@ -2731,6 +2728,7 @@ async function editOrder(order: Order) {
                                                 <button
                                                     type="button"
                                                     className="order-remove-item"
+                                                    aria-label={`Remove order item ${index + 1}`}
                                                     disabled={
                                                         form.items.length === 1
                                                     }

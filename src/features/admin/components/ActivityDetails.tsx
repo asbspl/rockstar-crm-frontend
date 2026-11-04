@@ -1,5 +1,5 @@
 
-import type { ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 import type { Activity } from "../api/activity.api";
 
 import {
@@ -269,6 +269,19 @@ function ActivityDetails({
     activity,
     onClose,
 }: ActivityDetailsProps) {
+    const titleId = useId();
+
+    useEffect(() => {
+        if (!activity) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") onClose();
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [activity, onClose]);
+
     if (!activity) return null;
 
     const isLoginActivity =
@@ -312,7 +325,7 @@ function ActivityDetails({
                 className="activity-modal"
                 role="dialog"
                 aria-modal="true"
-                aria-labelledby="activity-details-title"
+                aria-labelledby={titleId}
                 onClick={(event) => event.stopPropagation()}
             >
                 {/* Header */}
@@ -322,7 +335,7 @@ function ActivityDetails({
                             {formatActivityModule(activity.module)}
                         </span>
 
-                        <h2 id="activity-details-title">
+                        <h2 id={titleId}>
                             {formatActivityAction(activity.action)}{" "}
                             {formatActivityModule(
                                 activity.entity_type || activity.module,

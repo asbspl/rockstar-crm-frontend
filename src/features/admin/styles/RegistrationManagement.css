@@ -414,7 +414,7 @@
 
 @media (max-width: 600px) {
   .registration-management {
-    padding: 14px;
+    padding: 12px;
   }
 
   .registration-page-heading {
@@ -424,6 +424,82 @@
 
   .registration-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .registration-table-wrapper {
+    overflow: hidden;
+  }
+
+  .registration-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .registration-table thead {
+    display: none;
+  }
+
+  .registration-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .registration-table tbody tr.registration-clickable-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid #e2e7ef;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+  }
+
+  .registration-table tbody tr.registration-clickable-row td {
+    display: none;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .registration-table tbody tr.registration-clickable-row td:nth-child(1) {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    color: #172033;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .registration-table tbody tr.registration-clickable-row td:nth-child(5) {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .registration-table tbody tr.registration-clickable-row td:nth-child(6) {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .registration-review-button {
+    min-height: 44px;
+  }
+
+  .registration-information,
+  .registration-access-panel {
+    padding: 16px;
+  }
+
+  .registration-review-actions button,
+  .registration-access-toolbar button,
+  .registration-tabs button {
+    min-height: 44px;
   }
 }
 

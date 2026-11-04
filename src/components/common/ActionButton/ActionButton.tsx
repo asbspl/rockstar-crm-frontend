@@ -39,6 +39,7 @@ export default function ActionButton({
       type={type}
       className={`action-button action-button--${action} ${className}`.trim()}
       title={title ?? config.title}
+      aria-label={title ?? config.title}
       {...props}
     >
       {config.icon && <i className={config.icon} aria-hidden="true" />}

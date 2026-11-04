@@ -181,10 +181,99 @@
 @media (max-width: 640px) {
   .permission-matrix__heading {
     flex-wrap: wrap;
+    gap: 10px;
   }
 
+  .permission-matrix__filters {
+    align-items: stretch;
+  }
+
+  .permission-matrix__filters > label,
+  .permission-matrix__filters input,
+  .permission-matrix__filters select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .permission-matrix__scroll {
+    overflow: visible;
+  }
+
+  .permission-matrix__table {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto;
+  }
+
+  .permission-matrix__table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .permission-matrix__table tbody tr {
+    display: grid;
+    gap: 0;
+    padding: 8px 12px;
+    border: 1px solid #e1e6ed;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+  }
+
+  .permission-matrix__table tbody td,
+  .permission-matrix__table td:first-child,
   .permission-matrix__table td:nth-child(2) {
-    width: 180px;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 1px solid #edf0f5;
+    overflow-wrap: anywhere;
+  }
+
+  .permission-matrix__table tbody td:last-child {
+    border-bottom: 0;
+  }
+
+  .permission-matrix__table td:first-child {
+    color: #64748b;
+    font-weight: 650;
+  }
+
+  .permission-matrix__table td:first-child input,
+  .permission-matrix__module input,
+  .permission-matrix__permission input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+  }
+
+  .permission-matrix__module,
+  .permission-matrix__permission {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    white-space: normal;
+  }
+
+  .permission-matrix__module span,
+  .permission-matrix__permission span {
+    min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .permission-matrix__permission .permission-matrix__badge {
+    flex: 0 0 auto;
+  }
+
+  .permission-matrix__actions .action-button {
+    min-height: 44px;
   }
 
   .permission-matrix__legend {

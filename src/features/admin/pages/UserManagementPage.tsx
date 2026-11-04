@@ -12,6 +12,15 @@ import {
 import PermissionMatrix from "../components/PermissionMatrix";
 import "../styles/admin.css";
 
+function getUserDisplayName(user: AdminUser): string {
+  return (
+    user.name?.trim() ||
+    user.full_name?.trim() ||
+    user.email ||
+    "Unknown user"
+  );
+}
+
 function UserManagementPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +88,7 @@ function UserManagementPage() {
     if (updatingUserId !== null) return;
 
     const confirmed = await window.crmPopup.confirm(
-      `Change ${user.name ?? user.full_name ?? user.email ?? "this user"} to ${status}?`,
+      `Change ${getUserDisplayName(user)} to ${status}?`,
       { title: "Update account status", confirmText: `Set ${status}` },
     );
 
@@ -256,7 +265,7 @@ function UserManagementPage() {
           </div>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table data-table--users">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -280,16 +289,26 @@ function UserManagementPage() {
 
                     return (
                       <tr key={String(user.id)}>
-                        <td>{user.name ?? user.full_name ?? "Unknown user"}</td>
-                        <td>{user.email ?? "—"}</td>
-                        <td>{user.status ?? "Unknown"}</td>
-                        <td>{user.roles?.join(", ") || "—"}</td>
-                        <td>
+                        <td data-label="Name">{getUserDisplayName(user)}</td>
+                        <td data-label="Email">{user.email ?? "—"}</td>
+                        <td data-label="Status">
+                          <span
+                            className={`status-badge ${
+                              active
+                                ? "status-badge--active"
+                                : "status-badge--inactive"
+                            }`}
+                          >
+                            {user.status ?? "Unknown"}
+                          </span>
+                        </td>
+                        <td data-label="Roles">{user.roles?.join(", ") || "—"}</td>
+                        <td data-label="Active permissions">
                           {user.permissions?.length
                             ? `${user.permissions.length} active`
                             : "None"}
                         </td>
-                        <td>
+                        <td data-label="Actions">
                           <div className="table-actions">
                             <button
                               type="button"
@@ -353,10 +372,7 @@ function UserManagementPage() {
                 <p className="auth-kicker">User access</p>
                 <h2 id="user-role-dialog-title">Edit roles &amp; permissions</h2>
                 <p>
-                  {selectedUser.name ??
-                    selectedUser.full_name ??
-                    selectedUser.email ??
-                    "Selected user"}
+                  {getUserDisplayName(selectedUser)}
                 </p>
               </div>
               <button

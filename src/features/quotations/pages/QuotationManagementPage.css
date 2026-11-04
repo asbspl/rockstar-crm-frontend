@@ -911,6 +911,77 @@
     }
 }
 
+@media (max-width: 650px) {
+    .quotation-items-table-wrapper {
+        overflow-x: hidden;
+    }
+
+    .quotation-items-table {
+        display: block;
+        width: 100%;
+        min-width: 0 !important;
+    }
+
+    .quotation-items-table thead {
+        display: none;
+    }
+
+    .quotation-items-table tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .quotation-items-table tbody tr {
+        display: block;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+    }
+
+    .quotation-items-table tbody td {
+        display: grid;
+        grid-template-columns: minmax(82px, 0.65fr) minmax(0, 1.35fr);
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        padding: 9px 0;
+        border-bottom: 1px solid #edf0f5;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .quotation-items-table tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .quotation-items-table tbody td::before {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .quotation-items-table tbody td:nth-child(1)::before { content: "Product"; }
+    .quotation-items-table tbody td:nth-child(2)::before { content: "Unit"; }
+    .quotation-items-table tbody td:nth-child(3)::before { content: "Quantity"; }
+    .quotation-items-table tbody td:nth-child(4)::before { content: "Rate incl. GST"; }
+    .quotation-items-table tbody td:nth-child(5)::before { content: "Amount"; }
+    .quotation-items-table tbody td:nth-child(6)::before { content: "Action"; }
+
+    .quotation-items-table input,
+    .quotation-items-table select {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    .quotation-remove-item {
+        min-height: 44px;
+    }
+}
+
 @media (max-width: 380px) {
     .quotation-toolbar__right {
         flex-direction: column;

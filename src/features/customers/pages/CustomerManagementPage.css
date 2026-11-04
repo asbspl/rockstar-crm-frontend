@@ -539,7 +539,7 @@
     }
 
     .management-page__toolbar-group {
-        width: 100%;
+        /* width: 100%; */
     }
 
     .management-page__toolbar-group input[type="search"] {

@@ -414,7 +414,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
 
   .order-form__grid,
   .order-images__grid,
@@ -434,6 +434,77 @@
   .order-form__footer button,
   .dispatch-modal__footer button {
     width: 100%;
+  }
+
+  .order-items-table-wrapper {
+    overflow-x: hidden;
+  }
+
+  .order-items-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+
+  .order-items-table thead {
+    display: none;
+  }
+
+  .order-items-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .order-items-table tbody tr {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+  }
+
+  .order-items-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(82px, 0.65fr) minmax(0, 1.35fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf0f5;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .order-items-table tbody td:last-child {
+    border-bottom: 0;
+  }
+
+  .order-items-table tbody td::before {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 650;
+  }
+
+  .order-items-table tbody td:nth-child(1)::before { content: "Product"; }
+  .order-items-table tbody td:nth-child(2)::before { content: "Unit"; }
+  .order-items-table tbody td:nth-child(3)::before { content: "Quantity"; }
+  .order-items-table tbody td:nth-child(4)::before { content: "Rate incl. GST"; }
+  .order-items-table tbody td:nth-child(5)::before { content: "Discount"; }
+  .order-items-table tbody td:nth-child(6)::before { content: "Amount"; }
+  .order-items-table tbody td:nth-child(7)::before { content: "Action"; }
+
+  .order-items-table input,
+  .order-items-table select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .order-remove-item {
+    min-height: 44px;
+    padding: 0 10px;
   }
 }
 
@@ -543,3 +614,6 @@ font-size: 13px;
     color: #991b1b;
     border: 1px solid #fca5a5;
 }
+
+
+

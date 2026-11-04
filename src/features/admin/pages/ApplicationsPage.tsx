@@ -74,7 +74,7 @@ function ApplicationsPage() {
           </div>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table data-table--applications">
               <thead>
                 <tr>
                   <th>Application</th>
@@ -105,20 +105,34 @@ function ApplicationsPage() {
 
                     return (
                       <tr key={String(application.id)}>
-                        <td>
+                        <td data-label="Application">
                           {application.applicationReference ??
                             application.id}
                         </td>
 
-                        <td>
+                        <td data-label="Applicant">
                           {application.applicantName ?? "Unknown"}
                         </td>
 
-                        <td>{application.email || "—"}</td>
+                        <td data-label="Email">{application.email || "—"}</td>
 
-                        <td>{application.status ?? "pending"}</td>
+                        <td data-label="Status">
+                          <span
+                            className={`status-badge status-badge--${
+                              status === "under_review"
+                                ? "pending"
+                                : status === "rejected"
+                                  ? "inactive"
+                                  : status === "approved"
+                                    ? "approved"
+                                    : "pending"
+                            }`}
+                          >
+                            {application.status ?? "pending"}
+                          </span>
+                        </td>
 
-                        <td>
+                        <td data-label="Submitted">
                           {application.submittedAt
                             ? new Date(
                                 application.submittedAt,
@@ -126,7 +140,7 @@ function ApplicationsPage() {
                             : "—"}
                         </td>
 
-                        <td>
+                        <td data-label="Review">
                           {isPending ? (
                             <Link
                               className="mini-button"

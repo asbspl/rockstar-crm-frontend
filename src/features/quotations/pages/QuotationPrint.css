@@ -673,11 +673,69 @@
     }
 
     .qp-items-section {
-        overflow-x: auto;
+        overflow: visible;
     }
 
     .qp-items-table {
-        min-width: 650px;
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .qp-items-table thead {
+        display: none;
+    }
+
+    .qp-items-table tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) {
+        display: grid;
+        gap: 0;
+        padding: 8px 12px;
+        border: 1px solid #e5eaf2;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td {
+        display: grid;
+        grid-template-columns: minmax(86px, 0.65fr) minmax(0, 1.35fr);
+        gap: 10px;
+        min-width: 0;
+        padding: 9px 0;
+        border-bottom: 1px solid #edf0f5;
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:last-child {
+        border-bottom: 0;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td::before {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:first-child {
+        display: none;
+    }
+
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(2)::before { content: "Item"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(3)::before { content: "Product code"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(4)::before { content: "HSN/SAC"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(5)::before { content: "Unit"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(6)::before { content: "Quantity"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(7)::before { content: "Rate"; }
+    .qp-items-table tbody tr:not(:has(.qp-empty-row)) td:nth-child(8)::before { content: "Amount"; }
+
+    .qp-items-table .qp-empty-row {
+        display: block;
+        padding: 16px;
     }
 
     .qp-terms-grid {

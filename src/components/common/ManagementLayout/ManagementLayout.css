@@ -51,7 +51,7 @@
 .management-page__header-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--crm-control-gap, 8px);
     flex-shrink: 0;
 }
 
@@ -59,6 +59,11 @@
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+.management-page button:focus-visible {
+    outline: none;
+    box-shadow: var(--crm-focus-ring, 0 0 0 3px rgba(49, 93, 168, 0.2));
 }
 
 /* ==============================
@@ -70,10 +75,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    min-height: 42px;
-    padding: 0 19px;
-    border-radius: 9px;
+    gap: var(--crm-control-gap, 8px);
+    min-height: var(--crm-control-height, 40px);
+    padding: 0 16px;
+    border-radius: var(--crm-control-radius, 8px);
     font-size: 13px;
     font-weight: 650;
     white-space: nowrap;
@@ -161,7 +166,7 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: var(--crm-control-gap, 8px);
     padding: 15px 23px;
     border-bottom: 1px solid #edf0f5;
 }
@@ -170,7 +175,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--crm-control-gap, 8px);
 }
 
 .management-page__toolbar label {
@@ -181,12 +186,12 @@
 
 .management-page__toolbar input,
 .management-page__toolbar select {
-    min-height: 38px;
+    min-height: var(--crm-control-height, 40px);
     max-width: 100%;
     padding: 8px 12px;
     box-sizing: border-box;
     border: 1px solid #dce3ed;
-    border-radius: 8px;
+    border-radius: var(--crm-control-radius, 8px);
     background: #ffffff;
     color: #334155;
     font-family: inherit;
@@ -220,7 +225,8 @@
 .management-page__table-wrapper {
     width: 100%;
     min-width: 0;
-    overflow: visible;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding: 0 20px;
     box-sizing: border-box;
 }
@@ -302,7 +308,22 @@
 /* Action buttons */
 
 .management-page__table-wrapper td button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
     margin: 2px;
+    vertical-align: middle;
+}
+
+.management-page__table-wrapper .action-button-group {
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.management-page__toolbar button,
+.management-page__header-actions button {
+    min-height: var(--crm-control-height, 40px);
 }
 
 /* ==============================
@@ -376,11 +397,11 @@
 }
 
 .management-page__pagination-controls button {
-    min-width: 35px;
-    min-height: 35px;
+    min-width: 40px;
+    min-height: var(--crm-control-height, 40px);
     padding: 6px 11px;
     border: 1px solid #e1e7ef;
-    border-radius: 7px;
+    border-radius: var(--crm-control-radius, 8px);
     background: #ffffff;
     color: #536176;
     font-size: 12px;
@@ -398,6 +419,11 @@
     opacity: 0.4;
 }
 
+.management-page__pagination-controls button:focus-visible {
+    outline: none;
+    box-shadow: var(--crm-focus-ring, 0 0 0 3px rgba(49, 93, 168, 0.2));
+}
+
 .management-page__pagination-controls span {
     color: #64748b;
     font-size: 12px;
@@ -410,6 +436,10 @@
 
 .management-page__form {
     padding: 24px;
+}
+
+.management-page__mobile-details{
+    display:none !important;
 }
 
 /* ==============================
@@ -462,7 +492,7 @@
     }
 
     .management-page__toolbar-group {
-        width: 100%;
+        /* width: 100%; */
     }
 
     .management-page__toolbar-group input,
@@ -472,11 +502,13 @@
     }
 
     .management-page__table-wrapper {
-        padding: 0 10px;
+        padding: 0;
     }
 
     .management-page__table-wrapper table {
-        table-layout: fixed;
+        width: max-content;
+        min-width: max(100%, 680px);
+        table-layout: auto;
     }
 
     .management-page__table-wrapper thead th,
@@ -484,6 +516,10 @@
         padding: 10px 6px;
         font-size: 10px;
         overflow-wrap: anywhere;
+    }
+
+    .management-page__table-wrapper td button {
+        min-height: 44px;
     }
 
     .management-page__pagination {
@@ -523,8 +559,552 @@
         width: 100%;
         justify-content: space-between;
     }
+
+    .management-page__pagination-controls button {
+        min-width: 44px;
+        min-height: 44px;
+    }
 }
 
+.management-page__mobile-details {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .management-page__card {
+        overflow: visible;
+        border-radius: var(--crm-radius-card, 14px);
+    }
+
+    .management-page__toolbar {
+        position: sticky;
+        top: var(--crm-app-header-height, 72px);
+        z-index: 5;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 6px;
+        width: 100%;
+        min-width: 0;
+        padding: 8px 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        border-bottom-color: var(--crm-border, #e7ebf2);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 5px 12px rgba(15, 23, 42, 0.045);
+        backdrop-filter: blur(12px);
+    }
+
+    .management-page__toolbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .management-page__toolbar-group {
+        flex: 0 0 auto;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 6px;
+        width: auto;
+        min-width: 0;
+    }
+
+    .management-page__toolbar-group:has(input[data-mobile-toolbar-icon="search"]),
+    .management-toolbar-right:has(input[data-mobile-toolbar-icon="search"]) {
+        flex: 1 1 120px;
+        min-width: 96px;
+    }
+
+    .management-page__toolbar-group > span,
+    .management-page__toolbar-group > label:not(:has(input, select)) {
+        display: none;
+    }
+
+    .management-page__toolbar-group > label:has(input[data-mobile-toolbar-icon="search"]) {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0;
+    }
+
+    .management-page__toolbar .management-toolbar-right > label:has(input[data-mobile-toolbar-icon="search"]) {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0;
+    }
+
+    .management-page__toolbar-group > label:has(select) {
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        min-width: 0;
+        font-size: 0;
+    }
+
+    .management-page__toolbar .management-toolbar-right {
+        flex: 1 1 120px;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .management-page__toolbar-group input[data-mobile-toolbar-icon="search"],
+    .management-page__toolbar input[data-mobile-toolbar-icon="search"] {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        padding: 0 10px 0 36px;
+        border-color: #e2e8f0;
+        border-radius: 12px;
+        background-color: #f7f9fc;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%235b6b82' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 11px center;
+        background-size: 17px;
+        color: #263750;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .management-page__toolbar input[data-mobile-toolbar-icon="search"]::placeholder {
+        color: transparent;
+    }
+
+    .management-page__toolbar select[data-mobile-toolbar-icon] {
+        flex: 0 1 auto;
+        width: auto;
+        min-width: 72px;
+        max-width: 154px;
+        height: 44px;
+        padding: 0 22px 0 31px;
+        appearance: none;
+        -webkit-appearance: none;
+        border-color: #e2e8f0;
+        border-radius: 12px;
+        background-color: #f7f9fc;
+        background-repeat: no-repeat;
+        background-position: 8px center, right 8px center;
+        background-size: 17px, 9px;
+        color: #344256;
+        font-size: 11px;
+        font-weight: 650;
+        text-indent: 0;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+
+    .management-page__toolbar select[data-mobile-toolbar-icon="entries"] {
+        min-width: 72px;
+        background-image:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%235b6b82' stroke-width='1.8' stroke-linecap='round' viewBox='0 0 24 24'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11'/%3E%3Cpath d='M4 6h.01M4 12h.01M4 18h.01' stroke-width='3'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235b6b82' stroke-width='2' viewBox='0 0 12 12'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+    }
+
+    .management-page__toolbar select[data-mobile-toolbar-icon="filter"] {
+        min-width: 124px;
+        background-image:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%235b6b82' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='M4 5h16l-6.5 7.5v5L10.5 20v-7.5z'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235b6b82' stroke-width='2' viewBox='0 0 12 12'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+    }
+
+    .management-page__toolbar button[data-mobile-toolbar-icon] {
+        display: inline-flex;
+        flex: 0 0 44px;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f7f9fc;
+        color: #42526a;
+        font-size: 0;
+    }
+
+    .management-page__toolbar button[data-mobile-toolbar-icon] i {
+        font-size: 17px;
+    }
+
+    .management-page__toolbar select:focus-visible,
+    .management-page__toolbar button:focus-visible,
+    .management-page__toolbar input:focus-visible {
+        outline: 3px solid rgba(49, 93, 168, 0.28);
+        outline-offset: 1px;
+    }
+
+    .management-page__toolbar input,
+    .management-page__toolbar select,
+    .management-page__toolbar button,
+    .management-page__header-actions button,
+    .management-page__add-button,
+    .management-page__back-button {
+        min-height: 44px;
+    }
+
+    .management-page__header-actions {
+        gap: var(--crm-space-2, 8px);
+    }
+
+    .management-page__table-wrapper {
+        overflow-x: hidden;
+        padding: 8px;
+    }
+
+    .management-page .management-page__table-wrapper [data-mobile-table-container] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+        padding-inline: 0;
+    }
+
+    .management-page .management-page__table-wrapper table {
+        display: block;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .management-page .management-page__table-wrapper table thead {
+        display: none;
+    }
+
+    .management-page .management-page__table-wrapper table tbody {
+        display: grid;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        min-width: 0;
+        padding: 10px 11px;
+        border: 1px solid var(--crm-border, #e7ebf2);
+        border-radius: var(--crm-radius-card, 14px);
+        background: var(--crm-surface, #fff);
+        box-shadow: var(--crm-shadow-card, 0 4px 14px rgba(15, 23, 42, 0.045));
+        transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease,
+            transform 180ms ease;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr:hover {
+        border-color: var(--crm-accent-border, rgba(43, 108, 176, 0.3));
+        background: var(--crm-surface, #fff);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.075);
+        transform: translateY(-1px);
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td {
+        display: none;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--crm-text, #344256);
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[colspan] {
+        display: block;
+        grid-column: 1 / -1;
+        padding: 16px 8px;
+        color: var(--crm-text-muted, #64748b);
+        text-align: center;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="primary"] {
+        display: block;
+        grid-column: 1;
+        grid-row: 1;
+        color: var(--crm-text-heading, #172033);
+        font-size: 15px;
+        font-weight: 700;
+    }
+    /* Employee and Driver: secondary fields side by side */
+.management-page .management-page__table-wrapper table tbody > tr:has(> td[data-mobile-label="Employee Number"]),
+.management-page .management-page__table-wrapper table tbody > tr:has(> td[data-mobile-label="Vehicle Number"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Employee and Driver secondary field cells */
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Employee Number"],
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Email"],
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Vehicle Number"],
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Vehicle Type"] {
+    display: block;
+    grid-column: auto;
+    grid-row: auto;
+    min-width: 0;
+    width: 100%;
+}
+
+    /* Employee List: show Employee Number and Email side by side */
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Employee Number"],
+.management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"][data-mobile-label="Email"] {
+    display: block;
+    grid-column: auto;
+    grid-row: auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Keep both secondary fields in two columns */
+.management-page .management-page__table-wrapper table tbody > tr:has(> td[data-mobile-label="Employee Number"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"] {
+        display: block;
+        grid-column: 1 / -1;
+        grid-row: auto;
+        color: var(--crm-text-muted, #64748b);
+        font-size: 12px;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"]::before {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--crm-text-muted, #64748b);
+        content: attr(data-mobile-label);
+        font-size: 10px;
+        font-weight: 650;
+        line-height: 1.2;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="primary"] *,
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"] * {
+        max-width: 100%;
+        min-width: 0 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="status"] {
+        display: flex;
+        grid-column: 2;
+        grid-row: 1;
+        align-items: center;
+        justify-self: end;
+        width: fit-content;
+        max-width: 100%;
+        min-width: 0;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: #edf2f7;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap !important;
+    }
+
+    .management-page .management-page__table-wrapper
+    td[data-mobile-priority="status"] .status-badge {
+        min-width: 0;
+        padding: 2px 6px;
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="status"][data-mobile-status="positive"] {
+        background: #e7f8ee;
+        color: #167447;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="status"][data-mobile-status="negative"] {
+        background: #fff0f0;
+        color: #b42318;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="status"][data-mobile-status="pending"] {
+        background: #fff6e5;
+        color: #8a5b00;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="actions"] {
+        display: flex;
+        grid-column: 1 / -1;
+        grid-row: auto;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 5px;
+        padding-top: 8px;
+        border-top: 1px solid var(--crm-border, #edf0f5);
+    }
+
+    .management-page .management-page__table-wrapper td .action-button--edit,
+    .management-page .management-page__table-wrapper td .action-button--delete {
+        width: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        gap: 0;
+        font-size: 0;
+    }
+
+    .management-page .management-page__table-wrapper td .action-button--edit i,
+    .management-page .management-page__table-wrapper td .action-button--delete i {
+        font-size: 16px;
+    }
+
+    .management-page__mobile-details {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #f8f9fa;
+        background: #315da8;
+        cursor: pointer;
+    }
+
+
+
+    .management-page__mobile-details:hover {
+        background: #edf4ff;
+    }
+
+    .management-page__mobile-details i {
+        font-size: 18px;
+    }
+
+    .management-page__detail-overlay {
+        position: fixed;
+        z-index: 1200;
+        inset: 0;
+        display: grid;
+        align-items: end;
+        justify-items: center;
+        padding:
+            max(10px, env(safe-area-inset-top))
+            max(10px, env(safe-area-inset-right))
+            max(10px, env(safe-area-inset-bottom))
+            max(10px, env(safe-area-inset-left));
+        background: rgba(15, 23, 42, 0.56);
+        backdrop-filter: blur(3px);
+    }
+
+    .management-page__detail-sheet {
+        display: flex;
+        flex-direction: column;
+        width: min(100%, 640px);
+        max-height: min(82vh, 760px);
+        max-height: min(82dvh, 760px);
+        overflow: hidden;
+        border: 1px solid var(--crm-border, #e7ebf2);
+        border-radius: 18px 18px 12px 12px;
+        background: var(--crm-surface, #fff);
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+        animation: management-detail-enter 180ms ease-out;
+    }
+
+    .management-page__detail-header {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--crm-border, #e7ebf2);
+    }
+
+    .management-page__detail-header h2 {
+        min-width: 0;
+        margin: 0;
+        color: var(--crm-text-heading, #172033);
+        font-size: 17px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .management-page__detail-close {
+        display: grid;
+        flex: 0 0 28px;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        border: 0;
+        border-radius: 10px;
+        background: var(--crm-surface-alt, #f3f6fa);
+        color: var(--crm-text, #344256);
+        font-size: 24px;
+    }
+
+    .management-page__detail-fields {
+        display: grid;
+        gap: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 4px 16px max(16px, env(safe-area-inset-bottom));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+    }
+
+    .management-page__detail-fields > div {
+        display: grid;
+        grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--crm-border, #e7ebf2);
+    }
+
+    .management-page__detail-fields dt {
+        color: var(--crm-text-muted, #64748b);
+        font-size: 12px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .management-page__detail-fields dd {
+        min-width: 0;
+        margin: 0;
+        color: var(--crm-text, #263750);
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+}
+
+@keyframes management-detail-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 
 /* Table sorting */
