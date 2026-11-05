@@ -226,7 +226,12 @@ export default function ManagementLayout({
 
             let primaryIndex = -1;
             if (rateMatrixTable || quotationTable || orderTable) {
-                primaryIndex = findColumn(["customername", "customer"]);
+                primaryIndex = orderTable
+                    ? findColumn(["clientname", "client"])
+                    : findColumn(["customername", "customer"]);
+                if (primaryIndex < 0 && (rateMatrixTable || quotationTable || orderTable)) {
+                    primaryIndex = findColumn(["customername", "customer"]);
+                }
             } else if (driverTable) {
                 primaryIndex = findColumn(["driverfullname", "drivername"]);
             } else if (siteTable) {

@@ -509,6 +509,135 @@ export default function createDeliveryChallan(order: Order): string {
         cursor: pointer;
     }
 
+    /* =========================================
+   DASHBOARD SUMMARY - FULLY RESPONSIVE
+========================================= */
+
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Laptop */
+@media (min-width: 1025px) and (max-width: 1399px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .summary-card {
+    padding: 16px 14px;
+  }
+
+  .summary-card__value {
+    font-size: 1.8rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .dashboard-page {
+    padding: 16px 12px 30px;
+  }
+
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .summary-card {
+    min-width: 0;
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+
+  .summary-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .summary-card__icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+
+  .summary-card__label {
+    min-width: 0;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .summary-card__value {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+    overflow-wrap: anywhere;
+  }
+
+  .summary-card__helper {
+    font-size: 0.7rem;
+    margin-top: 7px;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+  .dashboard-summary-grid {
+    gap: 8px;
+  }
+
+  .summary-card {
+    padding: 12px 9px;
+  }
+
+  .summary-card__header {
+    gap: 6px;
+  }
+
+  .summary-card__icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+
+  .summary-card__label {
+    font-size: 0.68rem;
+  }
+
+  .summary-card__value {
+    font-size: 1.3rem;
+  }
+
+  .summary-card__helper {
+    font-size: 0.65rem;
+  }
+}
+
     @media screen and (max-width: 650px) {
         .header {
             grid-template-columns: 90px minmax(0, 1fr);

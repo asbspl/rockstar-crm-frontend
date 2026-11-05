@@ -133,6 +133,11 @@ export type Order = {
     client_country?: string | null;
 
     sales_person_id: number | null;
+
+    site_location_latitude?: string | null;
+site_location_longitude?: string | null;
+site_location_map_url?: string | null;
+
 };
 
 export type OrderPagination = {

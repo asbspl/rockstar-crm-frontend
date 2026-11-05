@@ -231,7 +231,7 @@
 
   .table-wrap .data-table tbody td {
     display: grid;
-    grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+    /* grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr); */
     gap: 8px;
     min-width: 0;
     padding: 0;

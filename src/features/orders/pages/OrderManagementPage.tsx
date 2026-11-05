@@ -432,10 +432,19 @@ const menuItemStyle: CSSProperties = {
 
 export default function OrderManagementPage() {
 
+const getSiteMapUrl = (order: Order): string => {
+    const site = allCustomerSites.find(
+        (item) => Number(item.id) === Number(order.site_id)
+    );
+
+    return site?.site_location_map_url || "";
+};
+
     const [customComment, setCustomComment] = useState("");
 const [commentType, setCommentType] = useState("Looking forward for your business.");
 
     const [customerSites, setCustomerSites] = useState<CustomerSite[]>([]);
+    const [allCustomerSites, setAllCustomerSites] = useState<CustomerSite[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
 
     const [existingImages, setExistingImages] = useState<
@@ -573,6 +582,32 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
     useEffect(() => {
         void loadOrders();
     }, [loadOrders]);
+
+    useEffect(() => {
+    let cancelled = false;
+
+    async function loadAllCustomerSites() {
+        try {
+            const response = await apiClient.get("api/sites", {
+                params: { page: 1, limit: 1000 },
+            });
+
+            const data = response.data?.data ?? [];
+
+            if (!cancelled) {
+                setAllCustomerSites(data);
+            }
+        } catch (error) {
+            console.error("Failed to load customer sites:", error);
+        }
+    }
+
+    void loadAllCustomerSites();
+
+    return () => {
+        cancelled = true;
+    };
+}, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -1935,6 +1970,7 @@ const toolbar = mode === null ? (
                                 <th>Company</th>
                                 <th>Client</th>
                                 <th>Customer</th>
+                                <th>Customer Site Name</th>
                                 <th>Location</th>
                                 <th>Amt</th>
                                 <th>Action</th>
@@ -1946,13 +1982,13 @@ const toolbar = mode === null ? (
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={10} className="order-empty">
+                                    <td colSpan={11} className="order-empty">
                                         Loading orders...
                                     </td>
                                 </tr>
                             ) : orders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={10} className="order-empty">
+                                    <td colSpan={11} className="order-empty">
                                         No orders found.
                                     </td>
                                 </tr>
@@ -1989,14 +2025,27 @@ const toolbar = mode === null ? (
                                             )}
                                         </td>
 
-                                        <td>
-                                            {displayName(
-                                                order.location_name,
-                                                locations,
-                                                order.location_id,
-                                                order.customer_site_name || "—"
-                                            )}
-                                        </td>
+                                        <td>{order.customer_site_name || order.site_name || "—"}</td>
+
+<td>
+    {getSiteMapUrl(order) ? (
+        <a
+            href={getSiteMapUrl(order)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="order-view-map-link"
+        >
+            View Map
+        </a>
+    ) : (
+        [
+            order.address_line_1,
+            order.address_line_2,
+        ]
+            .filter(Boolean)
+            .join(", ") || "—"
+    )}
+</td>
 
                                         <td className="order-amount table-no-wrap">
                                             ₹ {amount(order.grand_total)}
