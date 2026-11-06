@@ -39,7 +39,7 @@ function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAccountNumber, setShowAccountNumber] = useState(false);
   const [showIfscCode, setShowIfscCode] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
 
   const [success, setSuccess] = useState<{
     reference: string;

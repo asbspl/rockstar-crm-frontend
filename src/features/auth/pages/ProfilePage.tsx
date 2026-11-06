@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   getCurrentUser,
-  logoutSession,
 } from "../../auth/api/auth.api";
 import type { AuthUser } from "../types/auth.types";
 import "../styles/ProfilePage.css";

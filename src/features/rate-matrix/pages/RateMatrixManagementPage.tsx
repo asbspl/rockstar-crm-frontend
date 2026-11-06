@@ -514,13 +514,6 @@ export default function RateMatrixManagementPage() {
         );
     }, [sites, form.customer_id]);
 
-    const selectedSite = useMemo(
-        () =>
-            sites.find(
-                (site) => site.id === form.site_id
-            ),
-        [sites, form.site_id]
-    );
 
     const selectedProduct = useMemo(
         () =>
