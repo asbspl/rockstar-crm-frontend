@@ -33,19 +33,6 @@ type ContractorListRow = Awaited<
 
 type ContractorListResultRow = ContractorListRow;
 
-type ListPayload = {
-    rows?: ContractorListResultRow[];
-    total?: number;
-    data?: {
-        contractors?: ContractorListResultRow[];
-        pagination?: {
-            total?: number;
-            page?: number;
-            limit?: number;
-            totalPages?: number;
-        };
-    };
-};
 
 const emptyForm: ContractorInput = {
     name: "",

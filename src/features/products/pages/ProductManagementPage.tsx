@@ -6,7 +6,6 @@ import {
     type FormEvent,
 } from "react";
 
-import apiClient from "../../../api/client";
 import "./ProductManagementPage.css";
 
 import ManagementLayout from "../../../components/common/ManagementLayout/ManagementLayout";
