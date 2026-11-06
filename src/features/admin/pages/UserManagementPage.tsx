@@ -10,6 +10,7 @@ import {
   type AccessOption,
 } from "../api/admin.api";
 import PermissionMatrix from "../components/PermissionMatrix";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "../styles/admin.css";
 
 function getUserDisplayName(user: AdminUser): string {
@@ -22,6 +23,16 @@ function getUserDisplayName(user: AdminUser): string {
 }
 
 function UserManagementPage() {
+  const { hasAnyPermission, hasAllPermissions } = useAuthContext();
+  const canAssignUserAccess = hasAllPermissions([
+    "users.assign_role",
+    "users.permissions.update",
+  ]);
+  const canChangeUserStatus = hasAnyPermission([
+    "users.suspend",
+    "users.deactivate",
+  ]);
+
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -242,9 +253,11 @@ function UserManagementPage() {
             <p>Manage user status, assigned roles, and effective permissions.</p>
           </div>
           <div className="admin-panel__header-actions">
-            <Link className="mini-button mini-button--secondary" to="/admin/access">
-              Manage roles &amp; permissions
-            </Link>
+            {hasAllPermissions(["users.read", "permissions.read"]) && (
+              <Link className="mini-button mini-button--secondary" to="/admin/access">
+                Manage roles &amp; permissions
+              </Link>
+            )}
             <button
               type="button"
               className="mini-button"
@@ -310,35 +323,39 @@ function UserManagementPage() {
                         </td>
                         <td data-label="Actions">
                           <div className="table-actions">
-                            <button
-                              type="button"
-                              className="mini-button mini-button--secondary"
-                              onClick={() => void openRoleEditor(user)}
-                              disabled={busy || savingRoles}
-                            >
-                              Edit access
-                            </button>
-                            <button
-                              type="button"
-                              className={
-                                active
-                                  ? "mini-button mini-button--danger"
-                                  : "mini-button"
-                              }
-                              onClick={() =>
-                                void handleStatus(
-                                  user,
-                                  active ? "inactive" : "active",
-                                )
-                              }
-                              disabled={busy || savingRoles}
-                            >
-                              {busy
-                                ? "Updating..."
-                                : active
-                                  ? "Deactivate"
-                                  : "Activate"}
-                            </button>
+                            {canAssignUserAccess && (
+                              <button
+                                type="button"
+                                className="mini-button mini-button--secondary"
+                                onClick={() => void openRoleEditor(user)}
+                                disabled={busy || savingRoles}
+                              >
+                                Edit access
+                              </button>
+                            )}
+                            {canChangeUserStatus && (
+                              <button
+                                type="button"
+                                className={
+                                  active
+                                    ? "mini-button mini-button--danger"
+                                    : "mini-button"
+                                }
+                                onClick={() =>
+                                  void handleStatus(
+                                    user,
+                                    active ? "inactive" : "active",
+                                  )
+                                }
+                                disabled={busy || savingRoles}
+                              >
+                                {busy
+                                  ? "Updating..."
+                                  : active
+                                    ? "Deactivate"
+                                    : "Activate"}
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -405,7 +422,7 @@ function UserManagementPage() {
                         type="checkbox"
                         checked={selectedRoleIds.includes(roleId)}
                         onChange={() => toggleRole(roleId)}
-                        disabled={savingRoles}
+                        disabled={savingRoles || !canAssignUserAccess}
                       />
                       <span>
                         <strong>{role.name}</strong>
@@ -425,7 +442,7 @@ function UserManagementPage() {
                   selectedPermissionIds={selectedPermissionIds}
                   defaultPermissionIds={getRoleDefaultIds(selectedRoleIds)}
                   onChange={updatePermissionSelection}
-                  disabled={savingRoles}
+                  disabled={savingRoles || !canAssignUserAccess}
                 />
               </div>
             )}
@@ -439,14 +456,16 @@ function UserManagementPage() {
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                className="mini-button"
-                onClick={() => void saveRoles()}
-                disabled={rolesLoading || savingRoles}
-              >
-                {savingRoles ? "Saving..." : "Save changes"}
-              </button>
+              {canAssignUserAccess && (
+                <button
+                  type="button"
+                  className="mini-button"
+                  onClick={() => void saveRoles()}
+                  disabled={rolesLoading || savingRoles}
+                >
+                  {savingRoles ? "Saving..." : "Save changes"}
+                </button>
+              )}
             </div>
           </section>
         </div>

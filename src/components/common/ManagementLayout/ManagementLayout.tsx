@@ -1,5 +1,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useAuthContext } from "../../../contexts/useAuthContext";
+import { getModulePermission, type ModuleAction } from "../../../config/permissions";
 import "./ManagementLayout.css";
 
 interface MobileTableDetail {
@@ -16,6 +19,7 @@ interface ManagementLayoutProps {
     onAdd: () => void;
     onBack: () => void;
     formTitle: string;
+    formAction?: Extract<ModuleAction, "create" | "update">;
     children: ReactNode;
     toolbar?: ReactNode;
     pagination?: ReactNode;
@@ -32,12 +36,22 @@ export default function ManagementLayout({
     onAdd,
     onBack,
     formTitle,
+    formAction,
     children,
     toolbar,
     pagination,
     notice,
     error,
 }: ManagementLayoutProps) {
+
+    const { pathname } = useLocation();
+    const { hasPermission } = useAuthContext();
+    const createPermission = getModulePermission(pathname, "create");
+    const formPermission = formAction
+        ? getModulePermission(pathname, formAction)
+        : undefined;
+    const canAdd = Boolean(createPermission && hasPermission(createPermission));
+    const canShowForm = Boolean(formAction && formPermission && hasPermission(formPermission));
 
     const tableWrapperRef = useRef<HTMLDivElement>(null);
     const toolbarRef = useRef<HTMLDivElement>(null);
@@ -630,24 +644,20 @@ export default function ManagementLayout({
                 </div>
 
                 <div className="management-page__header-actions">
-                    <button
+                    {showForm ? <button
                         type="button"
-                        className={
-                            showForm
-                                ? "management-page__back-button"
-                                : "management-page__add-button"
-                        }
-                        onClick={showForm ? onBack : onAdd}
+                        className="management-page__back-button"
+                        onClick={onBack}
                     >
-                        {showForm ? (
-                            "Back to List"
-                        ) : (
-                            <>
-                                <span aria-hidden="true">＋</span>
-                                {addButtonText}
-                            </>
-                        )}
-                    </button>
+                        Back to List
+                    </button> : canAdd ? <button
+                        type="button"
+                        className="management-page__add-button"
+                        onClick={onAdd}
+                    >
+                        <span aria-hidden="true">＋</span>
+                        {addButtonText}
+                    </button> : null}
                 </div>
             </header>
 
@@ -674,7 +684,11 @@ export default function ManagementLayout({
 
                 {showForm ? (
                     <div className="management-page__form">
-                        {children}
+                        {showForm && !canShowForm ? (
+                            <div className="management-page__message" role="alert">
+                                You do not have permission to perform this action.
+                            </div>
+                        ) : children}
                     </div>
                 ) : (
                     <>

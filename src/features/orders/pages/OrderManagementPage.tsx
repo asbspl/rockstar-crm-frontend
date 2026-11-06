@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import apiClient from "../../../api/client";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./OrderManagementPage.css";
 
 import createProformaInvoice from "./ProformaInvoice";
@@ -431,6 +432,11 @@ const menuItemStyle: CSSProperties = {
 };
 
 export default function OrderManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateOrder = hasPermission("orders.update");
+    const canDeleteOrder = hasPermission("orders.delete");
+    const canDispatchOrder = hasPermission("dispatch.update");
+
 
 const getSiteMapUrl = (order: Order): string => {
     const site = allCustomerSites.find(
@@ -1904,6 +1910,7 @@ const toolbar = mode === null ? (
             onAdd={addOrder}
             onBack={resetForm}
             formTitle={mode === "edit" ? "Edit Order" : "Add Order"}
+            formAction={mode === "edit" ? "update" : "create"}
             toolbar={toolbar}
             pagination={pagination}
             error={error}
@@ -2113,16 +2120,18 @@ const toolbar = mode === null ? (
                                                             <i className="bi bi-printer-fill" /> Print PI
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void emailDocument(order, "PI");
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-envelope-fill" /> Email PI
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void emailDocument(order, "PI");
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-envelope-fill" /> Email PI
+                                                            </button>
+                                                        )}
 
                                                         <button
                                                             type="button"
@@ -2135,17 +2144,18 @@ const toolbar = mode === null ? (
                                                             <i className="bi bi-eye-fill" /> Preview PI
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void emailDocument(order, "DC");
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-envelope-at-fill" /> Delivery Challan Email
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void emailDocument(order, "DC");
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-envelope-at-fill" /> Delivery Challan Email
+                                                            </button>
+                                                        )}
 
                                                         <button
                                                             type="button"
@@ -2159,32 +2169,36 @@ const toolbar = mode === null ? (
                                                             <i className="bi bi-file-earmark-pdf-fill" /> Print DC
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-                                                            disabled={order.status === "Cancelled"}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void editOrder(order);
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-pencil-square" /> Edit Order
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                disabled={order.status === "Cancelled"}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void editOrder(order);
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-pencil-square" /> Edit Order
+                                                            </button>
+                                                        )}
 
-                                                        <button
-                                                            type="button"
-                                                            style={{
-                                                                ...menuItemStyle,
-                                                                color: "#b91c1c",
-                                                            }}
-                                                            disabled={["Submitted", "Approved"].includes(order.status)}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                setOrderToDelete(order);
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-trash-fill" /> Delete Order
-                                                        </button>
+                                                        {canDeleteOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={{
+                                                                    ...menuItemStyle,
+                                                                    color: "#b91c1c",
+                                                                }}
+                                                                disabled={["Submitted", "Approved"].includes(order.status)}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    setOrderToDelete(order);
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-trash-fill" /> Delete Order
+                                                            </button>
+                                                        )}
                                                     </div>,
                                                     document.body
                                                 )}
@@ -2192,41 +2206,42 @@ const toolbar = mode === null ? (
 
 
                                         <td>
-                                            <select
-                                                className="status-button"
-                                                aria-label={`Invoice status for ${order.pino}`}
-                                                value={order.status}
-                                                disabled={busyId === order.id}
-                                                onChange={(event) =>
-                                                    void changeStatus(
-                                                        order,
-                                                        event.target.value as OrderStatus
-                                                    )
-                                                }
-                                            >
-                                                {ORDER_STATUSES.map((status) => (
-                                                    <option
-                                                        key={status}
-                                                        value={status}
-                                                    >
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            {canUpdateOrder ? (
+                                                <select
+                                                    className="status-button"
+                                                    aria-label={`Invoice status for ${order.pino}`}
+                                                    value={order.status}
+                                                    disabled={busyId === order.id}
+                                                    onChange={(event) =>
+                                                        void changeStatus(
+                                                            order,
+                                                            event.target.value as OrderStatus
+                                                        )
+                                                    }
+                                                >
+                                                    {ORDER_STATUSES.map((status) => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <span>{order.status}</span>
+                                            )}
                                         </td>
 
                                         <td>
-                                            <button
-                                                type="button"
-                                                className="order-icon-button order-dispatch-button"
-                                                title="Dispatch details"
-                                                aria-label={`Dispatch details for ${order.pino}`}
-                                                onClick={() =>
-                                                    openDispatch(order)
-                                                }
-                                            >
-                                                <i className="bi bi-truck" />
-                                            </button>
+                                            {canDispatchOrder && (
+                                                <button
+                                                    type="button"
+                                                    className="order-icon-button order-dispatch-button"
+                                                    title="Dispatch details"
+                                                    aria-label={`Dispatch details for ${order.pino}`}
+                                                    onClick={() => openDispatch(order)}
+                                                >
+                                                    <i className="bi bi-truck" />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -2836,7 +2851,7 @@ const toolbar = mode === null ? (
                 </form>
             )}
 
-            {dispatchOrder && (
+            {dispatchOrder && canDispatchOrder && (
                 <div
                     className="dispatch-modal-backdrop"
                     onMouseDown={(event) => {

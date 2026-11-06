@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./DriverManagementPage.css";
 import ManagementLayout from "../../../components/common/ManagementLayout/ManagementLayout";
 import ActionButton from "../../../components/common/ActionButton/ActionButton";
@@ -42,6 +43,8 @@ function getDocumentUrl(path?: string | null) {
 }
 
 export default function DriverManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateDrivers = hasPermission("drivers.update");
     const [drivers, setDrivers] = useState<Driver[]>([]);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
@@ -205,7 +208,7 @@ export default function DriverManagementPage() {
     };
 
     const changeStatus = (driver: Driver) => {
-        if (updatingStatusId !== null) {
+        if (!canUpdateDrivers || updatingStatusId !== null) {
             return;
         }
 
@@ -313,6 +316,7 @@ const handleDelete = async () => {
                         ? "Update Driver"
                         : "Driver Details"
             }
+            formAction={mode === "create" ? "create" : mode === "edit" ? "update" : undefined}
             error={
                 error ? (
                     <div
@@ -489,19 +493,29 @@ const handleDelete = async () => {
                                         </td>
 
                                         <td>
-<button
-    type="button"
-    className={`driver-status ${
-        driver.status === "Active" ? "is-active" : "is-inactive"
-    }`}
-    disabled={updatingStatusId !== null}
-    onClick={() => changeStatus(driver)}
-    title="Click to change status"
->
-    {updatingStatusId === driver.id
-        ? "Updating..."
-        : driver.status}
-</button>
+                                            {canUpdateDrivers ? (
+                                                <button
+                                                    type="button"
+                                                    className={`driver-status ${
+                                                        driver.status === "Active" ? "is-active" : "is-inactive"
+                                                    }`}
+                                                    disabled={updatingStatusId !== null}
+                                                    onClick={() => changeStatus(driver)}
+                                                    title="Click to change status"
+                                                >
+                                                    {updatingStatusId === driver.id
+                                                        ? "Updating..."
+                                                        : driver.status}
+                                                </button>
+                                            ) : (
+                                                <span
+                                                    className={`driver-status ${
+                                                        driver.status === "Active" ? "is-active" : "is-inactive"
+                                                    }`}
+                                                >
+                                                    {driver.status}
+                                                </span>
+                                            )}
                                         </td>
 
                                         <td>

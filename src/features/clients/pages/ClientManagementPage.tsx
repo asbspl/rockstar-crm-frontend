@@ -721,6 +721,7 @@ export default function ClientManagementPage() {
                         ? "Update Client"
                         : "Client Details"
             }
+            formAction={mode === "create" ? "create" : mode === "edit" ? "update" : undefined}
             error={alert}
             toolbar={
                 mode === null ? (

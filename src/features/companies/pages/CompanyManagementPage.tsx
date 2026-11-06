@@ -520,6 +520,7 @@ const result = await updateCompanyStatus(
             formTitle={
                 editingCompany ? "Edit Company Form" : "Add New Company Form"
             }
+            formAction={editingCompany ? "update" : "create"}
             error={
                 error ? (
                     <div

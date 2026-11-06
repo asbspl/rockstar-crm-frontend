@@ -765,6 +765,7 @@ export default function RateMatrixManagementPage() {
                     ? "Add New Rate Matrix"
                     : "Update Rate Matrix"
             }
+            formAction={mode === "create" ? "create" : "update"}
             error={alert}
 toolbar={
     mode === null ? (

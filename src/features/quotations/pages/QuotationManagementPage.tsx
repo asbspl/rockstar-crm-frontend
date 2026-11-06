@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import apiClient from "../../../api/client";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./QuotationManagementPage.css";
 
 import { createRoot } from "react-dom/client";
@@ -516,6 +517,9 @@ function getQuotationMapUrl(quotation: Quotation): string | null {
 }
 
 export default function QuotationManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateQuotation = hasPermission("quotations.update");
+
     const [quotations, setQuotations] = useState<Quotation[]>([]);
 
     const [companies, setCompanies] = useState<CompanyOption[]>([]);
@@ -1524,6 +1528,7 @@ const toolbar =
             formTitle={
                 mode === "edit" ? "Edit Quotation" : "Add Quotation"
             }
+            formAction={mode === "edit" ? "update" : "create"}
             toolbar={toolbar}
             pagination={pagination}
             error={error}
@@ -1661,31 +1666,27 @@ const toolbar =
                                             </td>
 
                                             <td>
-                                                <select
-                                                    aria-label={`Status for ${quotation.quotation_no}`}
-                                                    value={quotation.status}
-                                                    disabled={
-                                                        busyId === quotation.id
-                                                    }
-                                                    onChange={(event) =>
-                                                        void handleStatusChange(
-                                                            quotation,
-                                                            event.target
-                                                                .value as QuotationStatus
-                                                        )
-                                                    }
-                                                >
-                                                    {QUOTATION_STATUSES.map(
-                                                        (status) => (
-                                                            <option
-                                                                key={status}
-                                                                value={status}
-                                                            >
+                                                {canUpdateQuotation ? (
+                                                    <select
+                                                        aria-label={`Status for ${quotation.quotation_no}`}
+                                                        value={quotation.status}
+                                                        disabled={busyId === quotation.id}
+                                                        onChange={(event) =>
+                                                            void handleStatusChange(
+                                                                quotation,
+                                                                event.target.value as QuotationStatus
+                                                            )
+                                                        }
+                                                    >
+                                                        {QUOTATION_STATUSES.map((status) => (
+                                                            <option key={status} value={status}>
                                                                 {status}
                                                             </option>
-                                                        )
-                                                    )}
-                                                </select>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    <span>{quotation.status}</span>
+                                                )}
                                             </td>
                                         </tr>
                                     );
@@ -1725,24 +1726,20 @@ const toolbar =
     <span>Print Quotation</span>
 </button>
 
-                                        <button
-                                            type="button"
-                                            className="quotation-menu-item email-action"
-                                            disabled={
-                                                busyId === quotation.id
-                                            }
-                                            onClick={() =>
-                                                void handleSendEmail(
-                                                    quotation
-                                                )
-                                            }
-                                        >
-                                            <i
-                                                className="bi bi-envelope-fill"
-                                                aria-hidden="true"
-                                            />
-                                            <span>Send Email</span>
-                                        </button>
+                                        {canUpdateQuotation && (
+                                            <button
+                                                type="button"
+                                                className="quotation-menu-item email-action"
+                                                disabled={busyId === quotation.id}
+                                                onClick={() => void handleSendEmail(quotation)}
+                                            >
+                                                <i
+                                                    className="bi bi-envelope-fill"
+                                                    aria-hidden="true"
+                                                />
+                                                <span>Send Email</span>
+                                            </button>
+                                        )}
 
                                         {quotation.status === "Draft" && (
                                             <div className="quotation-menu-action edit-action">

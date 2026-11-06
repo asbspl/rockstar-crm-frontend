@@ -28,6 +28,7 @@ import RateMatrixManagementPage from "../features/rate-matrix/pages/RateMatrixMa
 import QuotationManagementPage from "../features/quotations/pages/QuotationManagementPage";
 import OrderManagementPage from "../features/orders/pages/OrderManagementPage";
 import UserActivityPage from "../features/admin/pages/UserActivityPage";
+import { getRouteReadPermissions } from "../config/permissions";
 
 
 const router = createBrowserRouter([
@@ -70,7 +71,7 @@ const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: (
-              <ProtectedRoute requiredPermissions={["dashboard.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/dashboard")}>
                 <DashboardPage />
               </ProtectedRoute>
             ),
@@ -78,7 +79,7 @@ const router = createBrowserRouter([
           {
             path: "/settings/companies",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/settings/companies")}>
                 <CompanyManagementPage />
               </ProtectedRoute>
             ),
@@ -86,7 +87,7 @@ const router = createBrowserRouter([
           {
             path: "/settings/employees",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/settings/employees")}>
                 <EmployeeManagementPage />
               </ProtectedRoute>
             ),
@@ -94,7 +95,7 @@ const router = createBrowserRouter([
           {
             path: "settings/drivers",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/settings/drivers")}>
                 <DriverManagementPage />
               </ProtectedRoute>
             ),
@@ -102,7 +103,7 @@ const router = createBrowserRouter([
           {
             path: "/settings/contractors",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/settings/contractors")}>
                 <ContractorManagementPage />
               </ProtectedRoute>
             ),
@@ -110,7 +111,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/locations",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/locations")}>
                 <LocationManagementPage />
               </ProtectedRoute>
             ),
@@ -118,7 +119,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/clients",
             element: (
-              <ProtectedRoute requiredPermissions={["customers.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/clients")}>
                 <ClientManagementPage />
               </ProtectedRoute>
             ),
@@ -126,7 +127,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/customers",
             element: (
-              <ProtectedRoute requiredPermissions={["customers.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/customers")}>
                 <CustomerManagementPage />
               </ProtectedRoute>
             ),
@@ -134,7 +135,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/sites",
             element: (
-              <ProtectedRoute requiredPermissions={["sites.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/sites")}>
                 <SiteManagementPage />
               </ProtectedRoute>
             ),
@@ -142,7 +143,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/quotations",
             element: (
-              <ProtectedRoute requiredPermissions={["quotations.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/quotations")}>
                 <QuotationManagementPage />
               </ProtectedRoute>
             ),
@@ -150,7 +151,7 @@ const router = createBrowserRouter([
           {
             path: "/customers/orders",
             element: (
-              <ProtectedRoute requiredPermissions={["orders.read"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/customers/orders")}>
                 <OrderManagementPage />
               </ProtectedRoute>
             ),
@@ -159,7 +160,7 @@ const router = createBrowserRouter([
           {
             path: "/products/products",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/products/products")}>
                 <ProductManagementPage />
               </ProtectedRoute>
             ),
@@ -167,7 +168,7 @@ const router = createBrowserRouter([
           {
             path: "/products/rate-matrix",
             element: (
-              <ProtectedRoute requiredRoles={["ADMIN", "SUPER_ADMIN"]}>
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/products/rate-matrix")}>
                 <RateMatrixManagementPage />
               </ProtectedRoute>
             ),
@@ -192,10 +193,7 @@ const router = createBrowserRouter([
   // Admin routes
   {
     element: (
-      <ProtectedRoute
-        requiredPermissions={["users.read"]}
-        requiredRoles={["ADMIN", "SUPER_ADMIN"]}
-      />
+      <ProtectedRoute />
     ),
     children: [
       {
@@ -207,19 +205,35 @@ const router = createBrowserRouter([
           },
           {
             path: "/admin/applications",
-            element: <ApplicationsPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/admin/applications")}>
+                <ApplicationsPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/admin/registrations",
-            element: <RegistrationManagement />,
+            element: (
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/admin/registrations")}>
+                <RegistrationManagement />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/admin/users",
-            element: <UserManagementPage />,
+            element: (
+              <ProtectedRoute requiredPermissions={getRouteReadPermissions("/admin/users")}>
+                <UserManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/admin/access",
-            element: <AccessManagementPage />,
+            element: (
+              <ProtectedRoute requiredAllPermissions={getRouteReadPermissions("/admin/access")}>
+                <AccessManagementPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "/admin/user-activity",

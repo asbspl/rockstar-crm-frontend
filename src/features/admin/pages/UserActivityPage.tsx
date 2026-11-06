@@ -18,6 +18,7 @@ import {
     type ActivityPagination,
     type ActivitySummary,
 } from "../api/activity.api";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 
 import ActivityDetails from "../components/ActivityDetails";
 import {
@@ -37,6 +38,8 @@ const INITIAL_SUMMARY: ActivitySummary = {
 };
 
 function UserActivityPage() {
+    const { hasPermission } = useAuthContext();
+    const canExport = hasPermission("reports.export");
     const [activities, setActivities] = useState<Activity[]>([]);
 
     const [summary, setSummary] =
@@ -263,13 +266,15 @@ function UserActivityPage() {
                     </p>
                 </div>
 
-                <button
-                    className="activity-export-button"
-                    onClick={exportCSV}
-                    disabled={activities.length === 0}
-                >
-                    ↓ Export CSV
-                </button>
+                {canExport && (
+                    <button
+                        className="activity-export-button"
+                        onClick={exportCSV}
+                        disabled={activities.length === 0}
+                    >
+                        ↓ Export CSV
+                    </button>
+                )}
             </div>
 
             <div className="activity-summary-grid">

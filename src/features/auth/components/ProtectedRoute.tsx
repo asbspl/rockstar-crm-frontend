@@ -5,20 +5,20 @@ import { useAuthContext } from "../../../contexts/useAuthContext";
 interface ProtectedRouteProps {
   children?: ReactNode;
   requiredPermissions?: readonly string[];
-  requiredRoles?: readonly string[];
+  requiredAllPermissions?: readonly string[];
 }
 
 function ProtectedRoute({
   children,
   requiredPermissions,
-  requiredRoles,
+  requiredAllPermissions,
 }: ProtectedRouteProps) {
   const {
     isAuthenticated,
     isLoading,
     authState,
-    roles,
     hasAnyPermission,
+    hasAllPermissions,
   } = useAuthContext();
 
   const location = useLocation();
@@ -64,20 +64,16 @@ function ProtectedRoute({
   // Authenticated users must still have the required permission.
   if (
     requiredPermissions &&
-    requiredPermissions.length > 0 &&
-    !hasAnyPermission(requiredPermissions)
+    (requiredPermissions.length === 0 ||
+      !hasAnyPermission(requiredPermissions))
   ) {
     return <Navigate to="/forbidden" replace />;
   }
 
   if (
-    requiredRoles &&
-    requiredRoles.length > 0 &&
-    !requiredRoles.some((requiredRole) =>
-      roles.some(
-        (role) => role.trim().toLowerCase() === requiredRole.trim().toLowerCase(),
-      ),
-    )
+    requiredAllPermissions &&
+    (requiredAllPermissions.length === 0 ||
+      !hasAllPermissions(requiredAllPermissions))
   ) {
     return <Navigate to="/forbidden" replace />;
   }
