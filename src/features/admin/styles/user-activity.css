@@ -154,6 +154,7 @@
 .activity-table-scroll {
     width: 100%;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
 }
 
 .activity-table {
@@ -318,15 +319,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: clamp(9px, 3vw, 28px);
+    padding:
+        max(clamp(9px, 3vw, 28px), env(safe-area-inset-top))
+        max(clamp(9px, 3vw, 28px), env(safe-area-inset-right))
+        max(clamp(9px, 3vw, 28px), env(safe-area-inset-bottom))
+        max(clamp(9px, 3vw, 28px), env(safe-area-inset-left));
     background: rgba(13, 25, 43, 0.55);
 }
 
 .activity-modal {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 1040px);
     max-width: 1040px;
     max-height: 90vh;
-    overflow-y: auto;
+    max-height: min(90vh, 900px);
+    max-height: min(90dvh, 900px);
+    min-height: 0;
+    overflow: hidden;
     border-radius: 16px;
     background: #fff;
     box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
@@ -334,17 +345,23 @@
 
 .activity-modal-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 16px;
     padding: 23px 26px;
     border-bottom: 1px solid #edf0f5;
+}
+
+.activity-modal-header > div {
+    min-width: 0;
 }
 
 .activity-modal-header h2 {
     margin: 4px 0 0;
     color: #172033;
-    font-size: 21px;
+    font-size: clamp(18px, 2.4vw, 21px);
     font-weight: 750;
+    overflow-wrap: anywhere;
 }
 
 .activity-modal-header p {
@@ -362,15 +379,35 @@
 }
 
 .activity-close-button {
+    display: grid;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
     border: none;
+    border-radius: 8px;
     background: transparent;
     font-size: 27px;
     color: #667085;
     cursor: pointer;
 }
 
+.activity-close-button:hover {
+    background: #f2f5f9;
+}
+
+.activity-close-button:focus-visible,
+.activity-modal-footer button:focus-visible {
+    outline: 3px solid rgba(52, 120, 212, 0.45);
+    outline-offset: 2px;
+}
+
 .activity-detail-body {
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 24px 26px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .activity-detail-grid {
@@ -400,6 +437,7 @@
     color: #263750;
     font-size: 13px;
     overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .activity-result {
@@ -427,6 +465,7 @@
     color: #344054;
     font-size: 13px;
     overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .activity-changes-section {
@@ -496,6 +535,7 @@
     border-radius: 7px;
     font-size: 12px;
     overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .activity-change-value.previous {
@@ -534,17 +574,23 @@
     display: grid;
     grid-template-columns: minmax(90px, 0.75fr) minmax(0, 1fr);
     gap: 8px;
+    min-width: 0;
 }
 
 .activity-value-details dt {
+    min-width: 0;
     color: #69768b;
     font-size: 11px;
+    overflow-wrap: anywhere;
 }
 
 .activity-value-details dd {
+    min-width: 0;
     margin: 0;
     color: #263750;
     font-size: 11px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .activity-value-list {
@@ -595,11 +641,13 @@
 .activity-modal-footer {
     display: flex;
     justify-content: flex-end;
+    flex: 0 0 auto;
     padding: 16px 24px;
     border-top: 1px solid #edf0f5;
 }
 
 .activity-modal-footer button {
+    min-height: 44px;
     padding: 9px 19px;
     border: none;
     background: #174ea6;
@@ -620,29 +668,239 @@
 
 @media (max-width: 600px) {
     .user-activity-page {
-        padding: 14px;
+        padding: 12px;
     }
 
     .activity-page-header {
         align-items: flex-start;
         flex-direction: column;
+        gap: 12px;
+        margin-bottom: 18px;
     }
 
     .activity-summary-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .activity-summary-card {
+        min-width: 0;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .activity-summary-card strong {
+        margin-top: 8px;
+        font-size: clamp(20px, 6vw, 26px);
+        overflow-wrap: anywhere;
+    }
+
+    .activity-summary-card span {
+        font-size: 11px;
+        line-height: 1.35;
     }
 
     .activity-detail-grid {
         grid-template-columns: 1fr;
     }
 
+    .activity-table-container {
+        border-radius: 14px;
+    }
+
+    .activity-toolbar {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .activity-toolbar h2 {
+        font-size: 16px;
+    }
+
+    .activity-toolbar p {
+        font-size: 12px;
+    }
+
+    .activity-refresh-button,
+    .activity-export-button {
+        min-height: 44px;
+        padding-inline: 12px;
+    }
+
+    .activity-filters {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .activity-filters input,
+    .activity-filters select,
+    .activity-reset-button {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        box-sizing: border-box;
+        font-size: 13px;
+    }
+
+    .activity-filters input[type="search"] {
+        min-width: 0;
+    }
+
+    .activity-table-scroll {
+        overflow-x: hidden;
+        padding: 12px;
+    }
+
+    .activity-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .activity-table thead {
+        display: none;
+    }
+
+    .activity-table tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .activity-table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px 12px;
+        padding: 14px;
+        border: 1px solid #e8edf4;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+    }
+
+    .activity-table tbody tr:hover {
+        background: #fff;
+    }
+
+    .activity-table td {
+        display: none;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .activity-table td:nth-child(2) {
+        display: block;
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .activity-user strong {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .activity-table td:nth-child(4) {
+        display: block;
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .activity-table td:nth-child(6) {
+        display: block;
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .activity-table td:nth-child(7) {
+        display: block;
+        grid-column: 1;
+        grid-row: 3;
+        color: #69768b;
+        font-size: 11px;
+    }
+
+    .activity-table td:nth-child(7)::before {
+        content: "Date & time · ";
+        color: #929eae;
+        font-weight: 600;
+    }
+
+    .activity-table td:nth-child(8) {
+        display: block;
+        grid-column: 2;
+        grid-row: 2 / span 2;
+        align-self: end;
+    }
+
+    .activity-table td.activity-empty {
+        display: block !important;
+        grid-column: 1 / -1;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .activity-action,
+    .activity-status {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .activity-view-button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 12px;
+    }
+
+    .activity-pagination {
+        gap: 12px;
+        padding: 12px 14px;
+    }
+
+    .activity-pagination > div {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .activity-pagination button,
+    .activity-pagination select {
+        min-height: 44px;
+    }
+
     .activity-modal-overlay {
-        padding: 9px;
+        padding:
+            max(9px, env(safe-area-inset-top))
+            max(9px, env(safe-area-inset-right))
+            max(9px, env(safe-area-inset-bottom))
+            max(9px, env(safe-area-inset-left));
+    }
+
+    .activity-modal {
+        max-height: min(90vh, calc(100vh - 18px));
+        max-height:
+            min(
+                90dvh,
+                calc(
+                    100dvh
+                    - max(9px, env(safe-area-inset-top))
+                    - max(9px, env(safe-area-inset-bottom))
+                )
+            );
+        border-radius: 12px;
     }
 
     .activity-modal-header,
     .activity-detail-body {
         padding: 18px;
+    }
+
+    .activity-modal-footer {
+        padding: 12px 18px;
     }
 
     .activity-comparison-labels {
@@ -669,5 +927,49 @@
     .activity-pagination {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .activity-pagination > div {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 360px) {
+    .activity-modal-header,
+    .activity-detail-body {
+        padding: 14px;
+    }
+
+    .activity-modal-footer {
+        padding: 10px 14px;
+    }
+
+    .activity-detail-grid > div {
+        padding: 11px;
+    }
+
+    .activity-value-details > div {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 3px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .activity-modal {
+        max-height: calc(100vh - 18px);
+        max-height:
+            calc(
+                100dvh
+                - max(9px, env(safe-area-inset-top))
+                - max(9px, env(safe-area-inset-bottom))
+            );
+    }
+
+    .activity-modal-header {
+        padding-block: 12px;
+    }
+
+    .activity-modal-footer {
+        padding-block: 10px;
     }
 }

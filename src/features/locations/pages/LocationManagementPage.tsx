@@ -223,6 +223,7 @@ export default function LocationManagementPage() {
                       ? "Update Location"
                       : "Location Details"
             }
+            formAction={mode === "create" ? "create" : mode === "edit" ? "update" : undefined}
             error={
                 error ? (
                     <div

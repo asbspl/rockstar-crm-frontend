@@ -476,6 +476,7 @@ const openForm = async (
                         ? "Update Contractor"
                         : "Contractor Details"
             }
+            formAction={mode === "create" ? "create" : mode === "edit" ? "update" : undefined}
             error={
                 error ? (
                     <div

@@ -13,10 +13,17 @@ import "../styles/access-management.css";
 type AccessTab = "roles" | "permissions";
 
 export default function AccessManagementPage() {
-  const { roles: actorRoles } = useAuthContext();
-  const canManageDefinitions = actorRoles.some(
-    (role) => role.toUpperCase() === "SUPER_ADMIN",
-  );
+  const { hasPermission, hasAnyPermission } = useAuthContext();
+  const canCreateRole = hasPermission("roles.create");
+  const canUpdateRole = hasPermission("roles.update");
+  const canDeleteRole = hasPermission("roles.delete");
+  const canAssignRolePermissions = hasAnyPermission([
+    "permissions.assign",
+    "users.assign_permission",
+  ]);
+  const canManageModules = hasPermission("modules.manage");
+  const canCreatePermission = hasPermission("permissions.create");
+  const canUpdatePermission = hasPermission("permissions.update");
   const [tab, setTab] = useState<AccessTab>("roles");
   const [roles, setRoles] = useState<AccessOption[]>([]);
   const [permissions, setPermissions] = useState<AccessOption[]>([]);
@@ -346,19 +353,21 @@ export default function AccessManagementPage() {
           <aside className="access-management__list-panel">
             <div className="access-management__section-heading">
               <h2>Roles</h2>
-              <button
-                type="button"
-                className="access-management__text-button"
-                onClick={() => {
-                  setSelectedRole(null);
-                  setSelectedRolePermissionIds([]);
-                  setRoleForm({ name: "", description: "" });
-                  setMessage("");
-                  setError("");
-                }}
-              >
-                + New role
-              </button>
+              {canCreateRole && (
+                <button
+                  type="button"
+                  className="access-management__text-button"
+                  onClick={() => {
+                    setSelectedRole(null);
+                    setSelectedRolePermissionIds([]);
+                    setRoleForm({ name: "", description: "" });
+                    setMessage("");
+                    setError("");
+                  }}
+                >
+                  + New role
+                </button>
+              )}
             </div>
             {roles.length === 0 ? (
               <p className="access-management__empty">No roles have been defined.</p>
@@ -389,32 +398,38 @@ export default function AccessManagementPage() {
                     <p>{selectedRole.assignedUserCount ?? 0} assigned user(s)</p>
                   )}
                 </div>
-                {selectedRole && (
+                {selectedRole && (canUpdateRole || canDeleteRole) && (
                   <div className="access-management__inline-actions">
-                    <button type="button" className="access-management__button secondary" onClick={() => void toggleRoleStatus()} disabled={saving}>
-                      {selectedRole.is_active === false ? "Activate" : "Deactivate"}
-                    </button>
-                    <button type="button" className="access-management__button danger" onClick={() => void deleteRole()} disabled={saving || selectedRole.code === "SUPER_ADMIN"}>
-                      Delete
-                    </button>
+                    {canUpdateRole && (
+                      <button type="button" className="access-management__button secondary" onClick={() => void toggleRoleStatus()} disabled={saving}>
+                        {selectedRole.is_active === false ? "Activate" : "Deactivate"}
+                      </button>
+                    )}
+                    {canDeleteRole && (
+                      <button type="button" className="access-management__button danger" onClick={() => void deleteRole()} disabled={saving || selectedRole.code === "SUPER_ADMIN"}>
+                        Delete
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
               <div className="access-management__form-grid">
                 <label>
                   Role name
-                  <input value={roleForm.name} onChange={(event) => setRoleForm({ ...roleForm, name: event.target.value })} maxLength={128} />
+                  <input value={roleForm.name} onChange={(event) => setRoleForm({ ...roleForm, name: event.target.value })} maxLength={128} disabled={selectedRole ? !canUpdateRole : !canCreateRole} />
                 </label>
                 <label>
                   Description
-                  <input value={roleForm.description} onChange={(event) => setRoleForm({ ...roleForm, description: event.target.value })} maxLength={2000} />
+                  <input value={roleForm.description} onChange={(event) => setRoleForm({ ...roleForm, description: event.target.value })} maxLength={2000} disabled={selectedRole ? !canUpdateRole : !canCreateRole} />
                 </label>
               </div>
-              <div className="access-management__actions">
-                <button type="button" className="access-management__button" onClick={() => void saveRoleDetails()} disabled={saving || roleForm.name.trim().length < 2}>
-                  {saving ? "Saving..." : selectedRole ? "Save role" : "Create role"}
-                </button>
-              </div>
+              {((selectedRole && canUpdateRole) || (!selectedRole && canCreateRole)) && (
+                <div className="access-management__actions">
+                  <button type="button" className="access-management__button" onClick={() => void saveRoleDetails()} disabled={saving || roleForm.name.trim().length < 2}>
+                    {saving ? "Saving..." : selectedRole ? "Save role" : "Create role"}
+                  </button>
+                </div>
+              )}
             </section>
 
             {selectedRole && (
@@ -425,15 +440,17 @@ export default function AccessManagementPage() {
                       <h2>Role default permissions</h2>
                       <p>Newly assigned users inherit these permissions. User overrides remain separate.</p>
                     </div>
-                    <button type="button" className="access-management__button" onClick={() => void saveRoleDefaults()} disabled={saving}>
-                      {saving ? "Saving..." : "Save defaults"}
-                    </button>
+                    {canAssignRolePermissions && (
+                      <button type="button" className="access-management__button" onClick={() => void saveRoleDefaults()} disabled={saving}>
+                        {saving ? "Saving..." : "Save defaults"}
+                      </button>
+                    )}
                   </div>
                   <PermissionMatrix
                     permissions={permissions}
                     selectedPermissionIds={[...roleDefaultIds]}
                     onChange={setSelectedRolePermissionIds}
-                    disabled={saving || selectedRole.is_active === false}
+                    disabled={saving || selectedRole.is_active === false || !canAssignRolePermissions}
                   />
                 </section>
                 <section className="access-management__card">
@@ -472,7 +489,7 @@ export default function AccessManagementPage() {
                 </div>
               ))}
             </div>
-            {canManageDefinitions && (
+            {canManageModules && (
               <form className="access-management__form-grid" onSubmit={(event) => void createModule(event)}>
                 <label>
                   Module name
@@ -512,7 +529,7 @@ export default function AccessManagementPage() {
                   <span className={`access-management__status ${permission.is_active === false ? "inactive" : ""}`}>
                     {permission.is_active === false ? "Inactive" : "Active"}
                   </span>
-                  {canManageDefinitions && (
+                  {canUpdatePermission && (
                     <button type="button" className="access-management__text-button" onClick={() => void togglePermissionStatus(permission)} disabled={saving}>
                       {permission.is_active === false ? "Activate" : "Deactivate"}
                     </button>
@@ -522,7 +539,7 @@ export default function AccessManagementPage() {
             </div>
           </section>
 
-          {canManageDefinitions && (
+          {(selectedPermission ? canUpdatePermission : canCreatePermission) && (
             <section className="access-management__card">
               <h2>{selectedPermission ? "Edit permission" : "Add permission"}</h2>
               <form className="access-management__form-grid" onSubmit={(event) => void savePermission(event)}>

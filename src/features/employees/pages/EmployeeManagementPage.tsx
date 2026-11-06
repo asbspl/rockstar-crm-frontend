@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Country, State, City } from "country-state-city";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./EmployeeManagement.css"
 import type {
     Employee,
@@ -101,6 +102,8 @@ const documents: {
 ];
 
 export default function EmployeeManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateEmployees = hasPermission("employees.update");
     const [employeeToDelete, setEmployeeToDelete] =
         useState<Employee | null>(null);
 
@@ -306,6 +309,8 @@ export default function EmployeeManagementPage() {
     }
 
     async function toggleStatus(employee: Employee) {
+        if (!canUpdateEmployees) return;
+
         const nextStatus: EmployeeStatus =
             employee.status === "active" ? "inactive" : "active";
 
@@ -429,6 +434,7 @@ export default function EmployeeManagementPage() {
             formTitle={
                 editing ? "Update Employee" : "Add Employee"
             }
+            formAction={editing ? "update" : "create"}
             error={
                 error ? (
                     <div
@@ -996,23 +1002,29 @@ export default function EmployeeManagementPage() {
                                             <td>{employee.location || "-"}</td>
 
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    title="Click to toggle Active/Inactive"
-                                                    className={`employee-status employee-status-${employee.status}`}
-                                                    disabled={
-                                                        employee.status === "resign"
-                                                    }
-                                                    onClick={() =>
-                                                        void toggleStatus(employee)
-                                                    }
-                                                >
-                                                    {employee.status === "active"
-                                                        ? "Active"
-                                                        : employee.status === "inactive"
-                                                          ? "Inactive"
-                                                          : "Resign"}
-                                                </button>
+                                                {canUpdateEmployees ? (
+                                                    <button
+                                                        type="button"
+                                                        title="Click to toggle Active/Inactive"
+                                                        className={`employee-status employee-status-${employee.status}`}
+                                                        disabled={employee.status === "resign"}
+                                                        onClick={() => void toggleStatus(employee)}
+                                                    >
+                                                        {employee.status === "active"
+                                                            ? "Active"
+                                                            : employee.status === "inactive"
+                                                              ? "Inactive"
+                                                              : "Resign"}
+                                                    </button>
+                                                ) : (
+                                                    <span className={`employee-status employee-status-${employee.status}`}>
+                                                        {employee.status === "active"
+                                                            ? "Active"
+                                                            : employee.status === "inactive"
+                                                              ? "Inactive"
+                                                              : "Resign"}
+                                                    </span>
+                                                )}
                                             </td>
 
                                             <td>

@@ -577,6 +577,7 @@ export default function SiteManagementPage() {
             onAdd={() => void openForm("create")}
             onBack={closeForm}
             formTitle={mode === "create" ? "Add Site" : "Update Site"}
+            formAction={mode === "create" ? "create" : "update"}
             error={alert}
             toolbar={mode === null ? (
                 <>

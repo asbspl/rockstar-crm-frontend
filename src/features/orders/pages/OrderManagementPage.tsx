@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import apiClient from "../../../api/client";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./OrderManagementPage.css";
 
 import createProformaInvoice from "./ProformaInvoice";
@@ -431,11 +432,25 @@ const menuItemStyle: CSSProperties = {
 };
 
 export default function OrderManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateOrder = hasPermission("orders.update");
+    const canDeleteOrder = hasPermission("orders.delete");
+    const canDispatchOrder = hasPermission("dispatch.update");
+
+
+const getSiteMapUrl = (order: Order): string => {
+    const site = allCustomerSites.find(
+        (item) => Number(item.id) === Number(order.site_id)
+    );
+
+    return site?.site_location_map_url || "";
+};
 
     const [customComment, setCustomComment] = useState("");
 const [commentType, setCommentType] = useState("Looking forward for your business.");
 
     const [customerSites, setCustomerSites] = useState<CustomerSite[]>([]);
+    const [allCustomerSites, setAllCustomerSites] = useState<CustomerSite[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
 
     const [existingImages, setExistingImages] = useState<
@@ -573,6 +588,32 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
     useEffect(() => {
         void loadOrders();
     }, [loadOrders]);
+
+    useEffect(() => {
+    let cancelled = false;
+
+    async function loadAllCustomerSites() {
+        try {
+            const response = await apiClient.get("api/sites", {
+                params: { page: 1, limit: 1000 },
+            });
+
+            const data = response.data?.data ?? [];
+
+            if (!cancelled) {
+                setAllCustomerSites(data);
+            }
+        } catch (error) {
+            console.error("Failed to load customer sites:", error);
+        }
+    }
+
+    void loadAllCustomerSites();
+
+    return () => {
+        cancelled = true;
+    };
+}, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -1749,86 +1790,79 @@ async function editOrder(order: Order) {
         total
     );
 
-    const toolbar = mode === null ? (
-        <div className="order-toolbar">
-            <div className="order-toolbar__entries">
-                <label htmlFor="order-limit">Show</label>
+const toolbar = mode === null ? (
+    <>
+        <label className="management-page__toolbar-group">
+            <span>Show</span>
 
-                <select
-                    id="order-limit"
-                    value={limit}
+            <select
+                aria-label="Entries per page"
+                value={limit}
+                onChange={(event) => {
+                    setLimit(Number(event.target.value));
+                    setPage(1);
+                }}
+            >
+                {PAGE_SIZES.map((value) => (
+                    <option key={value} value={value}>
+                        {value}
+                    </option>
+                ))}
+            </select>
+
+            <span>entries</span>
+        </label>
+
+        <div className="management-toolbar-right">
+            <select
+                aria-label="Filter order status"
+                value={statusFilter}
+                onChange={(event) => {
+                    setStatusFilter(event.target.value);
+                    setPage(1);
+                }}
+            >
+                <option value="All">All Statuses</option>
+
+                {ORDER_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                        {status}
+                    </option>
+                ))}
+            </select>
+
+            <select
+                aria-label="Filter dispatch status"
+                value={dispatchFilter}
+                onChange={(event) => {
+                    setDispatchFilter(event.target.value);
+                    setPage(1);
+                }}
+            >
+                <option value="All">All Dispatch Statuses</option>
+
+                {DISPATCH_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                        {status}
+                    </option>
+                ))}
+            </select>
+
+            <label>
+                Search:{" "}
+                <input
+                    type="search"
+                    value={search}
+                    placeholder="Search orders..."
                     onChange={(event) => {
-                        setLimit(Number(event.target.value));
+                        setSearch(event.target.value);
                         setPage(1);
                     }}
-                >
-                    {PAGE_SIZES.map((value) => (
-                        <option key={value} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-
-                <span>entries</span>
-            </div>
-
-            <div className="order-toolbar__right">
-                <label>
-                    Status
-
-                    <select
-                        value={statusFilter}
-                        onChange={(event) => {
-                            setStatusFilter(event.target.value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="All">All</option>
-
-                        {ORDER_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Dispatch
-
-                    <select
-                        value={dispatchFilter}
-                        onChange={(event) => {
-                            setDispatchFilter(event.target.value);
-                            setPage(1);
-                        }}
-                    >
-                        <option value="All">All</option>
-
-                        {DISPATCH_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className="order-toolbar__search">
-                    Search
-
-                    <input
-                        type="search"
-                        value={search}
-                        placeholder="Search orders..."
-                        onChange={(event) => {
-                            setSearch(event.target.value);
-                            setPage(1);
-                        }}
-                    />
-                </label>
-            </div>
+                />
+            </label>
         </div>
-    ) : null;
+    </>
+) : null;
 
     const pagination = mode === null ? (
         <div className="order-pagination">
@@ -1876,6 +1910,7 @@ async function editOrder(order: Order) {
             onAdd={addOrder}
             onBack={resetForm}
             formTitle={mode === "edit" ? "Edit Order" : "Add Order"}
+            formAction={mode === "edit" ? "update" : "create"}
             toolbar={toolbar}
             pagination={pagination}
             error={error}
@@ -1933,7 +1968,7 @@ async function editOrder(order: Order) {
 
             {mode === null ? (
 
-                <div className="order-table-wrapper">
+                <div className="order-table-wrapper order-items-table-wrapper">
                     <table className="">
                         <thead>
                             <tr>
@@ -1942,6 +1977,7 @@ async function editOrder(order: Order) {
                                 <th>Company</th>
                                 <th>Client</th>
                                 <th>Customer</th>
+                                <th>Customer Site Name</th>
                                 <th>Location</th>
                                 <th>Amt</th>
                                 <th>Action</th>
@@ -1953,13 +1989,13 @@ async function editOrder(order: Order) {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={10} className="order-empty">
+                                    <td colSpan={11} className="order-empty">
                                         Loading orders...
                                     </td>
                                 </tr>
                             ) : orders.length === 0 ? (
                                 <tr>
-                                    <td colSpan={10} className="order-empty">
+                                    <td colSpan={11} className="order-empty">
                                         No orders found.
                                     </td>
                                 </tr>
@@ -1996,14 +2032,27 @@ async function editOrder(order: Order) {
                                             )}
                                         </td>
 
-                                        <td>
-                                            {displayName(
-                                                order.location_name,
-                                                locations,
-                                                order.location_id,
-                                                order.customer_site_name || "—"
-                                            )}
-                                        </td>
+                                        <td>{order.customer_site_name || order.site_name || "—"}</td>
+
+<td>
+    {getSiteMapUrl(order) ? (
+        <a
+            href={getSiteMapUrl(order)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="order-view-map-link"
+        >
+            View Map
+        </a>
+    ) : (
+        [
+            order.address_line_1,
+            order.address_line_2,
+        ]
+            .filter(Boolean)
+            .join(", ") || "—"
+    )}
+</td>
 
                                         <td className="order-amount table-no-wrap">
                                             ₹ {amount(order.grand_total)}
@@ -2071,16 +2120,18 @@ async function editOrder(order: Order) {
                                                             <i className="bi bi-printer-fill" /> Print PI
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void emailDocument(order, "PI");
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-envelope-fill" /> Email PI
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void emailDocument(order, "PI");
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-envelope-fill" /> Email PI
+                                                            </button>
+                                                        )}
 
                                                         <button
                                                             type="button"
@@ -2093,17 +2144,18 @@ async function editOrder(order: Order) {
                                                             <i className="bi bi-eye-fill" /> Preview PI
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void emailDocument(order, "DC");
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-envelope-at-fill" /> Delivery Challan Email
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void emailDocument(order, "DC");
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-envelope-at-fill" /> Delivery Challan Email
+                                                            </button>
+                                                        )}
 
                                                         <button
                                                             type="button"
@@ -2117,32 +2169,36 @@ async function editOrder(order: Order) {
                                                             <i className="bi bi-file-earmark-pdf-fill" /> Print DC
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            style={menuItemStyle}
-                                                            disabled={order.status === "Cancelled"}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                void editOrder(order);
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-pencil-square" /> Edit Order
-                                                        </button>
+                                                        {canUpdateOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={menuItemStyle}
+                                                                disabled={order.status === "Cancelled"}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    void editOrder(order);
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-pencil-square" /> Edit Order
+                                                            </button>
+                                                        )}
 
-                                                        <button
-                                                            type="button"
-                                                            style={{
-                                                                ...menuItemStyle,
-                                                                color: "#b91c1c",
-                                                            }}
-                                                            disabled={["Submitted", "Approved"].includes(order.status)}
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                setOrderToDelete(order);
-                                                            }}
-                                                        >
-                                                            <i className="bi bi-trash-fill" /> Delete Order
-                                                        </button>
+                                                        {canDeleteOrder && (
+                                                            <button
+                                                                type="button"
+                                                                style={{
+                                                                    ...menuItemStyle,
+                                                                    color: "#b91c1c",
+                                                                }}
+                                                                disabled={["Submitted", "Approved"].includes(order.status)}
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    setOrderToDelete(order);
+                                                                }}
+                                                            >
+                                                                <i className="bi bi-trash-fill" /> Delete Order
+                                                            </button>
+                                                        )}
                                                     </div>,
                                                     document.body
                                                 )}
@@ -2150,41 +2206,42 @@ async function editOrder(order: Order) {
 
 
                                         <td>
-                                            <select
-                                                className="status-button"
-                                                aria-label={`Invoice status for ${order.pino}`}
-                                                value={order.status}
-                                                disabled={busyId === order.id}
-                                                onChange={(event) =>
-                                                    void changeStatus(
-                                                        order,
-                                                        event.target.value as OrderStatus
-                                                    )
-                                                }
-                                            >
-                                                {ORDER_STATUSES.map((status) => (
-                                                    <option
-                                                        key={status}
-                                                        value={status}
-                                                    >
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            {canUpdateOrder ? (
+                                                <select
+                                                    className="status-button"
+                                                    aria-label={`Invoice status for ${order.pino}`}
+                                                    value={order.status}
+                                                    disabled={busyId === order.id}
+                                                    onChange={(event) =>
+                                                        void changeStatus(
+                                                            order,
+                                                            event.target.value as OrderStatus
+                                                        )
+                                                    }
+                                                >
+                                                    {ORDER_STATUSES.map((status) => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <span>{order.status}</span>
+                                            )}
                                         </td>
 
                                         <td>
-                                            <button
-                                                type="button"
-                                                className="order-icon-button order-dispatch-button"
-                                                title="Dispatch details"
-                                                aria-label={`Dispatch details for ${order.pino}`}
-                                                onClick={() =>
-                                                    openDispatch(order)
-                                                }
-                                            >
-                                                <i className="bi bi-truck" />
-                                            </button>
+                                            {canDispatchOrder && (
+                                                <button
+                                                    type="button"
+                                                    className="order-icon-button order-dispatch-button"
+                                                    title="Dispatch details"
+                                                    aria-label={`Dispatch details for ${order.pino}`}
+                                                    onClick={() => openDispatch(order)}
+                                                >
+                                                    <i className="bi bi-truck" />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -2622,6 +2679,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <select
                                                     required
+                                                    aria-label={`Product for order item ${index + 1}`}
                                                     value={item.product_id || ""}
                                                     onChange={(event) =>
                                                         updateLine(
@@ -2651,6 +2709,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Unit for order item ${index + 1}`}
                                                     value={item.unit}
                                                     maxLength={30}
                                                     onChange={(event) =>
@@ -2666,6 +2725,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Quantity for order item ${index + 1}`}
                                                     type="number"
                                                     min="0.001"
                                                     step="0.001"
@@ -2705,6 +2765,7 @@ async function editOrder(order: Order) {
                                             <td>
                                                 <input
                                                     type="number"
+                                                    aria-label={`Discount for order item ${index + 1}`}
                                                     min="0"
                                                     step="0.01"
                                                     value={item.discount}
@@ -2731,6 +2792,7 @@ async function editOrder(order: Order) {
                                                 <button
                                                     type="button"
                                                     className="order-remove-item"
+                                                    aria-label={`Remove order item ${index + 1}`}
                                                     disabled={
                                                         form.items.length === 1
                                                     }
@@ -2789,7 +2851,7 @@ async function editOrder(order: Order) {
                 </form>
             )}
 
-            {dispatchOrder && (
+            {dispatchOrder && canDispatchOrder && (
                 <div
                     className="dispatch-modal-backdrop"
                     onMouseDown={(event) => {

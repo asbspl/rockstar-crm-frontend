@@ -1,4 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useAuthContext } from "../../../contexts/useAuthContext";
+import { getModulePermission, type ModuleAction } from "../../../config/permissions";
 import "./ActionButton.css"
 
 type ActionType = "add" | "edit" | "delete" | "update" | "cancel";
@@ -33,12 +36,33 @@ export default function ActionButton({
   ...props
 }: ActionButtonProps) {
   const config = actionDefaults[action];
+  const { pathname } = useLocation();
+  const { hasPermission } = useAuthContext();
+  const permissionAction: ModuleAction | undefined =
+    action === "add"
+      ? "create"
+      : action === "edit" || action === "update"
+        ? "update"
+        : action === "delete"
+          ? "delete"
+          : undefined;
+  const requiredPermission = permissionAction
+    ? getModulePermission(pathname, permissionAction)
+    : undefined;
+
+  if (
+    permissionAction &&
+    (!requiredPermission || !hasPermission(requiredPermission))
+  ) {
+    return null;
+  }
 
   return (
     <button
       type={type}
       className={`action-button action-button--${action} ${className}`.trim()}
       title={title ?? config.title}
+      aria-label={title ?? config.title}
       {...props}
     >
       {config.icon && <i className={config.icon} aria-hidden="true" />}

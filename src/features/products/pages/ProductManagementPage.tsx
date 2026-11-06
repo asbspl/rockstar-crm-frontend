@@ -440,6 +440,7 @@ export default function ProductManagementPage() {
                     ? "Add New Product"
                     : "Update Product"
             }
+            formAction={mode === "create" ? "create" : "update"}
             error={alert}
             toolbar={
                 mode === null ? (

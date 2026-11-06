@@ -10,6 +10,30 @@
   --accent-bg: rgba(43, 108, 176, 0.1);
   --accent-border: rgba(43, 108, 176, 0.3);
   --shadow: rgba(15, 23, 42, 0.08) 0 12px 24px;
+  --crm-control-height: 40px;
+  --crm-control-radius: 8px;
+  --crm-control-gap: 8px;
+  --crm-focus-ring: 0 0 0 3px rgba(49, 93, 168, 0.2);
+  --crm-space-1: 4px;
+  --crm-space-2: 8px;
+  --crm-space-3: 12px;
+  --crm-space-4: 16px;
+  --crm-space-5: 20px;
+  --crm-space-6: 24px;
+  --crm-radius-card: 14px;
+  --crm-shadow-card: 0 4px 14px rgba(15, 23, 42, 0.045);
+  --crm-font-body: var(--sans);
+  --crm-font-size-xs: 11px;
+  --crm-font-size-sm: 13px;
+  --crm-font-size-base: 14px;
+  --crm-font-size-lg: 17px;
+  --crm-text-heading: #172033;
+  --crm-text-muted: #64748b;
+  --crm-surface: #ffffff;
+  --crm-surface-alt: #f3f6fa;
+  --crm-border: #e7ebf2;
+  --crm-mobile-breakpoint: 640px;
+  --crm-app-header-height: 72px;
   --sans: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --heading: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --mono: 'SFMono-Regular', Consolas, monospace;
@@ -28,5 +52,11 @@
     --accent-bg: rgba(124, 184, 255, 0.14);
     --accent-border: rgba(124, 184, 255, 0.35);
     --shadow: rgba(2, 6, 23, 0.48) 0 18px 40px;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --crm-app-header-height: 62px;
   }
 }

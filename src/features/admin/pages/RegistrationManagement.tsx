@@ -9,6 +9,7 @@ import {
   type RegistrationDetails,
   type RegistrationStatus,
 } from "../api/admin.api";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import PermissionMatrix from "../components/PermissionMatrix";
 import "../styles/RegistrationManagement.css";
 
@@ -73,6 +74,12 @@ function DetailSection({
 }
 
 export default function RegistrationManagement() {
+  const { hasPermission, hasAllPermissions } = useAuthContext();
+  const canReviewRegistrations = hasPermission("registrations.review");
+  const canUpdateUserAccess = hasAllPermissions([
+    "users.assign_role",
+    "users.permissions.update",
+  ]);
   const [status, setStatus] = useState<RegistrationStatus | "all">("all");
 
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -324,7 +331,7 @@ export default function RegistrationManagement() {
   }
 
   async function submitReview(decision: "approved" | "rejected") {
-    if (!selected || reviewing) return;
+    if (!selected || reviewing || !canReviewRegistrations) return;
 
     const currentStatus = String(
       selected.account_status ?? selected.status ?? "",
@@ -386,7 +393,7 @@ export default function RegistrationManagement() {
   }
 
   async function saveAccessChanges() {
-    if (!selected || savingAccess) return;
+    if (!selected || savingAccess || !canUpdateUserAccess) return;
 
     if (roleIds.length === 0) {
       setError("Select at least one role.");
@@ -465,7 +472,9 @@ export default function RegistrationManagement() {
   ).toLowerCase();
 
   const isPending = registrationStatus === "pending";
-  const canEditAccess = isPending || editingAccess;
+  const canEditAccess = isPending
+    ? canReviewRegistrations
+    : editingAccess && canUpdateUserAccess;
   const visiblePermissionIds = canEditAccess
     ? permissionIds
     : effectivePermissionIds;
@@ -700,7 +709,7 @@ export default function RegistrationManagement() {
             </div>
 
             <div className="registration-access-toolbar">
-              {!isPending && !editingAccess ? (
+              {!isPending && !editingAccess && canUpdateUserAccess ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -711,7 +720,7 @@ export default function RegistrationManagement() {
                 >
                   Update Roles &amp; Permissions
                 </button>
-              ) : !isPending && editingAccess ? (
+              ) : !isPending && editingAccess && canUpdateUserAccess ? (
                 <>
                   <button
                     type="button"
@@ -734,7 +743,7 @@ export default function RegistrationManagement() {
 
             <div className="role-card">
               <h3>Assigned Roles</h3>
-              {isPending && (
+              {isPending && canReviewRegistrations && (
                 <p className="registration-access-note">
                   Choose the roles and permissions to include with this approval.
                 </p>
@@ -746,7 +755,7 @@ export default function RegistrationManagement() {
                     <input
                       type="checkbox"
                       checked={roleIds.includes(Number(role.id))}
-                      disabled={!isPending && !editingAccess}
+                      disabled={!canEditAccess}
                       onChange={() => toggleSelectedRole(Number(role.id))}
                     />
                     <span>{role.name}</span>
@@ -783,7 +792,7 @@ export default function RegistrationManagement() {
               />
             </div>
 
-            {!isPending && !editingAccess && (
+            {!isPending && !editingAccess && canUpdateUserAccess && (
               <p className="registration-access-note">
                 Currently assigned roles and backend-provided permissions are
                 shown above. Select Update Roles to make role changes.
@@ -807,28 +816,30 @@ export default function RegistrationManagement() {
                   onChange={(event) => setDecisionReason(event.target.value)}
                   placeholder="Enter review notes or rejection reason..."
                   rows={3}
-                  disabled={reviewing}
+                  disabled={reviewing || !canReviewRegistrations}
                 />
 
-                <div className="registration-review-actions">
-                  <button
-                    type="button"
-                    className="registration-approve-button"
-                    disabled={reviewing}
-                    onClick={() => void submitReview("approved")}
-                  >
-                    {reviewing ? "Saving..." : "Approve"}
-                  </button>
+                {canReviewRegistrations && (
+                  <div className="registration-review-actions">
+                    <button
+                      type="button"
+                      className="registration-approve-button"
+                      disabled={reviewing}
+                      onClick={() => void submitReview("approved")}
+                    >
+                      {reviewing ? "Saving..." : "Approve"}
+                    </button>
 
-                  <button
-                    type="button"
-                    className="registration-reject-button"
-                    disabled={reviewing}
-                    onClick={() => void submitReview("rejected")}
-                  >
-                    {reviewing ? "Saving..." : "Reject"}
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      className="registration-reject-button"
+                      disabled={reviewing}
+                      onClick={() => void submitReview("rejected")}
+                    >
+                      {reviewing ? "Saving..." : "Reject"}
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </aside>

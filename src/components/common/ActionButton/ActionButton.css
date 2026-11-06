@@ -2,15 +2,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: var(--crm-control-gap, 8px);
+  min-height: var(--crm-control-height, 40px);
+  padding: 0 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--crm-control-radius, 8px);
   font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.action-button:focus-visible {
+  outline: none;
+  box-shadow: var(--crm-focus-ring, 0 0 0 3px rgba(49, 93, 168, 0.2));
 }
 
 .action-button:disabled {
@@ -55,16 +65,21 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 12px;
-        border: 1px solid;
-    border-radius: 6px;
+    gap: var(--crm-control-gap, 8px);
+    min-height: var(--crm-control-height, 40px);
+    padding: 0 14px;
+    border: 1px solid;
+    border-radius: var(--crm-control-radius, 8px);
     background: #f3f4f6;
     color: #374151;
     font-size: 13px;
     font-weight: 600;
+    white-space: nowrap;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 }
 
 .action-button--cancel:hover:not(:disabled) {
@@ -79,5 +94,12 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--crm-control-gap, 8px);
+}
+
+@media (max-width: 480px) {
+  .action-button,
+  .action-button--cancel {
+    min-height: 44px;
+  }
 }

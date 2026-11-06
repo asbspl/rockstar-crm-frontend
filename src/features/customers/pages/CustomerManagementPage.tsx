@@ -1058,6 +1058,7 @@ export default function CustomerManagementPage() {
                         ? "Update Customer"
                         : "Customer Details"
             }
+            formAction={mode === "create" ? "create" : mode === "edit" ? "update" : undefined}
             error={alert}
             toolbar={
                 mode === null ? (

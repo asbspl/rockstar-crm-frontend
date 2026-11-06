@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import apiClient from "../../../api/client";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import "./QuotationManagementPage.css";
 
 import { createRoot } from "react-dom/client";
@@ -516,6 +517,9 @@ function getQuotationMapUrl(quotation: Quotation): string | null {
 }
 
 export default function QuotationManagementPage() {
+    const { hasPermission } = useAuthContext();
+    const canUpdateQuotation = hasPermission("quotations.update");
+
     const [quotations, setQuotations] = useState<Quotation[]>([]);
 
     const [companies, setCompanies] = useState<CompanyOption[]>([]);
@@ -1415,64 +1419,63 @@ async function handlePrintQuotation(quotation: Quotation) {
         total
     );
 
-    const toolbar =
-        mode === null ? (
-            <div className="quotation-toolbar">
-                <div className="quotation-toolbar__group quotation-toolbar__entries">
-                    <label htmlFor="quotation-limit">Show</label>
-                    <select
-                        id="quotation-limit"
-                        value={limit}
+const toolbar =
+    mode === null ? (
+        <>
+            <label className="management-page__toolbar-group">
+                <span>Show</span>
+
+                <select
+                    aria-label="Entries per page"
+                    value={limit}
+                    onChange={(event) => {
+                        setLimit(Number(event.target.value));
+                        setPage(1);
+                    }}
+                >
+                    {PAGE_SIZES.map((value) => (
+                        <option key={value} value={value}>
+                            {value}
+                        </option>
+                    ))}
+                </select>
+
+                <span>entries</span>
+            </label>
+
+            <div className="management-toolbar-right">
+                <select
+                    aria-label="Filter quotation status"
+                    value={statusFilter}
+                    onChange={(event) => {
+                        setStatusFilter(event.target.value);
+                        setPage(1);
+                    }}
+                >
+                    <option value="All">All Statuses</option>
+
+                    {QUOTATION_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                            {status}
+                        </option>
+                    ))}
+                </select>
+
+                <label>
+                    Search:{" "}
+                    <input
+                        type="search"
+                        value={search}
+                        placeholder="Search quotations..."
                         onChange={(event) => {
-                            setLimit(Number(event.target.value));
+                            setSearch(event.target.value);
                             setPage(1);
                         }}
-                    >
-                        {PAGE_SIZES.map((value) => (
-                            <option key={value} value={value}>
-                                {value}
-                            </option>
-                        ))}
-                    </select>
-                    <span>entries</span>
-                </div>
-
-                <div className="quotation-toolbar__right">
-                    <div className="quotation-toolbar__group">
-                        <label htmlFor="quotation-status">Status</label>
-                        <select
-                            id="quotation-status"
-                            value={statusFilter}
-                            onChange={(event) => {
-                                setStatusFilter(event.target.value);
-                                setPage(1);
-                            }}
-                        >
-                            <option value="All">All</option>
-                            {QUOTATION_STATUSES.map((status) => (
-                                <option key={status} value={status}>
-                                    {status}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="quotation-toolbar__group quotation-toolbar__search">
-                        <label htmlFor="quotation-search">Search:</label>
-                        <input
-                            id="quotation-search"
-                            type="search"
-                            value={search}
-                            placeholder="Search quotations..."
-                            onChange={(event) => {
-                                setSearch(event.target.value);
-                                setPage(1);
-                            }}
-                        />
-                    </div>
-                </div>
+                    />
+                </label>
             </div>
-        ) : null;
+        </>
+    ) : null;
 
     const pagination =
         mode === null ? (
@@ -1525,6 +1528,7 @@ async function handlePrintQuotation(quotation: Quotation) {
             formTitle={
                 mode === "edit" ? "Edit Quotation" : "Add Quotation"
             }
+            formAction={mode === "edit" ? "update" : "create"}
             toolbar={toolbar}
             pagination={pagination}
             error={error}
@@ -1662,31 +1666,27 @@ async function handlePrintQuotation(quotation: Quotation) {
                                             </td>
 
                                             <td>
-                                                <select
-                                                    aria-label={`Status for ${quotation.quotation_no}`}
-                                                    value={quotation.status}
-                                                    disabled={
-                                                        busyId === quotation.id
-                                                    }
-                                                    onChange={(event) =>
-                                                        void handleStatusChange(
-                                                            quotation,
-                                                            event.target
-                                                                .value as QuotationStatus
-                                                        )
-                                                    }
-                                                >
-                                                    {QUOTATION_STATUSES.map(
-                                                        (status) => (
-                                                            <option
-                                                                key={status}
-                                                                value={status}
-                                                            >
+                                                {canUpdateQuotation ? (
+                                                    <select
+                                                        aria-label={`Status for ${quotation.quotation_no}`}
+                                                        value={quotation.status}
+                                                        disabled={busyId === quotation.id}
+                                                        onChange={(event) =>
+                                                            void handleStatusChange(
+                                                                quotation,
+                                                                event.target.value as QuotationStatus
+                                                            )
+                                                        }
+                                                    >
+                                                        {QUOTATION_STATUSES.map((status) => (
+                                                            <option key={status} value={status}>
                                                                 {status}
                                                             </option>
-                                                        )
-                                                    )}
-                                                </select>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    <span>{quotation.status}</span>
+                                                )}
                                             </td>
                                         </tr>
                                     );
@@ -1726,24 +1726,20 @@ async function handlePrintQuotation(quotation: Quotation) {
     <span>Print Quotation</span>
 </button>
 
-                                        <button
-                                            type="button"
-                                            className="quotation-menu-item email-action"
-                                            disabled={
-                                                busyId === quotation.id
-                                            }
-                                            onClick={() =>
-                                                void handleSendEmail(
-                                                    quotation
-                                                )
-                                            }
-                                        >
-                                            <i
-                                                className="bi bi-envelope-fill"
-                                                aria-hidden="true"
-                                            />
-                                            <span>Send Email</span>
-                                        </button>
+                                        {canUpdateQuotation && (
+                                            <button
+                                                type="button"
+                                                className="quotation-menu-item email-action"
+                                                disabled={busyId === quotation.id}
+                                                onClick={() => void handleSendEmail(quotation)}
+                                            >
+                                                <i
+                                                    className="bi bi-envelope-fill"
+                                                    aria-hidden="true"
+                                                />
+                                                <span>Send Email</span>
+                                            </button>
+                                        )}
 
                                         {quotation.status === "Draft" && (
                                             <div className="quotation-menu-action edit-action">
@@ -2144,7 +2140,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                             </button>
                         </div>
 
-                        <div className="quotation-table-wrapper">
+                        <div className="quotation-table-wrapper quotation-items-table-wrapper">
                             <table className="quotation-items-table">
                                 <thead>
                                     <tr>
@@ -2163,6 +2159,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                             <td>
                                                 <select
                                                     required
+                                                    aria-label={`Product for quotation item ${index + 1}`}
                                                     value={item.product_id || ""}
                                                     onChange={(event) =>
                                                         updateLine(
@@ -2189,6 +2186,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Unit for quotation item ${index + 1}`}
                                                     value={item.unit}
                                                     maxLength={30}
                                                     placeholder="Unit"
@@ -2205,6 +2203,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Quantity for quotation item ${index + 1}`}
                                                     type="number"
                                                     min="0.001"
                                                     step="0.001"
@@ -2222,6 +2221,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                             <td>
                                                 <input
                                                     required
+                                                    aria-label={`Rate for quotation item ${index + 1}`}
                                                     type="number"
                                                     min="0"
                                                     step="0.01"
@@ -2247,6 +2247,7 @@ async function handlePrintQuotation(quotation: Quotation) {
                                                 <button
                                                     type="button"
                                                     className="quotation-remove-item"
+                                                    aria-label={`Remove quotation item ${index + 1}`}
                                                     disabled={
                                                         form.items.length === 1
                                                     }
