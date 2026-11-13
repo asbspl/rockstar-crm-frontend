@@ -399,19 +399,7 @@ function formatAmount(
     );
 }
 
-function escapeHtml(value: unknown): string {
-    return String(value ?? "").replace(/[&<>"']/g, (character) => {
-        const entities: Record<string, string> = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-        };
 
-        return entities[character] || character;
-    });
-}
 
 function getMapUrl(
     savedUrl: unknown,
@@ -495,15 +483,6 @@ function getSiteLocationName(site: SiteOption): string {
     return address || "Location not provided";
 }
 
-function getQuotationLocationName(quotation: Quotation): string {
-    return (
-        quotation.location_name?.trim() ||
-        quotation.site_location_name?.trim() ||
-        quotation.location_address?.trim() ||
-        quotation.site_location_address?.trim() ||
-        "—"
-    );
-}
 
 function getQuotationMapUrl(quotation: Quotation): string | null {
     return getMapUrl(
@@ -730,43 +709,6 @@ export default function QuotationManagementPage() {
         [selectedSite]
     );
 
-    const selectedLocationMapUrl = useMemo(() => {
-        // Zero means "Use Customer Site Location".
-        if (!form.location_id) {
-            return selectedSiteMapUrl;
-        }
-
-        const masterLocationMapUrl = selectedLocation
-            ? getMapUrl(
-                  selectedLocation.location_map_url,
-                  selectedLocation.location_latitude,
-                  selectedLocation.location_longitude
-              )
-            : null;
-
-        if (masterLocationMapUrl) {
-            return masterLocationMapUrl;
-        }
-
-        // Retain saved quotation map information when editing.
-        if (
-            savedQuotationLocation?.location_id ===
-            Number(form.location_id)
-        ) {
-            return getMapUrl(
-                savedQuotationLocation.location_map_url,
-                savedQuotationLocation.location_latitude,
-                savedQuotationLocation.location_longitude
-            );
-        }
-
-        return null;
-    }, [
-        form.location_id,
-        selectedSiteMapUrl,
-        selectedLocation,
-        savedQuotationLocation,
-    ]);
 
     const selectedLocationName = useMemo(() => {
         if (!form.location_id) {
