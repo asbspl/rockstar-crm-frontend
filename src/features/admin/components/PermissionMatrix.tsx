@@ -152,20 +152,28 @@ export default function PermissionMatrix({
     draftIds.length !== selectedPermissionIds.length ||
     draftIds.some((id) => !selectedPermissionIds.includes(id));
 
-  function setPermissions(ids: number[], checked: boolean) {
-    const next = new Set(selectedIds);
-    for (const id of ids) {
-      if (checked) next.add(id);
-      else next.delete(id);
+function setPermissions(ids: number[], checked: boolean) {
+  const next = new Set(selectedIds);
+
+  for (const id of ids) {
+    if (checked) {
+      next.add(id);
+    } else {
+      next.delete(id);
     }
-    setDraftState({ source: sourceKey, ids: [...next] });
   }
 
-  function applyChanges() {
-    onChange(draftIds);
-    setDraftState(null);
-    onUpdated?.();
-  }
+  const updatedIds = [...next];
+
+  setDraftState({ source: sourceKey, ids: updatedIds });
+  onChange(updatedIds);
+}
+
+function applyChanges() {
+  onChange(draftIds);
+  setDraftState(null);
+  onUpdated?.();
+}
 
   if (permissions.length === 0) {
     return (

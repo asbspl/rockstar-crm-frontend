@@ -435,7 +435,7 @@
 
 .management-page__toolbar-group label,
 .management-page__toolbar-group span {
-    color: var(--text-color, #374151);
+    /* color: var(--text-color, #374151); */
     font-size: 13px;
 }
 

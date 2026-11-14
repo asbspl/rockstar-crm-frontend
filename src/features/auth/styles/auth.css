@@ -1,10 +1,107 @@
 .auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f4f7fb 0%, #ecf2ff 100%);
-  padding: 24px;
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 24px;
+
+    background:
+        radial-gradient(
+            ellipse 55% 40% at 50% 8%,
+            rgba(24, 52, 114, 0.55) 0%,
+            rgba(11, 17, 33, 0.96) 75%
+        ),
+        linear-gradient(
+            135deg,
+            #080d19 0%,
+            #101b35 50%,
+            #080d19 100%
+        );
+
+    animation: authBackground 12s ease-in-out infinite alternate;
+}
+
+/* Ambient blue glow */
+.auth-page::before {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 25% 35%,
+            rgba(37, 99, 235, 0.20),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 75% 65%,
+            rgba(56, 189, 248, 0.14),
+            transparent 30%
+        );
+
+    filter: blur(55px);
+    animation: authGlow 14s ease-in-out infinite alternate;
+}
+
+/* Subtle floating light particles */
+.auth-page::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(circle, rgba(147, 197, 253, 0.55) 1px, transparent 2px),
+        radial-gradient(circle, rgba(96, 165, 250, 0.35) 1px, transparent 2px);
+
+    background-size: 120px 120px, 180px 180px;
+    background-position: 0 0, 60px 80px;
+
+    opacity: 0.25;
+    animation: authParticles 30s linear infinite;
+}
+
+/* Background animations */
+@keyframes authBackground {
+    0% {
+        background-position: 50% 0%, 0% 50%;
+    }
+    100% {
+        background-position: 50% 100%, 100% 50%;
+    }
+}
+
+@keyframes authGlow {
+    0% {
+        transform: translate(-3%, -2%) scale(0.95);
+    }
+    100% {
+        transform: translate(3%, 2%) scale(1.08);
+    }
+}
+
+@keyframes authParticles {
+    from {
+        background-position: 0 0, 60px 80px;
+    }
+    to {
+        background-position: 120px 240px, 240px 380px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .auth-page,
+    .auth-page::before,
+    .auth-page::after {
+        animation: none !important;
+    }
 }
 
 .auth-page--wide {
@@ -15,7 +112,8 @@
 
 .auth-panel {
   width: min(100%, 480px);
-  background: #ffffff;
+  /* background: #ffffff; */
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
   border: 1px solid #dfe7f5;
   border-radius: 22px;
   padding: 30px 28px;
@@ -62,7 +160,7 @@
 .auth-branding h1 {
   margin: 4px 0 0;
   font-size: 1.65rem;
-  color: #0f172a;
+  color: #f6f6f6;
 }
 
 .auth-copy {
@@ -71,13 +169,13 @@
 
 .auth-copy h2 {
   margin: 0 0 8px;
-  color: #0f172a;
+  color: #f8f9fd;
   font-size: 2rem;
 }
 
 .auth-copy p {
   margin: 0;
-  color: #475467;
+  color: #f9f9f9;
 }
 
 .auth-form {
@@ -91,19 +189,19 @@
 }
 
 .auth-form label {
-  color: #1f2937;
+  color: #f2f7ff;
   font-weight: 600;
   font-size: 0.92rem;
 }
 
 .auth-form input {
-  width: 100%;
-  border: 1px solid #d1d9e6;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 0.9rem 0.95rem;
-  font-size: 1rem;
+    width: 100%;
+    border: 1px solid #d1d9e6;
+    border-radius: 12px;
+    background: #131e37;
+    color: #ffffff;
+    padding: 0.9rem 0.95rem;
+    font-size: 1rem;
 }
 
 .auth-form input:focus {
@@ -130,16 +228,18 @@
   border: none;
   background: transparent;
   border-radius: 0;
+  
 }
 
 .toggle-password {
-  border: none;
-  background: #eef4ff;
-  color: #2b6cb0;
-  font-weight: 600;
-  padding: 0 14px;
-  height: 100%;
-  cursor: pointer;
+    border: none;
+    background: #caddff;
+    color: #2b6cb0;
+    font-weight: 600;
+    padding: 0 14px;
+    height: 100%;
+    cursor: pointer;
+    padding: 15px;
 }
 
 .auth-error {
@@ -164,7 +264,7 @@
   appearance: none;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #0f172a 0%, #2b6cb0 100%);
+  background: linear-gradient(135deg, #50678d 0%, #2b6cb0 100%);
   color: #ffffff;
   padding: 0.95rem 1.1rem;
   font-size: 1rem;
@@ -234,7 +334,7 @@
 .registration-section {
   border: 1px solid #dfe7f5;
   border-radius: 16px;
-  background: #f8fbff;
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
   padding: 0;
   overflow: hidden;
 }
@@ -247,7 +347,7 @@
   text-align: left;
   font-size: 1.02rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #fefefe;
   cursor: pointer;
 }
 
@@ -370,7 +470,7 @@
 }
 
 .privacy-notice {
-  background: #f8fafc;
+  color: white;
   border: 1px solid #dfe7f5;
   border-radius: 12px;
   padding: 14px 16px;
@@ -384,11 +484,11 @@
 
 .privacy-notice p {
   margin: 0;
-  color: #475467;
+  color: #c6d1df;
 }
 
 .registration-summary {
-  background: #eff6ff;
+  color: #eff6ff;
   border: 1px solid #dbeafe;
   border-radius: 12px;
   padding: 12px 14px;
@@ -403,7 +503,7 @@
 .registration-summary ul {
   margin: 0;
   padding-left: 18px;
-  color: #475467;
+  color: #c6d1df;
 }
 
 .registration-reference {

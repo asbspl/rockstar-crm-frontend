@@ -2,8 +2,8 @@
   width: 100%;
   min-height: 100%;
   padding: 28px;
-  color: #172033;
-  background: #f5f7fb;
+  /* color: #172033; */
+  /* background: #f5f7fb; */
 }
 
 .access-management__header,
@@ -22,6 +22,7 @@
   margin: 0 0 6px;
   font-size: 28px;
   font-weight: 700;
+  color: white;
 }
 
 .access-management__header p:last-child,
@@ -66,7 +67,8 @@
   padding: 20px;
   border: 1px solid #e1e7f0;
   border-radius: 14px;
-  background: #fff;
+  color: white;
+      background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
   box-shadow: 0 5px 18px rgba(24, 42, 75, 0.04);
 }
 
@@ -95,24 +97,25 @@
 }
 
 .access-management__list-item {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 12px;
-  border: 1px solid #e5eaf2;
-  border-radius: 10px;
-  background: #fff;
-  color: #172033;
-  text-align: left;
-  cursor: pointer;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #e5eaf2;
+    border-radius: 10px;
+    /* background: #fff; */
+    color: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
 }
 
 .access-management__list-item.selected {
-  border-color: #8eace1;
-  background: #f3f7ff;
+  border-color: #005cff;
+  background: #0c1324;
 }
 
 .access-management__list-item > span:first-child,
@@ -193,6 +196,7 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  margin-top: 15px;
 }
 
 .access-management__button.secondary {
@@ -263,7 +267,7 @@
   padding: 11px 13px;
   border: 1px solid #e3e9f2;
   border-radius: 10px;
-  background: #f9fbfe;
+  /* background: #f9fbfe; */
 }
 
 .access-management__permission-list {
@@ -284,7 +288,7 @@
   flex: 1;
   border: 0;
   background: transparent;
-  color: #172033;
+  color: #fefefe;
   text-align: left;
   font: inherit;
   cursor: pointer;
@@ -325,3 +329,4 @@
     flex-direction: column;
   }
 }
+

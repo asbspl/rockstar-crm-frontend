@@ -15,6 +15,7 @@
     "bootstrap-icons": "^1.13.2",
     "country-state-city": "^3.2.1",
     "html2pdf.js": "^0.14.0",
+    "lucide-react": "^1.72.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",

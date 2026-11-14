@@ -24,6 +24,7 @@
 .account-page-heading h1 {
   margin: 0;
   font-size: 28px;
+  color: white;
 }
 
 .account-page-heading p:last-child {
@@ -32,12 +33,16 @@
 
 .account-back-link,
 .account-tabs a {
-  color: #2957a4;
+  color: #feffff;
   text-decoration: none;
 }
 
 .account-back-link {
-  white-space: nowrap;
+    white-space: nowrap;
+    background: #13203c;
+    padding: 7px 10px 10px;
+    border-radius: 9px;
+    border: 1px solid;
 }
 
 .account-tabs {
@@ -61,7 +66,9 @@
 .account-card {
   max-width: 900px;
   padding: 24px;
-  background: #fff;
+  color: white;
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
+  /* background: #fff; */
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   box-shadow: 0 4px 15px rgb(15 23 42 / 4%);
@@ -156,17 +163,18 @@
 }
 
 .account-permission {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: #0d1529;
+    border-radius: 8px;
+    border: 1px solid #afc5ff;
 }
 
 .account-permission-status {
-  color: #15803d;
+  color: #0dba4e;
   font-size: 12px;
 }
 
@@ -191,6 +199,7 @@
 
 .account-primary-link {
   color: #fff;
+  margin-top: 15px;
   background: #2957a4;
 }
 

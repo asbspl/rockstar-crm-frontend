@@ -193,10 +193,7 @@
     flex-wrap: wrap;
   }
 
-  .admin-panel__header-actions .mini-button,
-  .mini-button {
-    min-height: 44px;
-  }
+
 
   .table-wrap {
     overflow: hidden;
@@ -300,9 +297,7 @@
     flex-wrap: wrap;
   }
 
-  .table-actions button {
-    min-height: 44px;
-  }
+ 
 
   .admin-modal {
     width: 100%;
@@ -340,4 +335,91 @@
 .status-badge--pending {
   background: #fff6e5;
   color: #8a5b00;
+}
+
+
+
+/* Edit Access - Blue */
+.user-management-edit-access {
+    background: #c9daff !important;
+    color: #060606 !important;
+    border: 1px solid #719bf8 !important;
+}
+
+.user-management-edit-access i,
+.user-management-deactivate i,
+.user-management-activate i {
+    display: none !important;
+}
+
+
+.user-management-edit-access:hover {
+    background: #a7bbf3 !important;
+    border-color: #93b0ff !important;
+    color: #040404 !important;
+}
+
+/* Deactivate - Red */
+.user-management-deactivate {
+    background: #ffbbbb !important;
+    color: #0e0e0e !important;
+    border: 1px solid #ff8d8d !important;
+}
+
+.user-management-deactivate:hover {
+    background: #ff7e7e !important;
+    border-color: #ff6c6c !important;
+    color: #050505 !important;
+}
+
+/* Activate - Green */
+.user-management-activate {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    border: 1px solid #16a34a !important;
+}
+
+.user-management-activate:hover {
+    background: #15803d !important;
+    border-color: #15803d !important;
+    color: #ffffff !important;
+}
+
+.user-management-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+}
+
+.user-management-toolbar__info {
+    display: flex;
+    align-items: center;
+}
+
+.user-management-toolbar__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.manage-roles-permissions a {
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .user-management-toolbar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .manage-roles-permissions a {
+        font-size: 11px;
+        padding: 8px;
+    }
 }

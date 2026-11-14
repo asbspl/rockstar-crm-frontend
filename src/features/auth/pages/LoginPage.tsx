@@ -116,7 +116,7 @@ function LoginPage() {
         </div>
 
         <div className="auth-copy">
-          <h2>Welcome back</h2>
+          {/* <h2>Welcome back</h2> */}
           <p>Sign in to continue managing your business operations.</p>
         </div>
 

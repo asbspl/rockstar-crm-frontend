@@ -526,6 +526,8 @@
 }
 
 .order-actions-menu__items {
+      top: 227.375px;
+    left: 748.163px;
   position: fixed;
   z-index: 99999;
   min-width: 220px;

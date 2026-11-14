@@ -3,11 +3,20 @@ import DashboardSummaryGrid from "../components/DashboardSummaryGrid";
 import EntityDistributionChart from "../components/EntityDistributionChart";
 import OperationsBarChart from "../components/OperationsBarChart";
 import QuotationOrderChart from "../components/QuotationOrderChart";
+
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
 import "../styles/dashboard.css";
 
 function DashboardPage() {
-  const { summary, isLoading, isRefreshing, error, lastUpdated, refetch } = useDashboardSummary();
+  const {
+    summary,
+    isLoading,
+    isRefreshing,
+    error,
+    lastUpdated,
+    refetch,
+  } = useDashboardSummary();
+
   const showSkeleton = isLoading && !summary;
 
   return (
@@ -15,7 +24,7 @@ function DashboardPage() {
       <div className="dashboard-shell">
         <DashboardHeader
           title="Dashboard"
-          subtitle="Overview of your business operations"
+          subtitle="Your business performance, all in one place."
           isRefreshing={isRefreshing}
           lastUpdated={lastUpdated}
           onRefresh={() => void refetch({ silent: true })}
@@ -27,6 +36,7 @@ function DashboardPage() {
               <strong>Unable to load dashboard data.</strong>
               <span>{error}</span>
             </div>
+
             <button type="button" onClick={() => void refetch()}>
               Retry
             </button>
@@ -35,13 +45,22 @@ function DashboardPage() {
 
         {showSkeleton ? (
           <>
-            <div className="dashboard-skeleton-grid" aria-label="Loading dashboard summary">
+            <div
+              className="dashboard-skeleton-grid"
+              aria-label="Loading dashboard summary"
+            >
               {Array.from({ length: 11 }, (_, index) => (
-                <div key={`summary-skeleton-${index}`} className="dashboard-skeleton-card" />
+                <div
+                  key={`summary-skeleton-${index}`}
+                  className="dashboard-skeleton-card"
+                />
               ))}
             </div>
 
-            <section className="chart-grid" aria-label="Loading dashboard charts">
+            <section
+              className="chart-grid"
+              aria-label="Loading dashboard charts"
+            >
               <div className="dashboard-skeleton-chart" />
               <div className="dashboard-skeleton-chart" />
               <div className="dashboard-skeleton-chart" />
@@ -49,30 +68,43 @@ function DashboardPage() {
           </>
         ) : summary ? (
           <>
+            <div className="dashboard-section-heading">
+              <h2>BUSINESS OVERVIEW</h2>
+            </div>
+
             <DashboardSummaryGrid summary={summary} />
+
+            <div className="dashboard-section-heading dashboard-analytics-heading">
+              <h2>ANALYTICS & INSIGHTS</h2>
+            </div>
 
             <section className="chart-grid" aria-label="Dashboard charts">
               <article className="chart-panel">
                 <div className="chart-panel__header">
-                  <h2 className="chart-panel__title">Entity distribution</h2>
-                  <span className="chart-panel__meta">Counts</span>
+                  <span className="chart-panel__letter">A</span>
+                  <h2 className="chart-panel__title">Entity Distribution</h2>
                 </div>
+
                 <EntityDistributionChart summary={summary} />
               </article>
 
               <article className="chart-panel">
                 <div className="chart-panel__header">
-                  <h2 className="chart-panel__title">Business operations</h2>
-                  <span className="chart-panel__meta">Operational totals</span>
+                  <span className="chart-panel__letter">B</span>
+                  <h2 className="chart-panel__title">Business Operations</h2>
                 </div>
+
                 <OperationsBarChart summary={summary} />
               </article>
 
-              <article className="chart-panel chart-panel--wide">
+              <article className="chart-panel">
                 <div className="chart-panel__header">
-                  <h2 className="chart-panel__title">Quotation and order overview</h2>
-                  <span className="chart-panel__meta">Current totals</span>
+                  <span className="chart-panel__letter">C</span>
+                  <h2 className="chart-panel__title">
+                    Quotation & Order Overview
+                  </h2>
                 </div>
+
                 <QuotationOrderChart summary={summary} />
               </article>
             </section>
@@ -80,7 +112,9 @@ function DashboardPage() {
         ) : null}
 
         {!summary && !isLoading && !error ? (
-          <div className="chart-empty">No dashboard data is available yet.</div>
+          <div className="chart-empty">
+            No dashboard data is available yet.
+          </div>
         ) : null}
       </div>
     </main>
