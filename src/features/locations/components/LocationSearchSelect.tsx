@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./LocationSearchSelect.css";
+import apiClient from "../../../api/client";
 
 type LocationSuggestion = {
     name: string;
@@ -21,7 +22,8 @@ type LocationSearchSelectProps = {
     disabled?: boolean;
 };
 
-const API_BASE_URL = "http://localhost:3000/api";
+// Use the configured API origin for both local development and staging.
+
 
 export default function LocationSearchSelect({
     value,
@@ -38,12 +40,10 @@ export default function LocationSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const requestIdRef = useRef(0);
 
-    // Keep the input synchronized with the parent form.
     useEffect(() => {
         setQuery(value);
     }, [value]);
 
-    // Close suggestions when clicking outside the component.
     useEffect(() => {
         const handleOutsideClick = (event: MouseEvent) => {
             if (
@@ -62,7 +62,6 @@ export default function LocationSearchSelect({
         };
     }, []);
 
-    // Search locations with a debounce to reduce API requests.
     useEffect(() => {
         const searchTerm = query.trim();
 
@@ -87,37 +86,31 @@ export default function LocationSearchSelect({
             setSuggestions([]);
             setActiveIndex(-1);
 
-            try {
-                const params = new URLSearchParams({
-                    q: searchTerm,
-                });
+try {
+    const response = await apiClient.get<LocationSearchResponse>(
+        "api/locations/search",
+        {
+            params: {
+                q: searchTerm,
+            },
+            signal: controller.signal,
+        },
+    );
 
-                const response = await fetch(
-                    `${API_BASE_URL}/locations/search?${params.toString()}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            Accept: "application/json",
-                        },
-                        signal: controller.signal,
-                    },
-                );
+    const result = response.data;
 
-                const result =
-                    (await response.json()) as LocationSearchResponse;
+    if (!result.success) {
+        throw new Error(
+            result.message || "Unable to search locations.",
+        );
+    }
 
-                if (!response.ok || !result.success) {
-                    throw new Error(
-                        result.message || "Unable to search locations.",
-                    );
-                }
-
-                if (currentRequestId === requestIdRef.current) {
-                    setSuggestions(
-                        Array.isArray(result.data) ? result.data : [],
-                    );
-                }
-            } catch (err) {
+    if (currentRequestId === requestIdRef.current) {
+        setSuggestions(
+            Array.isArray(result.data) ? result.data : [],
+        );
+    }
+}catch (err) {
                 if (
                     err instanceof Error &&
                     err.name === "AbortError"
@@ -242,7 +235,6 @@ export default function LocationSearchSelect({
                         setError("");
                         setIsOpen(true);
 
-                        // A typed search is not a selected location.
                         onChange("");
                     }}
                     onKeyDown={handleKeyDown}
@@ -327,9 +319,6 @@ export default function LocationSearchSelect({
                         ))}
                 </div>
             )}
-
-
-           
         </div>
     );
 }

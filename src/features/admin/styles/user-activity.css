@@ -15,6 +15,7 @@
 }
 
 .activity-page-header h1 {
+    color: white;
     margin: 0;
     font-size: 26px;
     font-weight: 750;
@@ -53,7 +54,9 @@
 }
 
 .activity-summary-card {
-    background: #fff;
+    /* background: #fff; */
+    background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
+    color: white;
     border: 1px solid #e8edf4;
     border-radius: 12px;
     padding: 20px;
@@ -62,7 +65,7 @@
 
 .activity-summary-card span {
     display: block;
-    color: #69768b;
+    /* color: #69768b; */
     font-size: 13px;
     font-weight: 600;
 }
@@ -72,7 +75,7 @@
     margin-top: 12px;
     font-size: 29px;
     font-weight: 750;
-    color: #162d50;
+    /* color: #162d50; */
 }
 
 .activity-summary-card small {
@@ -87,10 +90,12 @@
 }
 
 .activity-table-container {
-    background: #fff;
+    /* background: #fff; */
+    background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
     border: 1px solid #e8edf4;
     border-radius: 12px;
     overflow: hidden;
+    color: white;
 }
 
 .activity-toolbar {
@@ -113,7 +118,7 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 16px 20px;
-    background: #f8fafc;
+    /* background: #f8fafc; */
     border-top: 1px solid #edf0f5;
     border-bottom: 1px solid #edf0f5;
 }
@@ -164,7 +169,9 @@
 }
 
 .activity-table th {
-    background: #f9fafb;
+    /* background: #f9fafb; */
+    background: #1b2c49;
+    color: #a9bedf;
     color: #69768b;
     font-size: 11px;
     font-weight: 700;
@@ -179,12 +186,12 @@
     padding: 14px 13px;
     border-top: 1px solid #edf0f5;
     font-size: 12px;
-    color: #344054;
+    /* color: #344054; */
     vertical-align: middle;
 }
 
 .activity-table tbody tr:hover {
-    background: #f8fbff;
+    background: #081024;
 }
 
 .activity-user strong,
@@ -194,7 +201,7 @@
 
 .activity-user strong {
     font-size: 12px;
-    color: #263750;
+    /* color: #263750; */
 }
 
 .activity-user small {

@@ -88,12 +88,12 @@ const navigation: NavigationItem[] = [
     icon: "bi-person-vcard",
     type: "link",
   },
-  {
-    label: "Applications",
-    path: "/admin/applications",
-    icon: "bi-clipboard2-check",
-    type: "link",
-  },
+  // {
+  //   label: "Applications",
+  //   path: "/admin/applications",
+  //   icon: "bi-clipboard2-check",
+  //   type: "link",
+  // },
   {
     label: "User Activity",
     path: "/admin/user-activity",

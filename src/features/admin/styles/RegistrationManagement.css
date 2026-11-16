@@ -15,10 +15,11 @@
 
 .role-card,
 .permission-card{
-  background:#fff;
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
   border:1px solid #e5e7eb;
   border-radius:14px;
   padding:18px;
+  color: white;
   margin-bottom:18px;
 }
 
@@ -43,13 +44,13 @@
   padding:10px 16px;
   border:1px solid #dbeafe;
   border-radius:999px;
-  background:#eff6ff;
+  /* background:#eff6ff; */
   cursor:pointer;
   transition:.2s;
 }
 
 .role-chip:hover{
-  background:#dbeafe;
+  background: linear-gradient( 145deg, #3b4e7a 0%, #395593 100% );
 }
 
 .permission-table-wrapper{
@@ -161,6 +162,7 @@
   margin: 0 0 6px;
   font-size: 26px;
   font-weight: 700;
+  color: white;
 }
 
 .registration-page-heading p,
@@ -176,14 +178,14 @@
   margin-bottom: 18px;
 }
 
-.registration-tabs button,
-.registration-secondary-button {
-  padding: 9px 15px;
-  border: 1px solid #d9dee7;
-  border-radius: 7px;
-  background: #fff;
-  color: #344054;
-  cursor: pointer;
+.registration-tabs button, .registration-secondary-button {
+    padding: 9px 15px;
+    border: 1px solid #d9dee7;
+    border-radius: 7px;
+    /* background: #fff; */
+    color: #ffffff;
+    cursor: pointer;
+    background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
 }
 
 .registration-tabs button.active {
@@ -203,6 +205,7 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 760px;
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
 }
 
 .registration-table th,
@@ -211,11 +214,12 @@
   border-bottom: 1px solid #edf0f5;
   text-align: left;
   vertical-align: middle;
+  color: white;
 }
 
 .registration-table th {
-  background: #f7f9fc;
-  color: #526071;
+ background: #1b2c49;
+    color: #a9bedf;
   font-size: 13px;
   font-weight: 700;
 }
@@ -225,7 +229,7 @@
 }
 
 .registration-table tbody tr:hover {
-  background: #f8faff;
+  background: #081024;
 }
 
 .registration-clickable-row {
@@ -291,7 +295,8 @@
   padding: 20px;
   border: 1px solid #e2e7ef;
   border-radius: 10px;
-  background: #fff;
+  background: linear-gradient( 145deg, #141f38 0%, #101a30 100% );
+  color: white;
 }
 
 .registration-information h2,
@@ -366,6 +371,7 @@
   border-radius: 7px;
   padding: 10px;
   font: inherit;
+  background-color: transparent;
 }
 
 .registration-review-actions {

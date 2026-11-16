@@ -8,6 +8,10 @@
     min-width: max-content;
 }
 
+.management-page__table-wrapper td .management-page__mobile-details {
+    display: none !important;
+}
+
 .management-page {
     width: 100%;
     min-width: 0;
@@ -968,7 +972,7 @@
         font-size: 16px;
     }
 
-    .management-page__mobile-details {
+   .management-page__table-wrapper td .management-page__mobile-details {
         display: inline-flex !important;
         align-items: center;
         justify-content: center;
@@ -1116,7 +1120,7 @@
 }
 
 .management-page__table-wrapper th.table-sortable:hover {
-    background-color: #f8fafc;
+    background-color: #0f1b38;
 }
 
 .table-sort-arrows {
@@ -1142,4 +1146,263 @@
 .table-sort-arrows .table-sort-down.active {
     color: #2563eb;
     font-weight: 800;
+}
+
+
+
+/* ==========================================
+   ROCKSTAR CRM - MIDNIGHT BLUE LUXURY THEME
+========================================== */
+
+.management-page {
+    color: #e8eefb;
+    font-family: Inter, "Segoe UI", sans-serif;
+}
+
+/* PAGE HEADER */
+
+.management-page__heading h1 {
+    color: #f4f7ff;
+    font-weight: 750;
+    letter-spacing: -0.7px;
+}
+
+.management-page__heading p {
+    color: #8e9fbd;
+}
+
+/* MAIN CARD */
+
+.management-page__card {
+    background: linear-gradient(
+        145deg,
+        #141f38 0%,
+        #101a30 100%
+    );
+
+    border: 1px solid rgba(104, 145, 218, 0.20);
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* CARD HEADER */
+
+.management-page__card-header {
+    background: rgba(29, 47, 80, 0.45);
+    border-bottom: 1px solid rgba(124, 155, 205, 0.14);
+}
+
+.management-page__card-header h2 {
+    color: #edf3ff;
+}
+
+/* TOOLBAR */
+
+.management-page__toolbar {
+    background: rgba(16, 27, 48, 0.75);
+    border-bottom: 1px solid rgba(124, 155, 205, 0.14);
+}
+
+.management-page__toolbar label {
+    color: #a8b8d2;
+}
+
+.management-page__toolbar input,
+.management-page__toolbar select {
+    color: #eaf1ff;
+    background: #172640;
+    border: 1px solid #2b4165;
+}
+
+.management-page__toolbar input::placeholder {
+    color: #8292ad;
+}
+
+.management-page__toolbar input:focus,
+.management-page__toolbar select:focus {
+    border-color: #558be8;
+    box-shadow: 0 0 0 3px rgba(70, 130, 230, 0.15);
+}
+
+/* TABLE HEADER */
+
+.management-page__table-wrapper thead th {
+    background: #1b2c49;
+    color: #a9bedf;
+    border-bottom: 1px solid #304665;
+}
+
+/* TABLE BODY */
+
+.management-page__table-wrapper tbody td {
+    background: #121f36;
+    color: #d0daec;
+    border-bottom: 1px solid rgba(126, 155, 199, 0.12);
+}
+
+.management-page__table-wrapper tbody td:first-child {
+    color: #a9bddc;
+}
+
+.management-page__table-wrapper tbody tr:hover td {
+    background: #1c304f;
+}
+
+/* LINKS */
+
+.management-page__table-wrapper td a {
+    color: #78aaff;
+}
+
+/* ADD BUTTON */
+
+.management-page__add-button {
+    background: linear-gradient(
+        135deg,
+        #477fe0,
+        #2855a5
+    );
+
+    border: 1px solid #5789e5;
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 14px rgba(43, 101, 194, 0.25);
+}
+
+.management-page__add-button:hover {
+    background: linear-gradient(
+        135deg,
+        #578ff0,
+        #3569bd
+    );
+}
+
+/* BACK BUTTON */
+
+.management-page__back-button {
+    background: #1b2b46;
+    color: #dce8fa;
+    border-color: #344a6c;
+}
+
+.management-page__back-button:hover {
+    background: #263b5d;
+}
+
+/* PAGINATION */
+
+.management-page__pagination {
+    background: #111d33;
+    border-top: 1px solid rgba(124, 155, 205, 0.14);
+}
+
+.management-page__pagination-info {
+    color: #9aacc8;
+}
+
+.management-page__pagination-controls button {
+    background: #1b2b46;
+    color: #dce8fa;
+    border-color: #354a6b;
+}
+
+.management-page__pagination-controls button:hover:not(:disabled) {
+    background: #315da8;
+    color: #ffffff;
+    border-color: #5487df;
+}
+
+/* FORM */
+
+.management-page__form {
+    color: #e5edfc;
+}
+
+/* SORTING */
+
+.table-sort-arrows {
+    color: #7085a7;
+}
+
+.table-sort-arrows .table-sort-up.active,
+.table-sort-arrows .table-sort-down.active {
+    color: #75a8ff;
+}
+
+/* FOCUS */
+
+.management-page button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(91, 145, 235, 0.3);
+}
+
+/* MOBILE TOOLBAR */
+
+@media (max-width: 640px) {
+
+    .management-page__toolbar {
+        background: rgba(17, 29, 51, 0.97);
+        border-bottom-color: #304665;
+    }
+
+    .management-page__toolbar input[data-mobile-toolbar-icon="search"],
+    .management-page__toolbar select[data-mobile-toolbar-icon] {
+        background-color: #1b2b46;
+        color: #eaf1ff;
+        border-color: #354a6b;
+    }
+
+    .management-page__toolbar button[data-mobile-toolbar-icon] {
+        background: #1b2b46;
+        color: #eaf1ff;
+        border-color: #354a6b;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr {
+        background: #172640;
+        border-color: #344967;
+        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr:hover {
+        background: #1c304f;
+        border-color: #527dbb;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="primary"] {
+        color: #f1f5ff;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="secondary"] {
+        color: #a9bad4;
+    }
+
+    .management-page .management-page__table-wrapper table tbody > tr > td[data-mobile-priority="actions"] {
+        border-top-color: #344967;
+    }
+
+    .management-page__detail-sheet {
+        background: #14223a;
+        border-color: #344967;
+    }
+
+    .management-page__detail-header h2 {
+        color: #f1f5ff;
+    }
+
+    .management-page__detail-fields dt {
+        color: #91a5c5;
+    }
+
+    .management-page__detail-fields dd {
+        color: #e1eafa;
+    }
+
+    .management-page__detail-fields > div {
+        border-bottom-color: #344967;
+    }
 }

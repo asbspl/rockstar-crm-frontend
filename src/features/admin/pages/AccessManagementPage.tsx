@@ -207,6 +207,7 @@ export default function AccessManagementPage() {
   }
 
   async function saveRoleDefaults() {
+    
     if (!selectedRole) return;
     setSaving(true);
     setError("");
@@ -216,6 +217,8 @@ export default function AccessManagementPage() {
         Number(selectedRole.id),
         selectedRolePermissionIds,
       );
+      console.log("Selected Role ID:", selectedRole.id);
+console.log("Selected Permission IDs:", selectedRolePermissionIds);
       setSelectedRolePermissionIds(saved.map((permission) => Number(permission.id)));
       setMessage("Role default permissions saved.");
     } catch (caughtError) {
@@ -228,6 +231,7 @@ export default function AccessManagementPage() {
       setSaving(false);
     }
   }
+  
 
   async function createModule(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

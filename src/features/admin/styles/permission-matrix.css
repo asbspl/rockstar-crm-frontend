@@ -1,6 +1,6 @@
 .permission-matrix {
   width: 100%;
-  background: #fff;
+  /* background: #fff; */
 }
 
 .permission-matrix__heading {
@@ -9,12 +9,12 @@
   gap: 6px;
   min-height: 34px;
   padding: 0 0 8px;
-  background: #fff;
+  /* background: #fff; */
 }
 
 .permission-matrix__heading h3 {
   margin: 0;
-  color: #111827;
+  /* color: #111827; */
   font-size: 20px;
   font-weight: 500;
 }
@@ -30,7 +30,7 @@
 
 .permission-matrix__filters {
   display: flex;
-  align-items: center;
+  align-items: end;
   gap: 12px;
   flex-wrap: wrap;
   padding: 12px 0;
@@ -103,7 +103,7 @@
 .permission-matrix__table td {
   padding: 6px 8px;
   border: 1px solid #e1e6ed;
-  color: #101828;
+  /* color: #101828; */
   font-size: 13px;
   text-align: left;
   vertical-align: middle;

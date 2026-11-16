@@ -113,10 +113,10 @@
 }
 
 .registration-table th {
-  background: #f8fafc;
+  background: rgba(29, 47, 80, 0.45);
   color: #64748b;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: bold;
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }
