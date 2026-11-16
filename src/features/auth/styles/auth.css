@@ -226,7 +226,6 @@
 
 .password-input input {
   border: none;
-  background: transparent;
   border-radius: 0;
   
 }
@@ -426,6 +425,10 @@
 
 .field-group--full {
   grid-column: 1 / -1;
+}
+
+.field-group small{
+  color:rgb(179, 168, 168)
 }
 
 .field-error {
