@@ -5,12 +5,12 @@
 .permission-header h2{
   margin:0;
   font-size:22px;
-  color:#1f2937;
+  color: #ffffff;
 }
 
 .permission-header p{
   margin-top:6px;
-  color:#64748b;
+  /* color:#64748b; */
 }
 
 .role-card,

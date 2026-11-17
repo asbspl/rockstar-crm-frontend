@@ -3,6 +3,7 @@ export type ModuleAction = "read" | "create" | "update" | "delete";
 
 const routeModules: Record<string, string> = {
   "/dashboard": "dashboard",
+  "/crm-blueprint": "crm_blueprint",
   "/settings/companies": "company",
   "/settings/employees": "employees",
   "/settings/drivers": "drivers",

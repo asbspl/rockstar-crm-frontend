@@ -59,11 +59,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 56px;
-  padding: 3px 9px 20px;
-  color: #ffffff;
-  text-decoration: none;
-  border-bottom: 1px solid var(--crm-sidebar-border);
+  position: relative;
+  min-width: 0;
 }
 
 .crm-brand:hover {
@@ -648,5 +645,224 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ==========================================
+   SIDEBAR BRAND ROW
+========================================== */
+
+.crm-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+}
+
+.crm-brand {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.crm-sidebar-collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #c5d4ee;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.crm-sidebar-collapse-toggle:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ==========================================
+   DESKTOP SIDEBAR COLLAPSE
+========================================== */
+
+@media (min-width: 1024px) {
+
+  .crm-sidebar {
+    width: 270px;
+    transition:
+      width 0.25s ease,
+      padding 0.25s ease;
+  }
+
+  .crm-main {
+    margin-left: 270px;
+    transition: margin-left 0.25s ease;
+  }
+
+  /* Collapsed sidebar width */
+  .crm-sidebar-collapsed .crm-sidebar {
+    width: 76px;
+    padding: 18px 10px 14px;
+    overflow: visible;
+  }
+
+  .crm-sidebar-collapsed .crm-main {
+    margin-left: 76px;
+  }
+
+  /* Brand */
+  .crm-sidebar-collapsed .crm-brand-row {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .crm-sidebar-collapsed .crm-brand {
+    flex: none;
+    justify-content: center;
+  }
+
+  .crm-sidebar-collapsed .crm-brand-text,
+  .crm-sidebar-collapsed .crm-workspace-label,
+  .crm-sidebar-collapsed .crm-menu-heading-left > span:last-child,
+  .crm-sidebar-collapsed .crm-chevron,
+  .crm-sidebar-collapsed .crm-sidebar-help,
+  .crm-sidebar-collapsed .crm-user-info,
+  .crm-sidebar-collapsed .crm-admin-shield {
+    display: none !important;
+  }
+
+  .crm-sidebar-collapsed .crm-sidebar-collapse-toggle {
+    margin: 0 auto 10px;
+  }
+
+  /* Main navigation icons */
+  .crm-sidebar-collapsed .crm-nav-link,
+  .crm-sidebar-collapsed .crm-menu-heading {
+    justify-content: center;
+    width: 54px;
+    height: 46px;
+    min-height: 46px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .crm-sidebar-collapsed .crm-nav-link > i,
+  .crm-sidebar-collapsed .crm-menu-icon {
+    flex: 0 0 20px;
+    width: 20px;
+    font-size: 19px;
+  }
+
+  .crm-sidebar-collapsed .crm-nav-link > span {
+    display: none;
+  }
+
+  .crm-sidebar-collapsed .crm-menu-heading-left {
+    flex: none;
+    justify-content: center;
+  }
+
+  /* Active parent menu */
+  .crm-sidebar-collapsed .crm-menu-heading.active {
+    color: #ffffff;
+    background: linear-gradient(100deg, #2d6df0, #2858d9);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Center user avatar */
+  .crm-sidebar-collapsed .crm-sidebar-footer {
+    justify-content: center;
+    padding: 14px 0 3px;
+  }
+
+  /* Floating submenu panel */
+  .crm-sidebar-collapsed .crm-menu-section {
+    position: relative;
+  }
+
+  .crm-sidebar-collapsed .crm-menu-section .crm-submenu {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 13px);
+    z-index: 1200;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    width: 62px;
+    margin: 0;
+    padding: 9px 5px;
+
+    background: #172542;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 11px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Submenu icons only */
+  .crm-sidebar-collapsed .crm-submenu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    min-height: 42px;
+    padding: 0;
+
+    color: #b9c8e0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+  }
+
+  .crm-sidebar-collapsed .crm-submenu-link > i {
+    flex: none;
+    width: auto;
+    font-size: 17px;
+  }
+
+  .crm-sidebar-collapsed .crm-submenu-link > span {
+    display: none !important;
+  }
+
+  .crm-sidebar-collapsed .crm-submenu-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Active submenu icon */
+  .crm-sidebar-collapsed .crm-submenu-link.active {
+    color: #ffffff;
+    background: #2864e8;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Expanded sidebar submenu */
+  .crm-sidebar:not(.crm-sidebar-collapsed .crm-sidebar) .crm-submenu {
+    width: auto;
+  }
+}
+
+/* ==========================================
+   TABLET AND MOBILE
+========================================== */
+
+@media (max-width: 1023px) {
+  .crm-sidebar-collapse-toggle {
+    display: none;
+  }
+
+  .crm-sidebar {
+    width: 260px;
   }
 }
