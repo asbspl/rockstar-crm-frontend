@@ -53,12 +53,12 @@
     padding: 22px;
     border: 1px solid var(--border-color, #e2e8f0);
     border-radius: 14px;
-    background: var(--card-background, #fff);
+    /* background: var(--card-background, #fff); */
 }
 
 .contractor-form legend {
     padding: 0 10px;
-    color: var(--text-color, #0f172a);
+    /* color: var(--text-color, #0f172a); */
     font-size: 15px;
     font-weight: 750;
 }
@@ -74,7 +74,7 @@
     min-width: 0;
     flex-direction: column;
     gap: 8px;
-    color: var(--text-color, #334155);
+    /* color: var(--text-color, #334155); */
     font-size: 13px;
     font-weight: 600;
 }
@@ -92,8 +92,8 @@
     padding: 10px 12px;
     border: 1px solid var(--input-border, #cbd5e1);
     border-radius: 8px;
-    background: var(--input-background, #fff);
-    color: var(--text-color, #0f172a);
+    background: #172541;
+    color: #ffffff;
     font: inherit;
     font-weight: 400;
     outline: none;

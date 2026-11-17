@@ -346,8 +346,9 @@
     min-height: 0;
     overflow: hidden;
     border-radius: 16px;
-    background: #fff;
+    background: linear-gradient( 145deg, #192b54 0%, #0d1526 100% );
     box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+    border: 1px solid white;
 }
 
 .activity-modal-header {
@@ -365,7 +366,7 @@
 
 .activity-modal-header h2 {
     margin: 4px 0 0;
-    color: #172033;
+    color: #ffffff;
     font-size: clamp(18px, 2.4vw, 21px);
     font-weight: 750;
     overflow-wrap: anywhere;
@@ -428,20 +429,20 @@
     padding: 13px;
     border: 1px solid #e8edf4;
     border-radius: 9px;
-    background: #fbfcfe;
+    /* background: #fbfcfe; */
 }
 
 .activity-detail-grid span,
 .activity-description span {
     display: block;
     margin-bottom: 7px;
-    color: #8490a2;
+    color: #ffffff;
     font-size: 11px;
 }
 
 .activity-detail-grid strong {
     display: block;
-    color: #263750;
+    color: #ffffff;
     font-size: 13px;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -464,12 +465,16 @@
     padding: 13px 15px;
     border-left: 3px solid #3478d4;
     border-radius: 4px 8px 8px 4px;
-    background: #f7f9fc;
+    /* background: #0d192a; */
+    /* border: 1px solid white; */
+    border-right: 1px solid #e8edf4;
+    border-top: 1px solid #e8edf4;
+    border-bottom: 1px solid #e8edf4;
 }
 
 .activity-description p {
     margin: 0;
-    color: #344054;
+    color: #ffffff;
     font-size: 13px;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -487,7 +492,7 @@
 
 .activity-changes-heading h3 {
     margin: 0;
-    color: #172033;
+    color: #ffffff;
     font-size: 16px;
     font-weight: 750;
 }
@@ -508,8 +513,8 @@
 .activity-comparison-labels {
     padding: 10px 13px;
     border-radius: 8px 8px 0 0;
-    background: #f7f9fc;
-    color: #69768b;
+    background: #3a4a6c;
+    color: #ffffff;
     font-size: 10px;
     font-weight: 750;
     letter-spacing: 0.04em;
@@ -521,7 +526,7 @@
     padding: 13px;
     border: 1px solid #edf0f5;
     border-top: 0;
-    background: #fff;
+    background: #121d35;
 }
 
 .activity-change-row:last-child {
@@ -530,7 +535,7 @@
 
 .activity-change-row h4 {
     margin: 3px 0 0;
-    color: #263750;
+    color: #ffffff;
     font-size: 12px;
     font-weight: 700;
     overflow-wrap: anywhere;

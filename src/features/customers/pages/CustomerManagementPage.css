@@ -145,7 +145,7 @@
 
 .customer-fieldset legend {
     padding: 0 8px;
-    color: var(--text-color, #1f2937);
+    /* color: var(--text-color, #1f2937); */
     font-weight: 700;
     font-size: 15px;
 }
@@ -169,7 +169,7 @@
 }
 
 .customer-form-field > span {
-    color: var(--text-color, #374151);
+    /* color: var(--text-color, #374151); */
     font-weight: 600;
 }
 
@@ -183,8 +183,8 @@
     padding: 9px 11px;
     border: 1px solid var(--input-border, #cbd5e1);
     border-radius: 7px;
-    background: var(--input-bg, #fff);
-    color: var(--text-color, #111827);
+    background: #172542;
+    color: #ffffff;
     font: inherit;
 }
 
@@ -446,8 +446,8 @@
     padding: 7px 10px;
     border: 1px solid var(--input-border, #cbd5e1);
     border-radius: 6px;
-    background: var(--input-bg, #fff);
-    color: var(--text-color, #111827);
+    /* background: var(--input-bg, #fff); */
+        color: #ffffff;
     font: inherit;
     font-size: 13px;
 }

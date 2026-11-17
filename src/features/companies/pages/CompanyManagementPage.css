@@ -86,7 +86,7 @@
   min-width: 0;
   padding: 24px;
   margin-bottom: 24px;
-  background: var(--card-bg, #fff);
+  /* background: var(--card-bg, #fff); */
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   box-shadow: 0 3px 12px rgb(15 23 42 / 4%);
@@ -134,16 +134,16 @@
 .company-field textarea,
 .company-search input,
 .company-entries select {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 11px 12px;
-  color: #1f2937;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
-  font: inherit;
-  font-weight: 400;
+    box-sizing: border-box;
+    color: #ffffff;
+    width: 100%;
+    min-width: 0;
+    font: inherit;
+    background: #131d35;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 11px 12px;
+    font-weight: 400;
 }
 
 .company-field input:focus,

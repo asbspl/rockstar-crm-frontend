@@ -12,7 +12,7 @@
 .location-search__label {
     display: block;
     margin-bottom: 8px;
-    color: var(--text-primary, #263244);
+    /* color: var(--text-primary, #263244); */
     font-size: 14px;
     font-weight: 600;
 }

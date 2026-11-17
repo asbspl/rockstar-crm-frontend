@@ -28,6 +28,7 @@ import RateMatrixManagementPage from "../features/rate-matrix/pages/RateMatrixMa
 import QuotationManagementPage from "../features/quotations/pages/QuotationManagementPage";
 import OrderManagementPage from "../features/orders/pages/OrderManagementPage";
 import UserActivityPage from "../features/admin/pages/UserActivityPage";
+import CrmBlueprintPage from "../features/blueprint/pages/CrmBlueprintPage";
 import { getRouteReadPermissions } from "../config/permissions";
 
 
@@ -76,6 +77,17 @@ const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
+
+  {
+    path: "/crm-blueprint",
+    element: (
+      <ProtectedRoute
+        requiredPermissions={getRouteReadPermissions("/crm-blueprint")}
+      >
+        <CrmBlueprintPage />
+      </ProtectedRoute>
+    ),
+  },
           {
             path: "/settings/companies",
             element: (

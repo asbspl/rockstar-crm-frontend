@@ -22,6 +22,7 @@ export default function AccessManagementPage() {
     "users.assign_permission",
   ]);
   const canManageModules = hasPermission("modules.manage");
+  console.log("canManageModules:", canManageModules);
   const canCreatePermission = hasPermission("permissions.create");
   const canUpdatePermission = hasPermission("permissions.update");
   const [tab, setTab] = useState<AccessTab>("roles");

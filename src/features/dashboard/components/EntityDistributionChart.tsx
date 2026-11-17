@@ -72,11 +72,19 @@ function EntityDistributionChart({
               paddingAngle={1.5}
               stroke="#121c33"
               strokeWidth={2}
-              label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+              label={({
+                cx = 0,
+                cy = 0,
+                midAngle = 0,
+                innerRadius = 54,
+                outerRadius = 92,
+                value,
+              }) => {
                 const RADIAN = Math.PI / 180;
                 const radius = innerRadius + (outerRadius - innerRadius) * 0.52;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
                 return (
                   <text
                     x={x}
