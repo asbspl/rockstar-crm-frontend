@@ -68,17 +68,24 @@
 }
 
 .crm-brand-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
-  color: #ffffff;
-  font-size: 21px;
-  background: linear-gradient(135deg, #4388ff, #6557ed);
-  border-radius: 13px;
-  box-shadow: 0 5px 16px rgba(48, 99, 238, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    color: #ffffff;
+    font-size: 21px;
+    background: linear-gradient(135deg, #81b2fd, #695aff);
+    /* background: linear-gradient(135deg, #b8c0cd, #8f83ff); */
+    border-radius: 13px;
+    box-shadow: 0 5px 16px rgba(48, 99, 238, 0.28);
+    padding: 2px;
+}
+.crm-brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .crm-brand-text {

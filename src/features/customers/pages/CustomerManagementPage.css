@@ -329,7 +329,7 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    color: var(--text-color, #374151);
+    color: #ffffff;
     font-size: 14px;
     cursor: pointer;
 }

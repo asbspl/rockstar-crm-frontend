@@ -581,22 +581,22 @@ export default function QuotationManagementPage() {
 
             const requests = await Promise.allSettled([
                 apiClient.get("api/companies", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
                 apiClient.get("api/clients", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
                 apiClient.get("api/customers", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
                 apiClient.get("api/sites", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
                 apiClient.get("api/locations", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
                 apiClient.get("api/products", {
-                    params: { page: 1, limit: 500, search: "" },
+                    params: { page: 1, limit: 5000, search: "" },
                 }),
             ]);
 

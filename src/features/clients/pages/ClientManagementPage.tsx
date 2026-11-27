@@ -35,7 +35,7 @@ type Employee = {
 
 type Mode = "create" | "edit" | "view";
 
-const statuses: ClientStatus[] = ["Active", "Hold", "Close"];
+const statuses: ClientStatus[] = ["Active", "Hold", "Inactive"];
 
 const emptyForm: ClientInput = {
     client_name: "",
@@ -260,7 +260,7 @@ export default function ClientManagementPage() {
                 const response = await apiClient.get("api/employees", {
                     params: {
                         page: 1,
-                        limit: 100,
+                        limit: 5000,
                         search: employeeSearch,
                         status: "all",
                     },
@@ -644,12 +644,12 @@ export default function ClientManagementPage() {
 
         const client = clientToChangeStatus;
 
-        const nextStatus: ClientStatus =
-            client.client_status === "Active"
-                ? "Hold"
-                : client.client_status === "Hold"
-                    ? "Close"
-                    : "Active";
+const nextStatus: ClientStatus =
+    client.client_status === "Active"
+        ? "Hold"
+        : client.client_status === "Hold"
+            ? "Inactive"
+            : "Active";
 
         setUpdatingStatusId(client.id);
         setError("");
@@ -959,14 +959,12 @@ export default function ClientManagementPage() {
                             </label>
                             <label className="client-form-field">
                                 <span>Client Code</span>
-                                <input
-                                    type="text"
-                                    value={form.client_code}
-                                    placeholder="Enter client code"
-                                    onChange={(e) =>
-                                        setField("client_code", e.target.value)
-                                    }
-                                />
+<input
+  type="text"
+  value={form.client_code}
+  placeholder="Client Code"
+  readOnly
+/>
                             </label>
 
                             <label className="client-form-field">
@@ -1779,7 +1777,7 @@ export default function ClientManagementPage() {
                 title="Change Client Status?"
                 message={
                     clientToChangeStatus
-                        ? `Change ${clientToChangeStatus.client_name}'s status? Active → Hold → Close → Active.`
+                        ? `Change ${clientToChangeStatus.client_name}'s status? Active → Hold → Inactive → Active.`
                         : ""
                 }
                 itemName={clientToChangeStatus?.client_name || "this client"}

@@ -261,6 +261,72 @@ function rows(value: unknown, names: string[] = []): ApiRow[] {
     return [];
 }
 
+async function fetchAllRows(
+    endpoint: string,
+    collectionName: string,
+    extraParams: Record<string, unknown> = {}
+): Promise<ApiRow[]> {
+    const limit = 100;
+
+    const firstResponse = await apiClient.get(endpoint, {
+        params: {
+            ...extraParams,
+            page: 1,
+            limit,
+        },
+    });
+
+    const allRows = rows(firstResponse.data, [collectionName]);
+
+    const root = obj(firstResponse.data);
+    const payload = obj(root.data);
+
+    const pagination = obj(
+        root.pagination ?? payload.pagination
+    );
+
+    const total = Number(pagination.total ?? allRows.length);
+
+const actualPageSize = Number(
+    pagination.limit ?? (allRows.length || limit)
+);
+
+    const totalPages = Math.max(
+        1,
+        Number(
+            pagination.totalPages ??
+            Math.ceil(total / actualPageSize)
+        )
+    );
+
+    if (totalPages <= 1) {
+        return allRows;
+    }
+
+    const remainingPages = await Promise.all(
+        Array.from(
+            { length: totalPages - 1 },
+            (_, index) =>
+                apiClient.get(endpoint, {
+                    params: {
+                        ...extraParams,
+                        page: index + 2,
+                        limit,
+                    },
+                })
+        )
+    );
+
+    for (const response of remainingPages) {
+        allRows.push(
+            ...rows(response.data, [collectionName])
+        );
+    }
+
+    return allRows;
+}
+
+
 function idOf(row: ApiRow): number {
     return Number(
         row.id ??
@@ -274,11 +340,12 @@ function idOf(row: ApiRow): number {
     );
 }
 
+
 function nameOf(row: ApiRow): string {
     return String(
+        row.customer_name ??
         row.company_name ??
         row.client_name ??
-        row.customer_name ??
         row.location_name ??
         row.product_name ??
         row.driver_full_name ??
@@ -288,6 +355,7 @@ function nameOf(row: ApiRow): string {
         ""
     );
 }
+
 
 function text(value: unknown): string {
     return value == null ? "" : String(value);
@@ -405,7 +473,7 @@ function displayName(
     return String(option?.name ?? "").trim() || fallback;
 }
 
-function generateDcsNo(orderId: number, date: string): string {
+function generateDispatchSequenceNo(orderId: number, date: string): string {
     const parsed = new Date(`${date}T00:00:00`);
 
     if (Number.isNaN(parsed.getTime())) {
@@ -544,15 +612,10 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
             setEmployeesLoading(true);
 
             try {
-                const response = await apiClient.get("/api/employees", {
-                    params: {
-                        page: 1,
-                        limit: 500,
-                    },
-                });
-
-                const employeeRows =
-                    response.data?.data?.employees ?? [];
+const employeeRows = await fetchAllRows(
+    "/api/employees",
+    "employees"
+);
 
                 const employeeOptions: EmployeeOption[] =
                     employeeRows.map((employee: any) => ({
@@ -594,15 +657,16 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
 
     async function loadAllCustomerSites() {
         try {
-            const response = await apiClient.get("api/sites", {
-                params: { page: 1, limit: 1000 },
-            });
+const data = await fetchAllRows(
+    "api/sites",
+    "sites"
+);
 
-            const data = response.data?.data ?? [];
-
-            if (!cancelled) {
-                setAllCustomerSites(data);
-            }
+if (!cancelled) {
+    setAllCustomerSites(
+        data as unknown as CustomerSite[]
+    );
+}
         } catch (error) {
             console.error("Failed to load customer sites:", error);
         }
@@ -626,19 +690,19 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
             }
 
             try {
-                const response = await apiClient.get("api/sites", {
-                    params: {
-                        customer_id: form.customer_id,
-                        page: 1,
-                        limit: 500,
-                    },
-                });
+const siteData = await fetchAllRows(
+    "api/sites",
+    "sites",
+    {
+        customer_id: form.customer_id,
+    }
+);
 
-                if (cancelled) {
-                    return;
-                }
+if (cancelled) {
+    return;
+}
 
-                const siteRows = rows(response.data, ["sites"])
+const siteRows = siteData
                     .map((row): CustomerSite => ({
                         id: idOf(row),
                         site_name: text(
@@ -706,29 +770,25 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
         async function loadOptions() {
             setOptionsLoading(true);
 
-            const requests = [
-                apiClient.get("api/companies", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/clients", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/customers", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/locations", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/products", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/drivers", {
-                    params: { page: 1, limit: 500 },
-                }),
-                apiClient.get("api/rate-matrix", {
-                    params: { page: 1, limit: 1000 },
-                }),
-            ];
+
+const requests = [
+    fetchAllRows("api/companies", "companies"),
+
+    fetchAllRows("api/clients", "clients"),
+
+    fetchAllRows("api/customers", "customers"),
+
+    fetchAllRows("api/locations", "locations"),
+
+    fetchAllRows("api/products", "products"),
+
+    fetchAllRows("api/drivers", "drivers"),
+
+    fetchAllRows("api/rate-matrix", "rateMatrices"),
+];
+
+
+
 
             const results = await Promise.allSettled(requests);
 
@@ -736,16 +796,15 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
                 return;
             }
 
-            const getRows = (
-                index: number,
-                names: string[]
-            ): ApiRow[] => {
-                const result = results[index];
+const getRows = (
+    index: number
+): ApiRow[] => {
+    const result = results[index];
 
-                return result.status === "fulfilled"
-                    ? rows(result.value.data, names)
-                    : [];
-            };
+    return result.status === "fulfilled"
+        ? result.value
+        : [];
+};
 
             const mapOptions = (data: ApiRow[]): Option[] =>
                 data
@@ -771,20 +830,17 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
                     }))
                     .filter((item) => item.id > 0) as Option[];
 
-            setCompanies(mapOptions(getRows(0, ["companies"])));
-            setClients(mapOptions(getRows(1, ["clients"])));
-            setCustomers(mapOptions(getRows(2, ["customers"])));
-            setLocations(mapOptions(getRows(3, ["locations"])));
-            setProducts(mapOptions(getRows(4, ["products"])));
+setCompanies(mapOptions(getRows(0)));
+setClients(mapOptions(getRows(1)));
+setCustomers(mapOptions(getRows(2)));
+setLocations(mapOptions(getRows(3)));
+setProducts(mapOptions(getRows(4)));
 
             const matrixResult = results[6];
 
-            const matrixRows = matrixResult.status === "fulfilled"
-                ? rows(
-                    matrixResult.value.data,
-                    ["rateMatrices", "rate_matrices", "rates"]
-                )
-                : [];
+const matrixRows = matrixResult.status === "fulfilled"
+    ? matrixResult.value
+    : [];
 
             setRateMatrices(
                 matrixRows
@@ -815,7 +871,7 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
                     )
             );
 
-            const driverRows = getRows(5, ["drivers"]);
+            const driverRows = getRows(5);
 
             setDrivers(
                 driverRows
@@ -866,6 +922,37 @@ const [commentType, setCommentType] = useState("Looking forward for your busines
                 Number(customer.client_id) === Number(form.client_id)
         );
     }, [customers, form.client_id]);
+
+    const availableProducts = useMemo(() => {
+    if (
+        !form.client_id ||
+        !form.customer_id ||
+        !form.site_id
+    ) {
+        return [];
+    }
+
+    const assignedProductIds = new Set(
+        rateMatrices
+            .filter(
+                (rate) =>
+                    Number(rate.client_id) === Number(form.client_id) &&
+                    Number(rate.customer_id) === Number(form.customer_id) &&
+                    Number(rate.site_id) === Number(form.site_id)
+            )
+            .map((rate) => Number(rate.product_id))
+    );
+
+    return products.filter((product) =>
+        assignedProductIds.has(Number(product.id))
+    );
+}, [
+    products,
+    rateMatrices,
+    form.client_id,
+    form.customer_id,
+    form.site_id,
+]);
 
     const selectedCustomerSite = useMemo(() => {
         const siteName = form.customer_site_name.trim().toLowerCase();
@@ -1469,9 +1556,8 @@ async function editOrder(order: Order) {
         setDispatchForm({
             ...emptyDispatch(),
             dispatch_sequence_no:
-                order.dcsno ||
                 order.dispatch_sequence_no ||
-                generateDcsNo(order.id, dispatchDate),
+                generateDispatchSequenceNo(order.id, dispatchDate),
             dispatch_date: dispatchDate,
             driver_id: order.driver_id
                 ? String(order.driver_id)
@@ -2003,7 +2089,7 @@ const toolbar = mode === null ? (
                                 orders.map((order) => (
                                     <tr key={order.id}>
                                         <td className="table-no-wrap">{order.pino || "—"}</td>
-                                        <td className="table-no-wrap">{order.dcsno || "—"}</td>
+                                        <td className="table-no-wrap">{order.dispatch_sequence_no || "—"}</td>
 
                                         <td>
                                             {displayName(
@@ -2035,6 +2121,7 @@ const toolbar = mode === null ? (
                                         <td>{order.customer_site_name || order.site_name || "—"}</td>
 
 <td>
+    <div className="order-location-scroll">
     {getSiteMapUrl(order) ? (
         <a
             href={getSiteMapUrl(order)}
@@ -2052,6 +2139,7 @@ const toolbar = mode === null ? (
             .filter(Boolean)
             .join(", ") || "—"
     )}
+    </div>
 </td>
 
                                         <td className="order-amount table-no-wrap">
@@ -2680,6 +2768,12 @@ const toolbar = mode === null ? (
                                                 <select
                                                     required
                                                     aria-label={`Product for order item ${index + 1}`}
+                                                     disabled={
+            !form.client_id ||
+            !form.customer_id ||
+            !form.site_id ||
+            availableProducts.length === 0
+        }
                                                     value={item.product_id || ""}
                                                     onChange={(event) =>
                                                         updateLine(
@@ -2689,11 +2783,19 @@ const toolbar = mode === null ? (
                                                         )
                                                     }
                                                 >
-                                                    <option value="">
-                                                        Select Product
-                                                    </option>
+<option value="">
+    {!form.client_id
+        ? "Select Client First"
+        : !form.customer_id
+            ? "Select Customer First"
+            : !form.site_id
+                ? "Select Customer Site First"
+                : availableProducts.length === 0
+                    ? "No Products Assigned in Rate Matrix"
+                    : "Select Product"}
+</option>
 
-                                                    {products.map((product) => (
+                                                    {availableProducts.map((product) => (
                                                         <option
                                                             key={product.id}
                                                             value={product.id}
@@ -2894,15 +2996,17 @@ const toolbar = mode === null ? (
                                 <label>
                                     <span>Dispatch Sequence No *</span>
 
-                                    <input
-                                        required
-                                        readOnly
-                                        value={
-                                            dispatchForm.dispatch_sequence_no
-                                        }
-                                        aria-readonly="true"
-                                        title="Generated from Order ID, dispatch month, and year"
-                                    />
+<input
+    required
+    value={dispatchForm.dispatch_sequence_no}
+    onChange={(event) =>
+        setDispatchForm((previous) => ({
+            ...previous,
+            dispatch_sequence_no: event.target.value,
+        }))
+    }
+    title="Auto-generated from Order ID, dispatch month, and year. You can edit it."
+/>
                                 </label>
 
                                 <label>
@@ -2919,7 +3023,7 @@ const toolbar = mode === null ? (
                                                 ...previous,
                                                 dispatch_date: date,
                                                 dispatch_sequence_no:
-                                                    generateDcsNo(
+                                                    generateDispatchSequenceNo(
                                                         dispatchOrder.id,
                                                         date
                                                     ),

@@ -135,6 +135,76 @@ function extractRows(
 
     return [];
 }
+async function fetchAllRows(
+    endpoint: string,
+    collectionName: string
+): Promise<OptionRow[]> {
+    const limit = 100;
+
+    const firstResponse = await apiClient.get(endpoint, {
+        params: {
+            page: 1,
+            limit,
+            search: "",
+        },
+    });
+
+    const allRows = extractRows(
+        firstResponse.data,
+        [collectionName]
+    );
+
+    const responseData = firstResponse.data as Record<
+        string,
+        unknown
+    >;
+
+    const pagination = responseData.pagination as
+        | {
+              total?: number;
+              totalPages?: number;
+          }
+        | undefined;
+
+    const total = Number(pagination?.total ?? allRows.length);
+
+    const totalPages = Math.max(
+        1,
+        Number(
+            pagination?.totalPages ||
+            Math.ceil(total / limit)
+        )
+    );
+
+    if (totalPages <= 1) {
+        return allRows;
+    }
+
+    const remainingPages = await Promise.all(
+        Array.from(
+            { length: totalPages - 1 },
+            (_, index) =>
+                apiClient.get(endpoint, {
+                    params: {
+                        page: index + 2,
+                        limit,
+                        search: "",
+                    },
+                })
+        )
+    );
+
+    for (const response of remainingPages) {
+        allRows.push(
+            ...extractRows(
+                response.data,
+                [collectionName]
+            )
+        );
+    }
+
+    return allRows;
+}
 
 function optionId(row: OptionRow): number {
     return Number(
@@ -275,43 +345,13 @@ export default function RateMatrixManagementPage() {
             setOptionsLoading(true);
 
             try {
-                const results = await Promise.allSettled([
-                    apiClient.get("api/clients", {
-                        params: {
-                            page: 1,
-                            limit: 500,
-                            search: "",
-                        },
-                    }),
-                    apiClient.get("api/customers", {
-                        params: {
-                            page: 1,
-                            limit: 500,
-                            search: "",
-                        },
-                    }),
-                    apiClient.get("api/sites", {
-                        params: {
-                            page: 1,
-                            limit: 500,
-                            search: "",
-                        },
-                    }),
-                    apiClient.get("api/locations", {
-                        params: {
-                            page: 1,
-                            limit: 500,
-                            search: "",
-                        },
-                    }),
-                    apiClient.get("api/products", {
-                        params: {
-                            page: 1,
-                            limit: 500,
-                            search: "",
-                        },
-                    }),
-                ]);
+const results = await Promise.allSettled([
+    fetchAllRows("api/clients", "clients"),
+    fetchAllRows("api/customers", "customers"),
+    fetchAllRows("api/sites", "sites"),
+    fetchAllRows("api/locations", "locations"),
+    fetchAllRows("api/products", "products"),
+]);
 
                 if (cancelled) return;
 
@@ -324,10 +364,7 @@ export default function RateMatrixManagementPage() {
                 ] = results;
 
                 if (clientResponse.status === "fulfilled") {
-                    const rows = extractRows(
-                        clientResponse.value.data,
-                        ["clients"]
-                    );
+                 const rows = clientResponse.value;
 
                     setClients(
                         rows
@@ -349,10 +386,7 @@ export default function RateMatrixManagementPage() {
                 }
 
                 if (customerResponse.status === "fulfilled") {
-                    const rows = extractRows(
-                        customerResponse.value.data,
-                        ["customers"]
-                    );
+                  const rows = customerResponse.value;
 
                     setCustomers(
                         rows
@@ -378,10 +412,7 @@ export default function RateMatrixManagementPage() {
                 }
 
                 if (siteResponse.status === "fulfilled") {
-                    const rows = extractRows(
-                        siteResponse.value.data,
-                        ["sites"]
-                    );
+                    const rows = siteResponse.value;
 
                     setSites(
                         rows
@@ -408,10 +439,7 @@ export default function RateMatrixManagementPage() {
                 }
 
                 if (locationResponse.status === "fulfilled") {
-                    const rows = extractRows(
-                        locationResponse.value.data,
-                        ["locations"]
-                    );
+                   const rows = locationResponse.value;
 
                     setLocations(
                         rows
@@ -433,10 +461,7 @@ export default function RateMatrixManagementPage() {
                 }
 
                 if (productResponse.status === "fulfilled") {
-                    const rows = extractRows(
-                        productResponse.value.data,
-                        ["products"]
-                    );
+                    const rows = productResponse.value;
 
                     setProducts(
                         rows

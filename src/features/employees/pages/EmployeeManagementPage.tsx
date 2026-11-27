@@ -309,19 +309,12 @@ export default function EmployeeManagementPage() {
     }
 
     async function toggleStatus(employee: Employee) {
+
         if (!canUpdateEmployees) return;
+
 
         const nextStatus: EmployeeStatus =
             employee.status === "active" ? "inactive" : "active";
-
-        if (
-            !window.confirm(
-                `Change ${employee.employee_name}'s status to ${nextStatus}?`,
-            )
-        ) {
-            return;
-        }
-
         setError("");
         setNotice("");
 
