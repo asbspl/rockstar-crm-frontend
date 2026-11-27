@@ -1,6 +1,6 @@
 import apiClient from "../../../api/client";
 
-export type ClientStatus = "Active" | "Hold" | "Close";
+export type ClientStatus = "Active" | "Hold" | "Inactive";
 
 export type ClientLocationMode =
     | "na"

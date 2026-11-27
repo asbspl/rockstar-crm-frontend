@@ -218,10 +218,10 @@ export default function SiteManagementPage() {
             try {
                 const [customerResponse, locationResponse] = await Promise.all([
                     apiClient.get("api/customers", {
-                        params: { page: 1, limit: 500, search: "" },
+                        params: { page: 1, limit: 5000, search: "" },
                     }),
                     apiClient.get("api/locations", {
-                        params: { page: 1, limit: 500, search: "" },
+                        params: { page: 1, limit: 5000, search: "" },
                     }),
                 ]);
 

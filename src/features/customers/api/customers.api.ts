@@ -15,6 +15,8 @@ export interface Customer {
     customer_name: string;
     client_id: number | null;
     location_id: number | null;
+    client_name?: string | null;
+    client_code?: string | null;
 
     phone: string;
     email: string;
@@ -49,6 +51,7 @@ export interface CustomerInput {
     customer_name: string;
     client_id: number | null;
     location_id: number | null;
+    
 
     phone: string;
     email: string;

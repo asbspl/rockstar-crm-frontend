@@ -280,9 +280,13 @@ function MainLayout() {
             onClick={handleNavigation}
             title="ROCKSTAR CRM"
           >
-            <span className="crm-brand-icon">
-              <i className="bi bi-stars" />
-            </span>
+<span className="crm-brand-icon">
+    <img
+        src="/s-rockstar-logo.png"
+        alt="Rockstar Logo"
+        className="crm-brand-logo"
+    />
+</span>
 
             <span className="crm-brand-text">
               <strong>ROCKSTAR</strong>

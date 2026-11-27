@@ -420,21 +420,23 @@ export default function CustomerManagementPage() {
                 ] = await Promise.allSettled([
                     apiClient.get("/api/employees", {
                         params: {
-                            page: 1,
-                            limit: 100,
                             status: "all",
+                            page: 1,
+                            limit: 5000,
                         },
                     }),
+
                     apiClient.get("/api/clients", {
                         params: {
                             page: 1,
-                            limit: 100,
+                            limit: 5000,
                         },
                     }),
+
                     apiClient.get("/api/locations", {
                         params: {
                             page: 1,
-                            limit: 100,
+                            limit: 5000,
                         },
                     }),
                 ]);
@@ -1215,11 +1217,9 @@ export default function CustomerManagementPage() {
                                             <td className="customer-name-cell">
                                                 {customer.customer_name || "—"}
                                             </td>
-
                                             <td>
-                                                {client
-                                                    ? getClientName(client)
-                                                    : "—"}
+                                                {customer.client_name ||
+                                                    (client ? getClientName(client) : "—")}
                                             </td>
 
                                             <td className="table-no-wrap">{customer.phone || "—"}</td>

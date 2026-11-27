@@ -1,0 +1,415 @@
+import type { Order } from "../api/orders.api";
+
+type OrderDocument = Order & Record<string, unknown>;
+
+function value(input: unknown, fallback = "—"): string {
+    const result = String(input ?? "").trim();
+    return result || fallback;
+}
+
+function escapeHtml(input: unknown): string {
+    return String(input ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+    })[character] ?? character);
+}
+
+function money(input: number | string | null | undefined): string {
+    const number = Number(input ?? 0);
+    return (Number.isFinite(number) ? number : 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+}
+
+function date(input: string | null | undefined): string {
+    return input ? input.slice(0, 10) : "—";
+}
+
+function quantity(input: number | string | null | undefined): string {
+    const number = Number(input ?? 0);
+    return (Number.isFinite(number) ? number : 0).toLocaleString("en-IN", {
+        maximumFractionDigits: 2,
+    });
+}
+
+function imageUrl(input: unknown): string {
+    const path = String(input ?? "").trim();
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path;
+
+    const base = String(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+    return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export default function createDeliveryChallan(order: Order): string {
+    const row = order as OrderDocument;
+    const items = order.items ?? [];
+
+    const company = value(
+        order.company_name,
+        "A S Building Solutions Pvt Ltd",
+    );
+
+    const dispatchNo = order.dcsno || order.dispatch_sequence_no;
+
+    const totalQty = items.reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0,
+    );
+
+    const clientDCFlag =
+        row.delivery_challan_provided ??
+        row.client_delivery_challan_provided;
+
+    const clientProvidesDC =
+        clientDCFlag === true ||
+        clientDCFlag === 1 ||
+        String(clientDCFlag ?? "").trim().toLowerCase() === "true" ||
+        String(clientDCFlag ?? "").trim() === "1";
+
+    // Header details depend on the selected client's setting.
+    const headerName = clientProvidesDC
+        ? value(order.client_name)
+        : "A S Building Solutions Pvt Ltd";
+
+    const headerAddress = clientProvidesDC
+        ? [
+            row.client_address_line1,
+            row.client_address_line2,
+            row.client_city,
+            row.client_state,
+            row.client_pin_code,
+            row.client_country,
+        ]
+            .filter(Boolean)
+            .join(", ")
+        : [
+            "Vishwa Vimal Complex, Opp. Hyundai Kothari showroom",
+            "Next to Tital I Plus Showroom, Magarpatta-Kharadi road, Kharadi",
+            "Pune, 411014",
+            "Maharashtra, India",
+        ].join(", ");
+
+    const headerGstin = clientProvidesDC
+        ? value(row.client_gstin)
+        : "27AALCA9433D1ZM";
+
+    const headerContact = clientProvidesDC
+        ? value(row.client_phone)
+        : "8526872687";
+
+    const headerEmail = clientProvidesDC
+        ? value(row.client_email)
+        : "contact@asbspl.com";
+
+    const headerLogo = clientProvidesDC
+        ? imageUrl(row.client_logo)
+        : imageUrl(row.company_logo);
+
+    const itemRows = items.map((item, index) => {
+        const extra = item as typeof item & {
+            product_code?: string;
+            hsn_sac?: string;
+        };
+
+        return `
+            <tr>
+                <td class="center">${index + 1}</td>
+                <td><strong>${escapeHtml(item.product_name)}</strong></td>
+                <td class="center">${escapeHtml(extra.product_code || "—")}</td>
+                <td class="center">${escapeHtml(extra.hsn_sac || "—")}</td>
+                <td class="center">${escapeHtml(item.unit)}</td>
+                <td class="number">${quantity(item.quantity)}</td>
+            </tr>
+        `;
+    }).join("");
+
+    const stateValue = value(row.state, "Maharashtra");
+    const countryValue = value(row.country, "India");
+
+    const leftDetails: [string, unknown][] = [
+        ["Client Name", order.client_name],
+        ["Customer", order.customer_name],
+        ["Site Name", row.site_name || order.customer_site_name],
+        ["Location", row.location_name || row.location],
+    ];
+
+    const rightDetails: [string, unknown][] = [
+        ["Site Name", row.site_name || order.customer_site_name],
+        ["Line 1", row.address_line_1 || row.customer_address],
+        ["Line 2", row.address_line_2],
+        ["City, Pin Code", [row.city, row.pin_code].filter(Boolean).join(", ")],
+        ["State, Country", `${stateValue}, ${countryValue}`],
+        ["Contact Person", row.site_contact_person],
+        ["Contact Number", row.site_contact_number || row.customer_contact],
+    ];
+
+    const makeDetailRows = (details: [string, unknown][]) => details.map(([label, content]) => `
+        <div class="detail-item">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value(content))}</strong>
+        </div>
+    `).join("");
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delivery Challan ${escapeHtml(value(dispatchNo))}</title>
+<style>
+    @page { size: A4; margin: 8mm; }
+    * { box-sizing: border-box; }
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #111;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        line-height: 1.28;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .document {
+        width: 100%;
+        max-width: 194mm;
+        margin: 0 auto;
+        border: 1px solid #222;
+        background: #fff;
+    }
+    .header {
+        min-height: 49mm;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 10mm;
+        padding: 5mm 4mm;
+        border-bottom: 1px solid #222;
+    }
+    .company-block { min-width: 0; }
+    .company-block h1 {
+        margin: 0 0 9px;
+        font-size: 17px;
+        line-height: 1.15;
+        font-weight: 700;
+    }
+    .company-block p { margin: 3px 0; font-size: 12px; line-height: 1.25; font-family: sans-serif; }
+    .brand-block { text-align: center; min-width: 0; }
+    .brand-logo {
+        display: block;
+        width: 100%;
+        max-width: 83mm;
+        height: 25mm;
+        margin: 0 auto 3mm;
+        object-fit: contain;
+    }
+    .brand-wordmark {
+        color: #0755d9;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 43px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -2px;
+    }
+    .doc-title { margin-top: 2mm; font-size: 19px; font-weight: 700; }
+    .info-grid {
+        display: grid;
+        grid-template-columns: 42% 58%;
+        border-bottom: 1px solid #222;
+    }
+    .info-column { padding: 2mm 2.5mm; min-width: 0; }
+    .info-column + .info-column { border-left: 1px solid #222; }
+    .column-heading { margin: 0 0 2mm; font-size: 12px; font-weight: 700; }
+    .detail-item {
+        display: grid;
+        grid-template-columns: minmax(25mm, 38%) minmax(0, 1fr);
+        gap: 2mm;
+        align-items: start;
+        min-height: 7mm;
+        padding: 1.1mm 0;
+    }
+    .detail-item span { font-size: 14px; font-family: sans-serif; }
+    .detail-item strong { font-size: 11px; font-weight: 400; overflow-wrap: anywhere; }
+    .dispatch-section { border-bottom: 1px solid #222; }
+    .section-heading { padding: 3mm 2.5mm 6mm; font-size: 12px; font-weight: 700; }
+    .dispatch-table, .items {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .dispatch-table td {
+        border: 1px solid #222;
+        padding: 2.2mm 1.5mm;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+    }
+    .dispatch-table .label { font-weight: 400; }
+    .dispatch-table .value { font-weight: 400; }
+    .items { margin-top: 4mm; }
+    .items th, .items td {
+        border: 1px solid #222;
+        padding: 2mm 1.5mm;
+        text-align: left;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+    }
+    .items th { font-weight: 700; }
+    .items .center { text-align: center; }
+    .items .number { text-align: right; white-space: nowrap; }
+    .items tfoot td { font-weight: 700; }
+    .signature-area {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        min-height: 62mm;
+        margin-top: 6mm;
+        border-top: 1px solid #222;
+        border-bottom: 1px solid #222;
+    }
+    .signature-cell {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        min-width: 0;
+        min-height: 62mm;
+        padding: 4mm 3mm;
+        font-size: 11px;
+    }
+    .signature-cell + .signature-cell { border-left: 1px solid #222; }
+    .signature-cell.center { text-align: center; }
+    .signed-footer {
+        padding: 5mm 2mm;
+        text-align: center;
+        font-size: 12px;
+        border-top: 0;
+    }
+    .no-print { margin: 12px 0; text-align: center; }
+    .no-print button {
+        padding: 8px 18px;
+        border: 0;
+        border-radius: 3px;
+        background: #245b9e;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    @media screen and (max-width: 650px) {
+        .header { grid-template-columns: 1fr; gap: 5mm; }
+        .brand-block { text-align: left; }
+        .brand-logo { margin-left: 0; }
+        .info-grid { grid-template-columns: 1fr; }
+        .info-column + .info-column { border-left: 0; border-top: 1px solid #222; }
+        .dispatch-table { font-size: 9px; }
+        .dispatch-table td { padding: 1.5mm 1mm; }
+        .signature-area { min-height: 45mm; }
+        .signature-cell { min-height: 45mm; padding: 2mm 1mm; font-size: 9px; }
+    }
+    @media print {
+        .no-print { display: none !important; }
+        .document { max-width: none; }
+        thead { display: table-header-group; }
+        tr, .info-grid, .dispatch-section, .signature-area { break-inside: avoid; page-break-inside: avoid; }
+    }
+</style>
+</head>
+<body>
+<main class="document">
+    <header class="header">
+        <div class="company-block">
+            <h1>${escapeHtml(headerName)}</h1>
+            <p>${escapeHtml(value(headerAddress, ""))}</p>
+            <p>GSTIN: ${escapeHtml(headerGstin)} &nbsp; Contact: ${escapeHtml(headerContact)}</p>
+            <p>Email: ${escapeHtml(headerEmail)}</p>
+        </div>
+        <div class="brand-block">
+            <img class="brand-logo" src="/rockstar-logo.png" alt="ROCKSTAR Logo">
+            <div class="doc-title">Delivery Challan</div>
+        </div>
+    </header>
+
+    <section class="info-grid">
+        <div class="info-column">
+            <div class="column-heading">Challan Details</div>
+            <div class="detail-item"><span>Challan #</span><strong>${escapeHtml(value(dispatchNo))}</strong></div>
+            <div class="detail-item"><span>Challan Date</span><strong>${escapeHtml(date(order.dispatch_date))}</strong></div>
+            ${makeDetailRows(leftDetails)}
+        </div>
+        <div class="info-column">
+            <div class="column-heading">Ship To</div>
+            ${makeDetailRows(rightDetails)}
+        </div>
+    </section>
+
+    <section class="dispatch-section">
+        <div class="section-heading">Despatch Details :</div>
+        <table class="dispatch-table">
+            <colgroup>
+                <col style="width:14%"><col style="width:29%">
+                <col style="width:14%"><col style="width:17%">
+                <col style="width:12%"><col style="width:14%">
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td class="label">Despatch Sequence No</td>
+                    <td class="value">${escapeHtml(value(dispatchNo))}</td>
+                    <td class="label">Date of Despatch</td>
+                    <td class="value">${escapeHtml(date(order.dispatch_date))}</td>
+                    <td class="label">Driver Name</td>
+                    <td class="value">${escapeHtml(value(order.driver_name))}</td>
+                </tr>
+                <tr>
+                    <td class="label">Vehicle No</td>
+                    <td class="value">${escapeHtml(value(order.vehicle_no))}</td>
+                    <td class="label">Contact</td>
+                    <td class="value">${escapeHtml(value(order.contact))}</td>
+                    <td class="label">Type of Vehicle</td>
+                    <td class="value">${escapeHtml(value(order.vehicle_type))}</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <table class="items">
+        <colgroup>
+            <col style="width:7%"><col style="width:39%"><col style="width:16%">
+            <col style="width:14%"><col style="width:12%"><col style="width:12%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="center">#</th>
+                <th>Item</th>
+                <th>Product Code</th>
+                <th>HSN/SAC</th>
+                <th>Unit</th>
+                <th class="number">Qty</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${itemRows || `<tr><td colspan="6" class="center">No products</td></tr>`}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="number">Total QTY</td>
+                <td class="number">${quantity(totalQty)}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <section class="signature-area">
+        <div class="signature-cell">Acknowledgement of receipt goods</div>
+        <div class="signature-cell center">Receiver's Signature with Stamp</div>
+        <div class="signature-cell center">For ${escapeHtml(headerName)}<br><br><br>Authorized Signature</div>
+    </section>
+    <footer class="signed-footer">DIGITALLY SIGNED</footer>
+</main>
+<div class="no-print">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+</div>
+</body>
+</html>`;
+}
